@@ -11,7 +11,19 @@
 		C96194C81928E6AE00BDBD7C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C96194C71928E6AE00BDBD7C /* main.m */; };
 		C96194D11928EDD800BDBD7C /* ObjectDoc.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C96194D01928EDD800BDBD7C /* ObjectDoc.framework */; };
 		C96194D61928F01E00BDBD7C /* ObjectDoc.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = C96194D01928EDD800BDBD7C /* ObjectDoc.framework */; };
+		C96194DD19291D0C00BDBD7C /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C96194DC19291D0C00BDBD7C /* XCTest.framework */; };
+		C96194E519291D0C00BDBD7C /* OCDiffTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C96194E419291D0C00BDBD7C /* OCDiffTests.m */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C96194E719291D0C00BDBD7C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C96194A71928E56500BDBD7C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C96194C31928E6AE00BDBD7C;
+			remoteInfo = OCDiff;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		C96194D51928F01400BDBD7C /* Copy Frameworks */ = {
@@ -32,6 +44,10 @@
 		C96194C41928E6AE00BDBD7C /* ocdiff */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ocdiff; sourceTree = BUILT_PRODUCTS_DIR; };
 		C96194C71928E6AE00BDBD7C /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		C96194D01928EDD800BDBD7C /* ObjectDoc.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ObjectDoc.framework; path = Dependencies/ObjectDoc.framework; sourceTree = "<group>"; };
+		C96194DB19291D0C00BDBD7C /* OCDiffTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OCDiffTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C96194DC19291D0C00BDBD7C /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		C96194E019291D0C00BDBD7C /* OCDiffTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OCDiffTests-Info.plist"; sourceTree = "<group>"; };
+		C96194E419291D0C00BDBD7C /* OCDiffTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OCDiffTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -44,6 +60,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C96194D819291D0C00BDBD7C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C96194DD19291D0C00BDBD7C /* XCTest.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -51,6 +75,7 @@
 			isa = PBXGroup;
 			children = (
 				C96194C61928E6AE00BDBD7C /* OCDiff */,
+				C96194DE19291D0C00BDBD7C /* OCDiffTests */,
 				C96194B31928E57700BDBD7C /* Frameworks */,
 				C96194B21928E57700BDBD7C /* Products */,
 			);
@@ -63,6 +88,7 @@
 			isa = PBXGroup;
 			children = (
 				C96194C41928E6AE00BDBD7C /* ocdiff */,
+				C96194DB19291D0C00BDBD7C /* OCDiffTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -72,6 +98,7 @@
 			children = (
 				C96194D01928EDD800BDBD7C /* ObjectDoc.framework */,
 				C96194B41928E57700BDBD7C /* Foundation.framework */,
+				C96194DC19291D0C00BDBD7C /* XCTest.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -82,6 +109,23 @@
 				C96194C71928E6AE00BDBD7C /* main.m */,
 			);
 			path = OCDiff;
+			sourceTree = "<group>";
+		};
+		C96194DE19291D0C00BDBD7C /* OCDiffTests */ = {
+			isa = PBXGroup;
+			children = (
+				C96194E419291D0C00BDBD7C /* OCDiffTests.m */,
+				C96194DF19291D0C00BDBD7C /* Supporting Files */,
+			);
+			path = OCDiffTests;
+			sourceTree = "<group>";
+		};
+		C96194DF19291D0C00BDBD7C /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				C96194E019291D0C00BDBD7C /* OCDiffTests-Info.plist */,
+			);
+			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -104,6 +148,24 @@
 			productReference = C96194C41928E6AE00BDBD7C /* ocdiff */;
 			productType = "com.apple.product-type.tool";
 		};
+		C96194DA19291D0C00BDBD7C /* OCDiffTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C96194E919291D0C00BDBD7C /* Build configuration list for PBXNativeTarget "OCDiffTests" */;
+			buildPhases = (
+				C96194D719291D0C00BDBD7C /* Sources */,
+				C96194D819291D0C00BDBD7C /* Frameworks */,
+				C96194D919291D0C00BDBD7C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C96194E819291D0C00BDBD7C /* PBXTargetDependency */,
+			);
+			name = OCDiffTests;
+			productName = OCDiffTests;
+			productReference = C96194DB19291D0C00BDBD7C /* OCDiffTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -112,6 +174,11 @@
 			attributes = {
 				CLASSPREFIX = OCD;
 				LastUpgradeCheck = 0510;
+				TargetAttributes = {
+					C96194DA19291D0C00BDBD7C = {
+						TestTargetID = C96194C31928E6AE00BDBD7C;
+					};
+				};
 			};
 			buildConfigurationList = C96194AA1928E56500BDBD7C /* Build configuration list for PBXProject "OCDiff" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -126,9 +193,20 @@
 			projectRoot = "";
 			targets = (
 				C96194C31928E6AE00BDBD7C /* OCDiff */,
+				C96194DA19291D0C00BDBD7C /* OCDiffTests */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C96194D919291D0C00BDBD7C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		C96194C01928E6AE00BDBD7C /* Sources */ = {
@@ -139,7 +217,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C96194D719291D0C00BDBD7C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C96194E519291D0C00BDBD7C /* OCDiffTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C96194E819291D0C00BDBD7C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C96194C31928E6AE00BDBD7C /* OCDiff */;
+			targetProxy = C96194E719291D0C00BDBD7C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		C96194AB1928E56500BDBD7C /* Debug */ = {
@@ -206,6 +300,32 @@
 			};
 			name = Release;
 		};
+		C96194EA19291D0C00BDBD7C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "OCDiffTests/OCDiffTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Debug;
+		};
+		C96194EB19291D0C00BDBD7C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "OCDiffTests/OCDiffTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -223,6 +343,14 @@
 			buildConfigurations = (
 				C96194CE1928E6AE00BDBD7C /* Debug */,
 				C96194CF1928E6AE00BDBD7C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		C96194E919291D0C00BDBD7C /* Build configuration list for PBXNativeTarget "OCDiffTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C96194EA19291D0C00BDBD7C /* Debug */,
+				C96194EB19291D0C00BDBD7C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 		};
