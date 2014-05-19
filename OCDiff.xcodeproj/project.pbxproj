@@ -306,6 +306,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 					"$(inherited)",
+					"$(PROJECT_DIR)/Dependencies",
 				);
 				INFOPLIST_FILE = "OCDiffTests/OCDiffTests-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -319,6 +320,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 					"$(inherited)",
+					"$(PROJECT_DIR)/Dependencies",
 				);
 				INFOPLIST_FILE = "OCDiffTests/OCDiffTests-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -345,6 +347,7 @@
 				C96194CF1928E6AE00BDBD7C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		C96194E919291D0C00BDBD7C /* Build configuration list for PBXNativeTarget "OCDiffTests" */ = {
 			isa = XCConfigurationList;
@@ -353,6 +356,7 @@
 				C96194EB19291D0C00BDBD7C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
