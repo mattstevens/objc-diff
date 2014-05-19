@@ -88,6 +88,30 @@
     XCTAssertEqualObjects(differences, expectedDifferences);
 }
 
+- (void)testProtocolAddition {
+    NSArray *differences = [self differencesBetweenOldSource:@""
+                                                   newSource:@"@protocol Test @end"];
+
+    NSArray *expectedDifferences = @[[OCDifference differenceWithType:OCDifferenceTypeAddition name:@"Test"]];
+    XCTAssertEqualObjects(differences, expectedDifferences);
+}
+
+- (void)testProtocolRemoval {
+    NSArray *differences = [self differencesBetweenOldSource:@"@protocol Test @end"
+                                                   newSource:@""];
+
+    NSArray *expectedDifferences = @[[OCDifference differenceWithType:OCDifferenceTypeRemoval name:@"Test"]];
+    XCTAssertEqualObjects(differences, expectedDifferences);
+}
+
+- (void)testProtocolUnchanged {
+    NSArray *differences = [self differencesBetweenOldSource:@"@protocol Test @end"
+                                                   newSource:@"@protocol Test @end"];
+
+    NSArray *expectedDifferences = @[];
+    XCTAssertEqualObjects(differences, expectedDifferences);
+}
+
 - (void)testInstanceMethodAddition {
     NSArray *differences = [self differencesBetweenOldSource:@"@interface Test @end"
                                                    newSource:@"@interface Test - (void)testMethod; @end"];
