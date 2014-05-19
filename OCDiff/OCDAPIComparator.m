@@ -104,6 +104,13 @@
                                                                      currentValue:[self stringForSourceRange:newCursor.extent]];
             [modifications addObject:modification];
         }
+
+        if (oldCursor.isObjCOptional != newCursor.isObjCOptional) {
+            OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeOptional
+                                                                    previousValue:oldCursor.isObjCOptional ? @"YES" : @"NO"
+                                                                     currentValue:newCursor.isObjCOptional ? @"YES" : @"NO"];
+            [modifications addObject:modification];
+        }
     } else if (oldType != newType && [oldType.spelling isEqual:newType.spelling] == NO) {
         OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
                                                                 previousValue:[self stringForSourceRange:oldCursor.extent]

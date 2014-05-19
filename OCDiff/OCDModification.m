@@ -26,7 +26,9 @@
         case OCDModificationTypeDeprecation:
             [result appendString:@"Deprecation"];
             break;
-
+        case OCDModificationTypeOptional:
+            [result appendString:@"Optional"];
+            break;
     }
 
     [result appendString:@": "];

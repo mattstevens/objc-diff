@@ -204,6 +204,28 @@
     XCTAssertEqualObjects(differences, expectedDifferences);
 }
 
+- (void)testProtocolMethodModificationMadeOptional {
+    NSArray *differences = [self differencesBetweenOldSource:@"@protocol Test - (void)testMethod; @end"
+                                                   newSource:@"@protocol Test @optional - (void)testMethod; @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeOptional
+                                                            previousValue:@"NO"
+                                                             currentValue:@"YES"];
+    NSArray *expectedDifferences = @[[OCDifference modificationDifferenceWithName:@"-[Test testMethod]" modifications:@[modification]]];
+    XCTAssertEqualObjects(differences, expectedDifferences);
+}
+
+- (void)testProtocolMethodModificationMadeRequired {
+    NSArray *differences = [self differencesBetweenOldSource:@"@protocol Test @optional - (void)testMethod; @end"
+                                                   newSource:@"@protocol Test - (void)testMethod; @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeOptional
+                                                            previousValue:@"YES"
+                                                             currentValue:@"NO"];
+    NSArray *expectedDifferences = @[[OCDifference modificationDifferenceWithName:@"-[Test testMethod]" modifications:@[modification]]];
+    XCTAssertEqualObjects(differences, expectedDifferences);
+}
+
 - (void)testVariableAddition {
     NSArray *differences = [self differencesBetweenOldSource:@""
                                                    newSource:@"int Test;"];
