@@ -74,7 +74,9 @@
             return PLClangCursorVisitContinue;
 
         if (cursor.isDeclaration && [cursor.canonicalCursor isEqual:cursor]) {
-            [api setObject:cursor forKey:cursor.USR];
+            if (cursor.kind != PLClangCursorKindEnumDeclaration) {
+                [api setObject:cursor forKey:cursor.USR];
+            }
         }
 
         switch (cursor.kind) {
