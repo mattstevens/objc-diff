@@ -46,6 +46,9 @@
             }
         } else {
             PLClangCursor *cursor = oldAPI[USR];
+            if (cursor.isImplicit)
+                continue;
+
             OCDifference *difference = [OCDifference differenceWithType:OCDifferenceTypeRemoval name:[self displayNameForCursor:cursor]];
             [differences addObject:difference];
         }
@@ -53,6 +56,9 @@
 
     for (NSString *USR in additions) {
         PLClangCursor *cursor = newAPI[USR];
+        if (cursor.isImplicit)
+            continue;
+
         OCDifference *difference = [OCDifference differenceWithType:OCDifferenceTypeAddition name:[self displayNameForCursor:cursor]];
         [differences addObject:difference];
     }
@@ -98,7 +104,7 @@
     }
 
     if (oldCursor.kind == PLClangCursorKindObjCInstanceMethodDeclaration || oldCursor.kind == PLClangCursorKindObjCClassMethodDeclaration) {
-        if ([oldCursor.objCTypeEncoding isEqual:newCursor.objCTypeEncoding] == NO) {
+        if ([oldCursor.objCTypeEncoding isEqual:newCursor.objCTypeEncoding] == NO && oldCursor.isImplicit == NO && newCursor.isImplicit == NO) {
             OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
                                                                     previousValue:[self stringForSourceRange:oldCursor.extent]
                                                                      currentValue:[self stringForSourceRange:newCursor.extent]];
@@ -112,6 +118,11 @@
             [modifications addObject:modification];
         }
     } else if (oldType != newType && [oldType.spelling isEqual:newType.spelling] == NO) {
+        OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                                previousValue:[self stringForSourceRange:oldCursor.extent]
+                                                                 currentValue:[self stringForSourceRange:newCursor.extent]];
+        [modifications addObject:modification];
+    } else if (oldCursor.kind == PLClangCursorKindObjCPropertyDeclaration && oldCursor.objCPropertyAttributes != newCursor.objCPropertyAttributes) {
         OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
                                                                 previousValue:[self stringForSourceRange:oldCursor.extent]
                                                                  currentValue:[self stringForSourceRange:newCursor.extent]];
