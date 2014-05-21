@@ -410,6 +410,69 @@
     XCTAssertEqualObjects(differences, expectedDifferences);
 }
 
+- (void)testEnumAddition {
+    NSArray *differences = [self differencesBetweenOldSource:@""
+                                                   newSource:@"enum Test { TEST };"];
+
+    NSArray *expectedDifferences = @[[OCDifference differenceWithType:OCDifferenceTypeAddition name:@"TEST"]];
+    XCTAssertEqualObjects(differences, expectedDifferences);
+}
+
+- (void)testAnonymousEnumAddition {
+    NSArray *differences = [self differencesBetweenOldSource:@""
+                                                   newSource:@"enum { TEST };"];
+
+    NSArray *expectedDifferences = @[[OCDifference differenceWithType:OCDifferenceTypeAddition name:@"TEST"]];
+    XCTAssertEqualObjects(differences, expectedDifferences);
+}
+
+/**
+ * Tests the behavior of NS_ENUM when typed enums are not available.
+ */
+- (void)testEnumWithIntegerTypedefAddition {
+    NSArray *differences = [self differencesBetweenOldSource:@""
+                                                   newSource:@"typedef int TestEnum; enum { TestEnumValue };"];
+
+    NSArray *expectedDifferences = @[
+                                     [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"TestEnum"],
+                                     [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"TestEnumValue"]
+                                     ];
+    XCTAssertEqualObjects(differences, expectedDifferences);
+}
+
+/**
+ * Tests the behavior of NS_ENUM when typed enums are available.
+ */
+- (void)testEnumWithTypedefAddition {
+    NSArray *differences = [self differencesBetweenOldSource:@""
+                                                   newSource:@"typedef enum TestEnum : int TestEnum; enum TestEnum : int { TestEnumValue };"];
+
+    NSArray *expectedDifferences = @[
+        [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"TestEnum"],
+        [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"TestEnumValue"]
+    ];
+    XCTAssertEqualObjects(differences, expectedDifferences);
+}
+
+- (void)testEnumWithTypedefRemoval {
+    NSArray *differences = [self differencesBetweenOldSource:@"typedef enum TestEnum : int TestEnum; enum TestEnum : int { TestEnumValue };"
+                                                   newSource:@""];
+
+    NSArray *expectedDifferences = @[
+        [OCDifference differenceWithType:OCDifferenceTypeRemoval name:@"TestEnum"],
+        [OCDifference differenceWithType:OCDifferenceTypeRemoval name:@"TestEnumValue"]
+    ];
+    XCTAssertEqualObjects(differences, expectedDifferences);
+}
+
+- (void)testEnumWithTypedefUnchanged {
+    NSArray *differences = [self differencesBetweenOldSource:@"typedef enum TestEnum : int TestEnum; enum TestEnum : int { TestEnumValue };"
+                                                   newSource:@"typedef enum TestEnum : int TestEnum; enum TestEnum : int { TestEnumValue };"];
+
+    NSArray *expectedDifferences = @[];
+    XCTAssertEqualObjects(differences, expectedDifferences);
+}
+
 - (void)testEnumConstantAddition {
     NSArray *differences = [self differencesBetweenOldSource:@"enum Test {};"
                                                    newSource:@"enum Test { TEST };"];
