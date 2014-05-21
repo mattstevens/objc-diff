@@ -27,8 +27,7 @@
     NSArray *differences = [self differencesBetweenOldSource:@"void Test(void);"
                                                    newSource:@"void Test(void);"];
 
-    NSArray *expectedDifferences = @[];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, @[]);
 }
 
 - (void)testFunctionModificationReturnType {
@@ -84,8 +83,7 @@
     NSArray *differences = [self differencesBetweenOldSource:@"@interface Test @end"
                                                    newSource:@"@interface Test @end"];
 
-    NSArray *expectedDifferences = @[];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, @[]);
 }
 
 - (void)testProtocolAddition {
@@ -108,8 +106,7 @@
     NSArray *differences = [self differencesBetweenOldSource:@"@protocol Test @end"
                                                    newSource:@"@protocol Test @end"];
 
-    NSArray *expectedDifferences = @[];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, @[]);
 }
 
 - (void)testInstanceMethodAddition {
@@ -132,8 +129,7 @@
     NSArray *differences = [self differencesBetweenOldSource:@"@interface Test - (void)testMethod; @end"
                                                    newSource:@"@interface Test - (void)testMethod; @end"];
 
-    NSArray *expectedDifferences = @[];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, @[]);
 }
 
 - (void)testInstanceMethodModificationReturnType {
@@ -178,8 +174,7 @@
     NSArray *differences = [self differencesBetweenOldSource:@"@interface Test + (void)testMethod; @end"
                                                    newSource:@"@interface Test + (void)testMethod; @end"];
 
-    NSArray *expectedDifferences = @[];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, @[]);
 }
 
 - (void)testClassMethodModificationReturnType {
@@ -246,8 +241,7 @@
     NSArray *differences = [self differencesBetweenOldSource:@"@interface Test @property int testProperty; @end"
                                                    newSource:@"@interface Test @property int testProperty; @end"];
 
-    NSArray *expectedDifferences = @[];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, @[]);
 }
 
 - (void)testPropertyModificationType {
@@ -338,8 +332,7 @@
     NSArray *differences = [self differencesBetweenOldSource:@"int Test;"
                                                    newSource:@"int Test;"];
 
-    NSArray *expectedDifferences = @[];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, @[]);
 }
 
 - (void)testVariableModificationType {
@@ -395,8 +388,7 @@
     NSArray *differences = [self differencesBetweenOldSource:@"typedef void (^Test)(id param);"
                                                    newSource:@"typedef void (^Test)(id param);"];
 
-    NSArray *expectedDifferences = @[];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, @[]);
 }
 
 - (void)testBlockTypedefModificationReturnType {
@@ -469,8 +461,7 @@
     NSArray *differences = [self differencesBetweenOldSource:@"typedef enum TestEnum : int TestEnum; enum TestEnum : int { TestEnumValue };"
                                                    newSource:@"typedef enum TestEnum : int TestEnum; enum TestEnum : int { TestEnumValue };"];
 
-    NSArray *expectedDifferences = @[];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, @[]);
 }
 
 - (void)testEnumConstantAddition {
@@ -493,16 +484,14 @@
     NSArray *differences = [self differencesBetweenOldSource:@"enum Test { TEST };"
                                                    newSource:@"enum Test { TEST };"];
 
-    NSArray *expectedDifferences = @[];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, @[]);
 }
 
 - (void)testEmptyMacroIgnored {
     NSArray *differences = [self differencesBetweenOldSource:@""
                                                    newSource:@"#define TEST "];
 
-    NSArray *expectedDifferences = @[];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, @[]);
 }
 
 - (void)testMacroAddition {
@@ -525,8 +514,7 @@
     NSArray *differences = [self differencesBetweenOldSource:@"#define TEST 1"
                                                    newSource:@"#define TEST 1"];
 
-    NSArray *expectedDifferences = @[];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, @[]);
 }
 
 - (NSArray *)differencesBetweenOldSource:(NSString *)oldSource newSource:(NSString *)newSource {
