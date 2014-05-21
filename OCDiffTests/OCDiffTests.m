@@ -426,9 +426,9 @@
                                                    newSource:@"typedef int TestEnum; enum { TestEnumValue };"];
 
     NSArray *expectedDifferences = @[
-                                     [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"TestEnum"],
-                                     [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"TestEnumValue"]
-                                     ];
+        [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"TestEnum"],
+        [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"TestEnumValue"]
+    ];
     XCTAssertEqualObjects(differences, expectedDifferences);
 }
 
