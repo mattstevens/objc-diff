@@ -497,6 +497,38 @@
     XCTAssertEqualObjects(differences, expectedDifferences);
 }
 
+- (void)testEmptyMacroIgnored {
+    NSArray *differences = [self differencesBetweenOldSource:@""
+                                                   newSource:@"#define TEST "];
+
+    NSArray *expectedDifferences = @[];
+    XCTAssertEqualObjects(differences, expectedDifferences);
+}
+
+- (void)testMacroAddition {
+    NSArray *differences = [self differencesBetweenOldSource:@""
+                                                   newSource:@"#define TEST 1"];
+
+    NSArray *expectedDifferences = @[[OCDifference differenceWithType:OCDifferenceTypeAddition name:@"#def TEST"]];
+    XCTAssertEqualObjects(differences, expectedDifferences);
+}
+
+- (void)testMacroRemoval {
+    NSArray *differences = [self differencesBetweenOldSource:@"#define TEST 1"
+                                                   newSource:@""];
+
+    NSArray *expectedDifferences = @[[OCDifference differenceWithType:OCDifferenceTypeRemoval name:@"#def TEST"]];
+    XCTAssertEqualObjects(differences, expectedDifferences);
+}
+
+- (void)testMacroUnchanged {
+    NSArray *differences = [self differencesBetweenOldSource:@"#define TEST 1"
+                                                   newSource:@"#define TEST 1"];
+
+    NSArray *expectedDifferences = @[];
+    XCTAssertEqualObjects(differences, expectedDifferences);
+}
+
 - (NSArray *)differencesBetweenOldSource:(NSString *)oldSource newSource:(NSString *)newSource {
     PLClangSourceIndex *index = [PLClangSourceIndex indexWithOptions:0];
 

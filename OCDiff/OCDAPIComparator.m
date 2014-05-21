@@ -77,6 +77,8 @@
             if (cursor.kind != PLClangCursorKindEnumDeclaration) {
                 [api setObject:cursor forKey:cursor.USR];
             }
+        } else if (cursor.kind == PLClangCursorKindMacroDefinition && [self isEmptyMacroDefinitionAtCursor:cursor] == NO) {
+            [api setObject:cursor forKey:cursor.USR];
         }
 
         switch (cursor.kind) {
@@ -92,6 +94,22 @@
     }];
 
     return api;
+}
+
+/**
+ * Returns a Boolean value indicating whether the specified cursor represents an empty macro definition
+ *
+ * An empty definition can be identified by an extent that includes only the macro's spelling.
+ */
+- (BOOL)isEmptyMacroDefinitionAtCursor:(PLClangCursor *)cursor {
+    if (cursor.kind != PLClangCursorKindMacroDefinition)
+        return NO;
+
+    if (cursor.extent.startLocation.lineNumber != cursor.extent.endLocation.lineNumber)
+        return NO;
+
+    NSInteger extentLength = cursor.extent.endLocation.columnNumber - cursor.extent.startLocation.columnNumber;
+    return extentLength == [cursor.spelling length];
 }
 
 - (OCDifference *)differenceBetweenOldCursor:(PLClangCursor *)oldCursor newCursor:(PLClangCursor *)newCursor {
@@ -180,6 +198,8 @@
         return [NSString stringWithFormat:@"+[%@ %@]", cursor.semanticParent.spelling, cursor.spelling];
     } else if (cursor.kind == PLClangCursorKindObjCPropertyDeclaration) {
         return [NSString stringWithFormat:@"%@.%@", cursor.semanticParent.spelling, cursor.spelling];
+    } else if (cursor.kind == PLClangCursorKindMacroDefinition) {
+        return [NSString stringWithFormat:@"#def %@", cursor.spelling];
     }
 
     return cursor.displayName;
