@@ -74,7 +74,7 @@
             return PLClangCursorVisitContinue;
 
         if (cursor.isDeclaration && [cursor.canonicalCursor isEqual:cursor]) {
-            if (cursor.kind != PLClangCursorKindEnumDeclaration) {
+            if (cursor.kind != PLClangCursorKindEnumDeclaration && cursor.kind != PLClangCursorKindObjCInstanceVariableDeclaration) {
                 [api setObject:cursor forKey:cursor.USR];
             }
         } else if (cursor.kind == PLClangCursorKindMacroDefinition && [self isEmptyMacroDefinitionAtCursor:cursor] == NO) {
