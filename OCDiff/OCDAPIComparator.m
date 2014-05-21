@@ -78,7 +78,11 @@
                 [api setObject:cursor forKey:cursor.USR];
             }
         } else if (cursor.kind == PLClangCursorKindMacroDefinition && [self isEmptyMacroDefinitionAtCursor:cursor] == NO) {
-            [api setObject:cursor forKey:cursor.USR];
+            // Macros from non-system headers have file and line number information
+            // included in their USR, making it an inappropriate key for comparison
+            // of API. Use a custom key for these definitions.
+            NSString *key = [NSString stringWithFormat:@"ocd_macro_%@", cursor.spelling];
+            [api setObject:cursor forKey:key];
         }
 
         switch (cursor.kind) {

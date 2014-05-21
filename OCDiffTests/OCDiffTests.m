@@ -517,6 +517,16 @@
     XCTAssertEqualObjects(differences, @[]);
 }
 
+/**
+ * Tests that a macro moved to a different line number does not result in any any differences.
+ */
+- (void)testMacroUnchangedDifferentLineNumber {
+    NSArray *differences = [self differencesBetweenOldSource:@"#define TEST 1"
+                                                   newSource:@"\n#define TEST 1"];
+
+    XCTAssertEqualObjects(differences, @[]);
+}
+
 - (NSArray *)differencesBetweenOldSource:(NSString *)oldSource newSource:(NSString *)newSource {
     PLClangSourceIndex *index = [PLClangSourceIndex indexWithOptions:0];
 
