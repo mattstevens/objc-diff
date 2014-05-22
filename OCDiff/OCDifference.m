@@ -66,7 +66,7 @@
 }
 
 - (NSUInteger)hash {
-    return self.type ^ [self.name hash] ^ [self.modifications hash];
+    return self.type ^ [self.name hash] ^ [self.path hash] ^ self.lineNumber ^ [self.modifications hash];
 }
 
 @end
