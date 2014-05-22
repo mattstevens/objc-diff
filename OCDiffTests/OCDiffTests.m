@@ -23,8 +23,7 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
                                                             previousValue:@"void Test(void)"
                                                              currentValue:@"int Test(void)"];
-    NSArray *expectedDifferences = @[[OCDifference modificationDifferenceWithName:@"Test()" path:OCDNewTestPath lineNumber:1 modifications:@[modification]]];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test()" modification:modification]);
 }
 
 - (void)testFunctionModificationParameterType {
@@ -34,8 +33,7 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
                                                             previousValue:@"void Test(void)"
                                                              currentValue:@"void Test(int)"];
-    NSArray *expectedDifferences = @[[OCDifference modificationDifferenceWithName:@"Test()" path:OCDNewTestPath lineNumber:1 modifications:@[modification]]];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test()" modification:modification]);
 }
 
 - (void)testModificationDeprecation {
@@ -45,8 +43,7 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeprecation
                                                             previousValue:@"NO"
                                                              currentValue:@"YES"];
-    NSArray *expectedDifferences = @[[OCDifference modificationDifferenceWithName:@"Test()" path:OCDNewTestPath lineNumber:1 modifications:@[modification]]];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test()" modification:modification]);
 }
 
 - (void)testClass {
@@ -68,8 +65,7 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
                                                             previousValue:@"- (void)testMethod"
                                                              currentValue:@"- (int)testMethod"];
-    NSArray *expectedDifferences = @[[OCDifference modificationDifferenceWithName:@"-[Test testMethod]" path:OCDNewTestPath lineNumber:1 modifications:@[modification]]];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"-[Test testMethod]" modification:modification]);
 }
 
 - (void)testInstanceMethodModificationParameterType {
@@ -79,8 +75,7 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
                                                             previousValue:@"- (void)testMethodWithParameter:(int)param"
                                                              currentValue:@"- (void)testMethodWithParameter:(long)param"];
-    NSArray *expectedDifferences = @[[OCDifference modificationDifferenceWithName:@"-[Test testMethodWithParameter:]" path:OCDNewTestPath lineNumber:1 modifications:@[modification]]];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"-[Test testMethodWithParameter:]" modification:modification]);
 }
 
 - (void)testClassMethod {
@@ -96,8 +91,7 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
                                                             previousValue:@"+ (void)testMethod"
                                                              currentValue:@"+ (int)testMethod"];
-    NSArray *expectedDifferences = @[[OCDifference modificationDifferenceWithName:@"+[Test testMethod]" path:OCDNewTestPath lineNumber:1 modifications:@[modification]]];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"+[Test testMethod]" modification:modification]);
 }
 
 - (void)testClassMethodModificationParameterType {
@@ -107,8 +101,7 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
                                                             previousValue:@"+ (void)testMethodWithParameter:(int)param"
                                                              currentValue:@"+ (void)testMethodWithParameter:(long)param"];
-    NSArray *expectedDifferences = @[[OCDifference modificationDifferenceWithName:@"+[Test testMethodWithParameter:]" path:OCDNewTestPath lineNumber:1 modifications:@[modification]]];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"+[Test testMethodWithParameter:]" modification:modification]);
 }
 
 - (void)testProtocol {
@@ -124,8 +117,7 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeOptional
                                                             previousValue:@"NO"
                                                              currentValue:@"YES"];
-    NSArray *expectedDifferences = @[[OCDifference modificationDifferenceWithName:@"-[Test testMethod]" path:OCDNewTestPath lineNumber:1 modifications:@[modification]]];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"-[Test testMethod]" modification:modification]);
 }
 
 - (void)testProtocolMethodMadeRequired {
@@ -135,8 +127,7 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeOptional
                                                             previousValue:@"YES"
                                                              currentValue:@"NO"];
-    NSArray *expectedDifferences = @[[OCDifference modificationDifferenceWithName:@"-[Test testMethod]" path:OCDNewTestPath lineNumber:1 modifications:@[modification]]];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"-[Test testMethod]" modification:modification]);
 }
 
 - (void)testProtocolPropertyMadeOptional {
@@ -146,8 +137,7 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeOptional
                                                             previousValue:@"NO"
                                                              currentValue:@"YES"];
-    NSArray *expectedDifferences = @[[OCDifference modificationDifferenceWithName:@"Test.testProperty" path:OCDNewTestPath lineNumber:1 modifications:@[modification]]];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test.testProperty" modification:modification]);
 }
 
 - (void)testProtocolPropertyMadeRequired {
@@ -157,8 +147,7 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeOptional
                                                             previousValue:@"YES"
                                                              currentValue:@"NO"];
-    NSArray *expectedDifferences = @[[OCDifference modificationDifferenceWithName:@"Test.testProperty" path:OCDNewTestPath lineNumber:1 modifications:@[modification]]];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test.testProperty" modification:modification]);
 }
 
 - (void)testProperty {
@@ -174,8 +163,7 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
                                                             previousValue:@"@property int testProperty"
                                                              currentValue:@"@property long testProperty"];
-    NSArray *expectedDifferences = @[[OCDifference modificationDifferenceWithName:@"Test.testProperty" path:OCDNewTestPath lineNumber:1 modifications:@[modification]]];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test.testProperty" modification:modification]);
 }
 
 - (void)testPropertyModificationTypeAndAttributes {
@@ -185,8 +173,7 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
                                                             previousValue:@"@property int testProperty"
                                                              currentValue:@"@property (nonatomic) long testProperty"];
-    NSArray *expectedDifferences = @[[OCDifference modificationDifferenceWithName:@"Test.testProperty" path:OCDNewTestPath lineNumber:1 modifications:@[modification]]];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test.testProperty" modification:modification]);
 }
 
 - (void)testPropertyModificationAttributes {
@@ -196,8 +183,7 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
                                                             previousValue:@"@property (atomic) int testProperty"
                                                              currentValue:@"@property (nonatomic) int testProperty"];
-    NSArray *expectedDifferences = @[[OCDifference modificationDifferenceWithName:@"Test.testProperty" path:OCDNewTestPath lineNumber:1 modifications:@[modification]]];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test.testProperty" modification:modification]);
 }
 
 /**
@@ -230,8 +216,7 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     NSArray *differences = [self differencesBetweenOldSource:@"@interface Test @property int testProperty; @end"
                                                    newSource:@"@interface Test @property - (int)testProperty; - (void)setTestProperty:(int)val; @end"];
 
-    NSArray *expectedDifferences = @[[OCDifference differenceWithType:OCDifferenceTypeRemoval name:@"Test.testProperty" path:OCDOldTestPath lineNumber:1]];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, [self removalArrayWithName:@"Test.testProperty"]);
 }
 
 - (void)testVariable {
@@ -247,8 +232,7 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
                                                             previousValue:@"int Test"
                                                              currentValue:@"long Test"];
-    NSArray *expectedDifferences = @[[OCDifference modificationDifferenceWithName:@"Test" path:OCDNewTestPath lineNumber:1 modifications:@[modification]]];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
 }
 
 - (void)testVariableModificationConstQualification {
@@ -258,8 +242,7 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
                                                             previousValue:@"int Test"
                                                              currentValue:@"const int Test"];
-    NSArray *expectedDifferences = @[[OCDifference modificationDifferenceWithName:@"Test" path:OCDNewTestPath lineNumber:1 modifications:@[modification]]];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
 }
 
 - (void)testVariableModificationPointerType {
@@ -269,8 +252,7 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
                                                             previousValue:@"int *Test"
                                                              currentValue:@"long *Test"];
-    NSArray *expectedDifferences = @[[OCDifference modificationDifferenceWithName:@"Test" path:OCDNewTestPath lineNumber:1 modifications:@[modification]]];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
 }
 
 - (void)testVariableModificationConstPointerQualification {
@@ -280,8 +262,7 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
                                                             previousValue:@"int * Test"
                                                              currentValue:@"int * const Test"];
-    NSArray *expectedDifferences = @[[OCDifference modificationDifferenceWithName:@"Test" path:OCDNewTestPath lineNumber:1 modifications:@[modification]]];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
 }
 
 - (void)testBlockTypedef {
@@ -297,8 +278,7 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
                                                             previousValue:@"typedef void (^Test)(id param)"
                                                              currentValue:@"typedef int (^Test)(id param)"];
-    NSArray *expectedDifferences = @[[OCDifference modificationDifferenceWithName:@"Test" path:OCDNewTestPath lineNumber:1 modifications:@[modification]]];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
 }
 
 /**
@@ -419,6 +399,10 @@ static NSString * const OCDNewTestPath = @"new/test.h";
 
 - (NSArray *)removalArrayWithName:(NSString *)name {
     return @[[OCDifference differenceWithType:OCDifferenceTypeRemoval name:name path:OCDOldTestPath lineNumber:1]];
+}
+
+- (NSArray *)modificationArrayWithName:(NSString *)name modification:(OCDModification *)modification {
+    return @[[OCDifference modificationDifferenceWithName:name path:OCDNewTestPath lineNumber:1 modifications:@[modification]]];
 }
 
 - (NSArray *)differencesBetweenOldSource:(NSString *)oldSource newSource:(NSString *)newSource {
