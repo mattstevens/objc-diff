@@ -117,14 +117,33 @@ int main(int argc, char *argv[]) {
 
         NSArray *differences = [comparator computeDifferences];
         differences = [differences sortedArrayUsingComparator:^NSComparisonResult(OCDifference *obj1, OCDifference *obj2) {
+            NSComparisonResult result = [[obj1.path lastPathComponent] caseInsensitiveCompare:[obj2.path lastPathComponent]];
+            if (result != NSOrderedSame)
+                return result;
+
+            // TODO: Sort additions before modifications
             if (obj1.type != obj2.type) {
                 return obj1.type == OCDifferenceTypeRemoval ? NSOrderedAscending : NSOrderedDescending;
             }
 
-            return [obj1.name localizedStandardCompare:obj2.name];
+            if (obj1.lineNumber < obj2.lineNumber) {
+                return NSOrderedAscending;
+            } else if (obj1.lineNumber > obj2.lineNumber) {
+                return NSOrderedDescending;
+            }
+
+            return [obj1.name caseInsensitiveCompare:obj2.name];
         }];
 
+        NSString *lastFile = @"";
+
         for (OCDifference *difference in differences) {
+            NSString *file = [difference.path lastPathComponent];
+            if ([file isEqualToString:lastFile] == NO) {
+                lastFile = file;
+                printf("\n%s\n", [file UTF8String]);
+            }
+
             printf("%s\n", [[difference description] UTF8String]);
         }
 
