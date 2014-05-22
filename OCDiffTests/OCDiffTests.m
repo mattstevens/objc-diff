@@ -364,16 +364,6 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     XCTAssertEqualObjects(differences, @[]);
 }
 
-/**
- * Tests that a macro moved to a different line number does not result in any differences.
- */
-- (void)testMacroUnchangedDifferentLineNumber {
-    NSArray *differences = [self differencesBetweenOldSource:@"#define TEST 1"
-                                                   newSource:@"\n#define TEST 1"];
-
-    XCTAssertEqualObjects(differences, @[]);
-}
-
 - (void)testAddRemoveForName:(NSString *)name base:(NSString *)base addition:(NSString *)addition {
     NSArray *differences;
     NSArray *expectedDifferences;
@@ -391,6 +381,10 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     // Unchanged
     differences = [self differencesBetweenOldSource:addition newSource:addition];
     XCTAssertEqualObjects(differences, @[], @"Unchanged test failed for %@", name);
+
+    // Unchanged, different line number
+    differences = [self differencesBetweenOldSource:addition newSource:[@"\n" stringByAppendingString:addition]];
+    XCTAssertEqualObjects(differences, @[], @"Move to different line number test failed for %@", name);
 }
 
 - (NSArray *)additionArrayWithName:(NSString *)name {
