@@ -119,6 +119,17 @@
 - (OCDifference *)differenceBetweenOldCursor:(PLClangCursor *)oldCursor newCursor:(PLClangCursor *)newCursor {
     NSMutableArray *modifications = [NSMutableArray array];
 
+    // Ignore changes to implicit declarations like synthesized property accessors
+    if (oldCursor.isImplicit || newCursor.isImplicit)
+        return nil;
+
+    if ([self declarationChangedBetweenOldCursor:oldCursor newCursor:newCursor]) {
+        OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                                previousValue:[self stringForSourceRange:oldCursor.extent]
+                                                                 currentValue:[self stringForSourceRange:newCursor.extent]];
+        [modifications addObject:modification];
+    }
+
     PLClangType *oldType = oldCursor.type;
     PLClangType *newType = newCursor.type;
 
@@ -127,29 +138,10 @@
         newType = newCursor.underlyingType;
     }
 
-    if (oldCursor.kind == PLClangCursorKindObjCInstanceMethodDeclaration || oldCursor.kind == PLClangCursorKindObjCClassMethodDeclaration) {
-        if ([oldCursor.objCTypeEncoding isEqual:newCursor.objCTypeEncoding] == NO && oldCursor.isImplicit == NO && newCursor.isImplicit == NO) {
-            OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
-                                                                    previousValue:[self stringForSourceRange:oldCursor.extent]
-                                                                     currentValue:[self stringForSourceRange:newCursor.extent]];
-            [modifications addObject:modification];
-        }
-
-        if (oldCursor.isObjCOptional != newCursor.isObjCOptional) {
-            OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeOptional
-                                                                    previousValue:oldCursor.isObjCOptional ? @"YES" : @"NO"
-                                                                     currentValue:newCursor.isObjCOptional ? @"YES" : @"NO"];
-            [modifications addObject:modification];
-        }
-    } else if (oldType != newType && [oldType.spelling isEqual:newType.spelling] == NO) {
-        OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
-                                                                previousValue:[self stringForSourceRange:oldCursor.extent]
-                                                                 currentValue:[self stringForSourceRange:newCursor.extent]];
-        [modifications addObject:modification];
-    } else if (oldCursor.kind == PLClangCursorKindObjCPropertyDeclaration && oldCursor.objCPropertyAttributes != newCursor.objCPropertyAttributes) {
-        OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
-                                                                previousValue:[self stringForSourceRange:oldCursor.extent]
-                                                                 currentValue:[self stringForSourceRange:newCursor.extent]];
+    if (oldCursor.isObjCOptional != newCursor.isObjCOptional) {
+        OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeOptional
+                                                                previousValue:oldCursor.isObjCOptional ? @"YES" : @"NO"
+                                                                 currentValue:newCursor.isObjCOptional ? @"YES" : @"NO"];
         [modifications addObject:modification];
     }
 
@@ -168,6 +160,28 @@
     }
 
     return nil;
+}
+
+- (BOOL)declarationChangedBetweenOldCursor:(PLClangCursor *)oldCursor newCursor:(PLClangCursor *)newCursor {
+    PLClangType *oldType = oldCursor.type;
+    PLClangType *newType = newCursor.type;
+
+    if (oldCursor.kind == PLClangCursorKindTypedefDeclaration) {
+        oldType = oldCursor.underlyingType;
+        newType = newCursor.underlyingType;
+    }
+
+    if (oldCursor.kind == PLClangCursorKindObjCInstanceMethodDeclaration || oldCursor.kind == PLClangCursorKindObjCClassMethodDeclaration) {
+        if ([oldCursor.objCTypeEncoding isEqual:newCursor.objCTypeEncoding] == NO) {
+            return YES;
+        }
+    } else if (oldType != newType && [oldType.spelling isEqual:newType.spelling] == NO) {
+        return YES;
+    } else if (oldCursor.kind == PLClangCursorKindObjCPropertyDeclaration && oldCursor.objCPropertyAttributes != newCursor.objCPropertyAttributes) {
+        return YES;
+    }
+
+    return NO;
 }
 
 - (NSString *)stringForSourceRange:(PLClangSourceRange *)range {

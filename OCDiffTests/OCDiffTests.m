@@ -139,6 +139,28 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     XCTAssertEqualObjects(differences, expectedDifferences);
 }
 
+- (void)testProtocolPropertyMadeOptional {
+    NSArray *differences = [self differencesBetweenOldSource:@"@protocol Test @property int testProperty; @end"
+                                                   newSource:@"@protocol Test @optional @property int testProperty; @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeOptional
+                                                            previousValue:@"NO"
+                                                             currentValue:@"YES"];
+    NSArray *expectedDifferences = @[[OCDifference modificationDifferenceWithName:@"Test.testProperty" path:OCDNewTestPath lineNumber:1 modifications:@[modification]]];
+    XCTAssertEqualObjects(differences, expectedDifferences);
+}
+
+- (void)testProtocolPropertyMadeRequired {
+    NSArray *differences = [self differencesBetweenOldSource:@"@protocol Test @optional @property int testProperty; @end"
+                                                   newSource:@"@protocol Test @property int testProperty; @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeOptional
+                                                            previousValue:@"YES"
+                                                             currentValue:@"NO"];
+    NSArray *expectedDifferences = @[[OCDifference modificationDifferenceWithName:@"Test.testProperty" path:OCDNewTestPath lineNumber:1 modifications:@[modification]]];
+    XCTAssertEqualObjects(differences, expectedDifferences);
+}
+
 - (void)testProperty {
     [self testAddRemoveForName:@"Test.testProperty"
                           base:@"@interface Test @end"
