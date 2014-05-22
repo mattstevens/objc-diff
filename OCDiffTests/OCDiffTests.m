@@ -346,15 +346,15 @@ static NSString * const OCDNewTestPath = @"new/test.h";
 }
 
 - (void)testEnumConstant {
-    [self testAddRemoveForName:@"#def TEST"
-                          base:@""
-                      addition:@"#define TEST 1"];
-}
-
-- (void)testMacro {
     [self testAddRemoveForName:@"TEST"
                           base:@"enum Test {};"
                       addition:@"enum Test { TEST };"];
+}
+
+- (void)testMacro {
+    [self testAddRemoveForName:@"#def TEST"
+                          base:@""
+                      addition:@"#define TEST 1"];
 }
 
 - (void)testEmptyMacroIgnored {
