@@ -49,7 +49,7 @@
             if (cursor.isImplicit)
                 continue;
 
-            OCDifference *difference = [OCDifference differenceWithType:OCDifferenceTypeRemoval name:[self displayNameForCursor:cursor]];
+            OCDifference *difference = [OCDifference differenceWithType:OCDifferenceTypeRemoval name:[self displayNameForCursor:cursor] path:cursor.location.path lineNumber:cursor.location.lineNumber];
             [differences addObject:difference];
         }
     }
@@ -59,7 +59,7 @@
         if (cursor.isImplicit)
             continue;
 
-        OCDifference *difference = [OCDifference differenceWithType:OCDifferenceTypeAddition name:[self displayNameForCursor:cursor]];
+        OCDifference *difference = [OCDifference differenceWithType:OCDifferenceTypeAddition name:[self displayNameForCursor:cursor] path:cursor.location.path lineNumber:cursor.location.lineNumber];
         [differences addObject:difference];
     }
 
@@ -161,7 +161,10 @@
     }
 
     if ([modifications count] > 0) {
-        return [OCDifference modificationDifferenceWithName:[self displayNameForCursor:oldCursor] modifications:modifications];
+        return [OCDifference modificationDifferenceWithName:[self displayNameForCursor:oldCursor]
+                                                       path:newCursor.location.path
+                                                 lineNumber:newCursor.location.lineNumber
+                                              modifications:modifications];
     }
 
     return nil;

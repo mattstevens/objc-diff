@@ -2,23 +2,25 @@
 
 @implementation OCDifference
 
-- (instancetype)initWithType:(OCDifferenceType)type name:(NSString *)name modifications:(NSArray *)modifications {
+- (instancetype)initWithType:(OCDifferenceType)type name:(NSString *)name path:(NSString *)path lineNumber:(NSUInteger)lineNumber modifications:(NSArray *)modifications {
     if (!(self = [super init]))
         return nil;
 
     _type = type;
     _name = [name copy];
+    _path = [path copy];
+    _lineNumber = lineNumber;
     _modifications = [modifications copy];
 
     return self;
 }
 
-+ (instancetype)differenceWithType:(OCDifferenceType)type name:(NSString *)name {
-    return [[self alloc] initWithType:type name:name modifications:nil];
++ (instancetype)differenceWithType:(OCDifferenceType)type name:(NSString *)name path:(NSString *)path lineNumber:(NSUInteger)lineNumber {
+    return [[self alloc] initWithType:type name:name path:path lineNumber:lineNumber modifications:nil];
 }
 
-+ (instancetype)modificationDifferenceWithName:(NSString *)name modifications:(NSArray *)modifications {
-    return [[self alloc] initWithType:OCDifferenceTypeModification name:name modifications:modifications];
++ (instancetype)modificationDifferenceWithName:(NSString *)name path:(NSString *)path lineNumber:(NSUInteger)lineNumber modifications:(NSArray *)modifications {
+    return [[self alloc] initWithType:OCDifferenceTypeModification name:name path:path lineNumber:lineNumber modifications:modifications];
 }
 
 - (NSString *)description {
@@ -37,6 +39,10 @@
     [result appendString:@"] "];
     [result appendString:self.name];
 
+    if (self.path) {
+        [result appendFormat:@" %@:%tu", self.path, self.lineNumber];
+    }
+
     if ([self.modifications count]) {
         // TODO
         [result appendString:[self.modifications description]];
@@ -54,6 +60,8 @@
     return
     other.type == self.type &&
     (other.name == self.name || [other.name isEqual:self.name]) &&
+    (other.path == self.path || [other.path isEqual:self.path]) &&
+    other.lineNumber == self.lineNumber &&
     (other.modifications == self.modifications || [other.modifications isEqual:self.modifications]);
 }
 
