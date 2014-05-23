@@ -3,7 +3,8 @@
 typedef NS_ENUM(NSUInteger, OCDModificationType) {
     OCDModificationTypeDeclaration,
     OCDModificationTypeDeprecation,
-    OCDModificationTypeOptional
+    OCDModificationTypeOptional,
+    OCDModificationTypeHeader
 };
 
 @interface OCDModification : NSObject

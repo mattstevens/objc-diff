@@ -40,9 +40,9 @@
 
     for (NSString *USR in oldAPI) {
         if (newAPI[USR] != nil) {
-            OCDifference *difference = [self differenceBetweenOldCursor:oldAPI[USR] newCursor:newAPI[USR]];
-            if (difference != nil) {
-                [differences addObject:difference];
+            NSArray *cursorDifferences = [self differencesBetweenOldCursor:oldAPI[USR] newCursor:newAPI[USR]];
+            if (cursorDifferences != nil) {
+                [differences addObjectsFromArray:cursorDifferences];
             }
         } else {
             PLClangCursor *cursor = oldAPI[USR];
@@ -116,8 +116,9 @@
     return extentLength == [cursor.spelling length];
 }
 
-- (OCDifference *)differenceBetweenOldCursor:(PLClangCursor *)oldCursor newCursor:(PLClangCursor *)newCursor {
+- (NSArray *)differencesBetweenOldCursor:(PLClangCursor *)oldCursor newCursor:(PLClangCursor *)newCursor {
     NSMutableArray *modifications = [NSMutableArray array];
+    BOOL reportDifferenceForOldLocation = NO;
 
     // Ignore changes to implicit declarations like synthesized property accessors
     if (oldCursor.isImplicit || newCursor.isImplicit)
@@ -152,11 +153,37 @@
         [modifications addObject:modification];
     }
 
+    // TODO: Should be relative path from common base.
+    NSString *oldRelativePath = [oldCursor.location.path lastPathComponent];
+    NSString *newRelativePath = [newCursor.location.path lastPathComponent];
+    if ([oldRelativePath isEqual:newRelativePath] == NO && [self shouldReportHeaderChangeForCursor:oldCursor]) {
+        OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeHeader
+                                                                previousValue:[oldCursor.location.path lastPathComponent]
+                                                                 currentValue:[newCursor.location.path lastPathComponent]];
+        [modifications addObject:modification];
+
+        reportDifferenceForOldLocation = YES;
+    }
+
     if ([modifications count] > 0) {
-        return [OCDifference modificationDifferenceWithName:[self displayNameForCursor:oldCursor]
-                                                       path:newCursor.location.path
-                                                 lineNumber:newCursor.location.lineNumber
-                                              modifications:modifications];
+        NSMutableArray *differences = [NSMutableArray array];
+        OCDifference *difference;
+
+        if (reportDifferenceForOldLocation) {
+            difference = [OCDifference modificationDifferenceWithName:[self displayNameForCursor:oldCursor]
+                                                                 path:oldCursor.location.path
+                                                           lineNumber:oldCursor.location.lineNumber
+                                                        modifications:modifications];
+            [differences addObject:difference];
+        }
+
+        difference = [OCDifference modificationDifferenceWithName:[self displayNameForCursor:oldCursor]
+                                                             path:newCursor.location.path
+                                                       lineNumber:newCursor.location.lineNumber
+                                                    modifications:modifications];
+        [differences addObject:difference];
+
+        return differences;
     }
 
     return nil;
@@ -182,6 +209,25 @@
     }
 
     return NO;
+}
+
+
+/**
+ * Returns a Boolean value indicating whether a header change should be reported for the specified cursor.
+ *
+ * If the cursor's parent is a container type such as an Objective-C class or protocol it is unnecessary to
+ * report a separate relocation difference for each of its children. Relocation of the children is implied by
+ * the relocation of the parent.
+ */
+- (BOOL)shouldReportHeaderChangeForCursor:(PLClangCursor *)cursor {
+    switch (cursor.semanticParent.kind) {
+        case PLClangCursorKindObjCInterfaceDeclaration:
+        case PLClangCursorKindObjCProtocolDeclaration:
+        case PLClangCursorKindStructDeclaration:
+            return NO;
+        default:
+            return YES;
+    }
 }
 
 - (NSString *)stringForSourceRange:(PLClangSourceRange *)range {

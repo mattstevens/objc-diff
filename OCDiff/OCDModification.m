@@ -29,6 +29,9 @@
         case OCDModificationTypeOptional:
             [result appendString:@"Optional"];
             break;
+        case OCDModificationTypeHeader:
+            [result appendString:@"Header"];
+            break;
     }
 
     [result appendString:@": "];

@@ -374,6 +374,60 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     XCTAssertEqualObjects(differences, @[]);
 }
 
+/**
+ * Tests that a declaration moved between headers is reported as a movement for both the old location and the new one.
+ */
+- (void)testFunctionMovedToDifferentHeader {
+    NSArray *differences = [self differencesBetweenOldPath:@"old.h"
+                                                 oldSource:@"void Test(void);"
+                                                   newPath:@"new.h"
+                                                 newSource:@"void Test(void);"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeHeader previousValue:@"old.h" currentValue:@"new.h"];
+
+    NSArray *expectedDifferences = @[
+        [OCDifference modificationDifferenceWithName:@"Test()" path:@"old.h" lineNumber:1 modifications:@[modification]],
+        [OCDifference modificationDifferenceWithName:@"Test()" path:@"new.h" lineNumber:1 modifications:@[modification]]
+    ];
+    XCTAssertEqualObjects(differences, expectedDifferences);
+}
+
+/**
+ * Tests that movement of a class to a new header is reported only as movement of the class and not all of its contained declarations.
+ */
+- (void)testClassMovedToDifferentHeader {
+    NSArray *differences = [self differencesBetweenOldPath:@"old.h"
+                                                 oldSource:@"@interface Test - (void)testMethod; @end"
+                                                   newPath:@"new.h"
+                                                 newSource:@"@interface Test - (void)testMethod; @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeHeader previousValue:@"old.h" currentValue:@"new.h"];
+
+    NSArray *expectedDifferences = @[
+                                     [OCDifference modificationDifferenceWithName:@"Test" path:@"old.h" lineNumber:1 modifications:@[modification]],
+                                     [OCDifference modificationDifferenceWithName:@"Test" path:@"new.h" lineNumber:1 modifications:@[modification]]
+                                     ];
+    XCTAssertEqualObjects(differences, expectedDifferences);
+}
+
+/**
+ * Tests that movement of a protocol to a new header is reported only as movement of the protocol and not all of its contained declarations.
+ */
+- (void)testProtocolMovedToDifferentHeader {
+    NSArray *differences = [self differencesBetweenOldPath:@"old.h"
+                                                 oldSource:@"@protocol Test - (void)testMethod; @end"
+                                                   newPath:@"new.h"
+                                                 newSource:@"@protocol Test - (void)testMethod; @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeHeader previousValue:@"old.h" currentValue:@"new.h"];
+
+    NSArray *expectedDifferences = @[
+                                     [OCDifference modificationDifferenceWithName:@"Test" path:@"old.h" lineNumber:1 modifications:@[modification]],
+                                     [OCDifference modificationDifferenceWithName:@"Test" path:@"new.h" lineNumber:1 modifications:@[modification]]
+                                     ];
+    XCTAssertEqualObjects(differences, expectedDifferences);
+}
+
 - (void)testAddRemoveForName:(NSString *)name base:(NSString *)base addition:(NSString *)addition {
     NSArray *differences;
     NSArray *expectedDifferences;
@@ -410,21 +464,25 @@ static NSString * const OCDNewTestPath = @"new/test.h";
 }
 
 - (NSArray *)differencesBetweenOldSource:(NSString *)oldSource newSource:(NSString *)newSource {
+    return [self differencesBetweenOldPath:OCDOldTestPath oldSource:oldSource newPath:OCDNewTestPath newSource:newSource];
+}
+
+- (NSArray *)differencesBetweenOldPath:(NSString *)oldPath oldSource:(NSString *)oldSource newPath:(NSString *)newPath newSource:(NSString *)newSource {
     PLClangSourceIndex *index = [PLClangSourceIndex indexWithOptions:0];
 
-    PLClangUnsavedFile *oldFile = [PLClangUnsavedFile unsavedFileWithPath:OCDOldTestPath data:[oldSource dataUsingEncoding:NSUTF8StringEncoding]];
-    PLClangUnsavedFile *newFile = [PLClangUnsavedFile unsavedFileWithPath:OCDNewTestPath data:[newSource dataUsingEncoding:NSUTF8StringEncoding]];
+    PLClangUnsavedFile *oldFile = [PLClangUnsavedFile unsavedFileWithPath:oldPath data:[oldSource dataUsingEncoding:NSUTF8StringEncoding]];
+    PLClangUnsavedFile *newFile = [PLClangUnsavedFile unsavedFileWithPath:newPath data:[newSource dataUsingEncoding:NSUTF8StringEncoding]];
 
 
     NSError *error;
-    PLClangTranslationUnit *oldTU = [index addTranslationUnitWithSourcePath:OCDOldTestPath
+    PLClangTranslationUnit *oldTU = [index addTranslationUnitWithSourcePath:oldPath
                                                                unsavedFiles:@[oldFile]
                                                           compilerArguments:@[@"-x", @"objective-c-header"]
                                                                     options:PLClangTranslationUnitCreationDetailedPreprocessingRecord
                                                                       error:&error];
     XCTAssertNotNil(oldTU, @"Failed to parse: %@", error);
 
-    PLClangTranslationUnit *newTU = [index addTranslationUnitWithSourcePath:OCDNewTestPath
+    PLClangTranslationUnit *newTU = [index addTranslationUnitWithSourcePath:newPath
                                                                unsavedFiles:@[newFile]
                                                           compilerArguments:@[@"-x", @"objective-c-header"]
                                                                     options:PLClangTranslationUnitCreationDetailedPreprocessingRecord
