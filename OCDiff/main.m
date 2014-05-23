@@ -100,7 +100,7 @@ int main(int argc, char *argv[]) {
                                                                         options:PLClangTranslationUnitCreationDetailedPreprocessingRecord |
                                                                                 PLClangTranslationUnitCreationSkipFunctionBodies
                                                                           error:&error];
-        if (oldTU == nil) {
+        if (oldTU == nil || oldTU.didFail) {
             return 1;
         }
 
@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
                                                                         options:PLClangTranslationUnitCreationDetailedPreprocessingRecord |
                                                                                 PLClangTranslationUnitCreationSkipFunctionBodies
                                                                           error:&error];
-        if (newTU == nil) {
+        if (newTU == nil || newTU.didFail) {
             return 1;
         }
 
