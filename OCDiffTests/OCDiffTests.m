@@ -26,13 +26,23 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test()" modification:modification]);
 }
 
-- (void)testFunctionModificationParameterType {
+- (void)testFunctionModificationParameterAdded {
     NSArray *differences = [self differencesBetweenOldSource:@"void Test(void);"
                                                    newSource:@"void Test(int);"];
 
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
                                                             previousValue:@"void Test(void)"
                                                              currentValue:@"void Test(int)"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test()" modification:modification]);
+}
+
+- (void)testFunctionModificationParameterType {
+    NSArray *differences = [self differencesBetweenOldSource:@"void Test(int);"
+                                                   newSource:@"void Test(long);"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"void Test(int)"
+                                                             currentValue:@"void Test(long)"];
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test()" modification:modification]);
 }
 

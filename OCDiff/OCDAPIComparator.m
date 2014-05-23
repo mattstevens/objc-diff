@@ -213,17 +213,20 @@
 }
 
 - (NSString *)displayNameForCursor:(PLClangCursor *)cursor {
-    if (cursor.kind == PLClangCursorKindObjCInstanceMethodDeclaration) {
-        return [NSString stringWithFormat:@"-[%@ %@]", cursor.semanticParent.spelling, cursor.spelling];
-    } else if (cursor.kind == PLClangCursorKindObjCClassMethodDeclaration) {
-        return [NSString stringWithFormat:@"+[%@ %@]", cursor.semanticParent.spelling, cursor.spelling];
-    } else if (cursor.kind == PLClangCursorKindObjCPropertyDeclaration) {
-        return [NSString stringWithFormat:@"%@.%@", cursor.semanticParent.spelling, cursor.spelling];
-    } else if (cursor.kind == PLClangCursorKindMacroDefinition) {
-        return [NSString stringWithFormat:@"#def %@", cursor.spelling];
+    switch (cursor.kind) {
+        case PLClangCursorKindObjCInstanceMethodDeclaration:
+            return [NSString stringWithFormat:@"-[%@ %@]", cursor.semanticParent.spelling, cursor.spelling];
+        case PLClangCursorKindObjCClassMethodDeclaration:
+            return [NSString stringWithFormat:@"+[%@ %@]", cursor.semanticParent.spelling, cursor.spelling];
+        case PLClangCursorKindObjCPropertyDeclaration:
+            return [NSString stringWithFormat:@"%@.%@", cursor.semanticParent.spelling, cursor.spelling];
+        case PLClangCursorKindFunctionDeclaration:
+            return [NSString stringWithFormat:@"%@()", cursor.spelling];
+        case PLClangCursorKindMacroDefinition:
+            return [NSString stringWithFormat:@"#def %@", cursor.spelling];
+        default:
+            return cursor.displayName;
     }
-
-    return cursor.displayName;
 }
 
 @end
