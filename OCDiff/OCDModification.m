@@ -52,8 +52,8 @@
 
     return
     other.type == self.type &&
-    [other.previousValue isEqual:self.previousValue] &&
-    [other.currentValue isEqual:self.currentValue];
+    (other.previousValue == self.previousValue || [other.previousValue isEqual:self.previousValue]) &&
+    (other.currentValue == self.currentValue || [other.currentValue isEqual:self.currentValue]);
 }
 
 - (NSUInteger)hash {
