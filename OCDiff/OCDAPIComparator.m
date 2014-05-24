@@ -173,14 +173,6 @@
         [modifications addObject:modification];
     }
 
-    PLClangType *oldType = oldCursor.type;
-    PLClangType *newType = newCursor.type;
-
-    if (oldCursor.kind == PLClangCursorKindTypedefDeclaration) {
-        oldType = oldCursor.underlyingType;
-        newType = newCursor.underlyingType;
-    }
-
     if (oldCursor.isObjCOptional != newCursor.isObjCOptional) {
         OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeOptional
                                                                 previousValue:oldCursor.isObjCOptional ? @"YES" : @"NO"
