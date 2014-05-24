@@ -212,8 +212,8 @@ static NSString * const OCDNewTestPath = @"new/test.h";
  * removal of the previous explicit accessor.
  */
 - (void)testConversionToPropertyWithRemovedMethod {
-    NSArray *differences = [self differencesBetweenOldSource:@"@interface Test - (BOOL)isTestProperty; - (void)setTestProperty:(BOOL)val; @end"
-                                                   newSource:@"@interface Test @property BOOL testProperty; @end"];
+    NSArray *differences = [self differencesBetweenOldSource:@"@interface Test - (char)isTestProperty; - (void)setTestProperty:(char)val; @end"
+                                                   newSource:@"@interface Test @property char testProperty; @end"];
 
     NSArray *expectedDifferences = @[
         [OCDifference differenceWithType:OCDifferenceTypeRemoval name:@"-[Test isTestProperty]" path:OCDOldTestPath lineNumber:1],
@@ -224,7 +224,7 @@ static NSString * const OCDNewTestPath = @"new/test.h";
 
 - (void)testConversionFromProperty {
     NSArray *differences = [self differencesBetweenOldSource:@"@interface Test @property int testProperty; @end"
-                                                   newSource:@"@interface Test @property - (int)testProperty; - (void)setTestProperty:(int)val; @end"];
+                                                   newSource:@"@interface Test - (int)testProperty; - (void)setTestProperty:(int)val; @end"];
 
     XCTAssertEqualObjects(differences, [self removalArrayWithName:@"Test.testProperty"]);
 }
@@ -357,8 +357,8 @@ static NSString * const OCDNewTestPath = @"new/test.h";
 
 - (void)testEnumConstant {
     [self testAddRemoveForName:@"TEST"
-                          base:@"enum Test {};"
-                      addition:@"enum Test { TEST };"];
+                          base:@"enum Test { EXISTING };"
+                      addition:@"enum Test { EXISTING, TEST };"];
 }
 
 - (void)testMacro {
@@ -490,7 +490,7 @@ static NSString * const OCDNewTestPath = @"new/test.h";
 }
 
 - (NSArray *)differencesBetweenOldPath:(NSString *)oldPath oldSource:(NSString *)oldSource newPath:(NSString *)newPath newSource:(NSString *)newSource {
-    PLClangSourceIndex *index = [PLClangSourceIndex indexWithOptions:0];
+    PLClangSourceIndex *index = [PLClangSourceIndex indexWithOptions:PLClangIndexCreationDisplayDiagnostics];
 
     PLClangUnsavedFile *oldFile = [PLClangUnsavedFile unsavedFileWithPath:oldPath data:[oldSource dataUsingEncoding:NSUTF8StringEncoding]];
     PLClangUnsavedFile *newFile = [PLClangUnsavedFile unsavedFileWithPath:newPath data:[newSource dataUsingEncoding:NSUTF8StringEncoding]];
@@ -503,6 +503,7 @@ static NSString * const OCDNewTestPath = @"new/test.h";
                                                                     options:PLClangTranslationUnitCreationDetailedPreprocessingRecord
                                                                       error:&error];
     XCTAssertNotNil(oldTU, @"Failed to parse: %@", error);
+    XCTAssertFalse(oldTU.didFail, @"Fatal error encountered during parse");
 
     PLClangTranslationUnit *newTU = [index addTranslationUnitWithSourcePath:newPath
                                                                unsavedFiles:@[newFile]
@@ -510,6 +511,7 @@ static NSString * const OCDNewTestPath = @"new/test.h";
                                                                     options:PLClangTranslationUnitCreationDetailedPreprocessingRecord
                                                                       error:&error];
     XCTAssertNotNil(newTU, @"Failed to parse: %@", error);
+    XCTAssertFalse(newTU.didFail, @"Fatal error encountered during parse");
 
     OCDAPIComparator *comparator = [[OCDAPIComparator alloc] initWithOldTranslationUnits:[NSSet setWithObject:oldTU]
                                                                      newTranslationUnits:[NSSet setWithObject:newTU]
