@@ -62,6 +62,16 @@ static NSString * const OCDNewTestPath = @"new/test.h";
                       addition:@"@interface Test @end"];
 }
 
+- (void)testClassModificationSuperclass {
+    NSArray *differences = [self differencesBetweenOldSource:@"@interface A @end @interface B : A @end @interface Test : A @end"
+                                                   newSource:@"@interface A @end @interface B : A @end @interface Test : B @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeSuperclass
+                                                            previousValue:@"A"
+                                                             currentValue:@"B"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
+}
+
 - (void)testInstanceMethod {
     [self testAddRemoveForName:@"-[Test testMethod]"
                           base:@"@interface Test @end"

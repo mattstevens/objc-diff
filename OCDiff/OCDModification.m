@@ -26,6 +26,9 @@
         case OCDModificationTypeDeprecation:
             [result appendString:@"Deprecation"];
             break;
+        case OCDModificationTypeSuperclass:
+            [result appendString:@"Superclass"];
+            break;
         case OCDModificationTypeOptional:
             [result appendString:@"Optional"];
             break;

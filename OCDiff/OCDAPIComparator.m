@@ -173,6 +173,17 @@
         [modifications addObject:modification];
     }
 
+    if (oldCursor.kind == PLClangCursorKindObjCInterfaceDeclaration) {
+        PLClangCursor *oldSuperclass = [self superclassCursorForClassAtCursor:oldCursor];
+        PLClangCursor *newSuperclass = [self superclassCursorForClassAtCursor:newCursor];
+        if (oldSuperclass != newSuperclass && [oldSuperclass.USR isEqual:newSuperclass.USR] == NO) {
+            OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeSuperclass
+                                                                    previousValue:oldSuperclass.spelling
+                                                                     currentValue:newSuperclass.spelling];
+            [modifications addObject:modification];
+        }
+    }
+
     if (oldCursor.isObjCOptional != newCursor.isObjCOptional) {
         OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeOptional
                                                                 previousValue:oldCursor.isObjCOptional ? @"YES" : @"NO"
@@ -221,6 +232,20 @@
     }
 
     return nil;
+}
+
+- (PLClangCursor *)superclassCursorForClassAtCursor:(PLClangCursor *)classCursor {
+    __block PLClangCursor *superclassCursor = nil;
+    [classCursor visitChildrenUsingBlock:^PLClangCursorVisitResult(PLClangCursor *cursor) {
+        if (cursor.kind == PLClangCursorKindObjCSuperclassReference) {
+            superclassCursor = cursor.referencedCursor ?: cursor;
+            return PLClangCursorVisitBreak;
+        }
+
+        return PLClangCursorVisitContinue;
+    }];
+
+    return superclassCursor;
 }
 
 - (BOOL)declarationChangedBetweenOldCursor:(PLClangCursor *)oldCursor newCursor:(PLClangCursor *)newCursor {
