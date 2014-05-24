@@ -29,6 +29,9 @@
         case OCDModificationTypeSuperclass:
             [result appendString:@"Superclass"];
             break;
+        case OCDModificationTypeProtocols:
+            [result appendString:@"Protocols"];
+            break;
         case OCDModificationTypeOptional:
             [result appendString:@"Optional"];
             break;

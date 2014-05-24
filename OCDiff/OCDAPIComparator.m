@@ -184,6 +184,31 @@
         }
     }
 
+    if (oldCursor.kind == PLClangCursorKindObjCInterfaceDeclaration || oldCursor.kind == PLClangCursorKindObjCCategoryDeclaration || oldCursor.kind == PLClangCursorKindObjCProtocolDeclaration) {
+        NSArray *oldProtocols = [self protocolCursorsForCursor:oldCursor];
+        NSArray *newProtocols = [self protocolCursorsForCursor:newCursor];
+        BOOL protocolsChanged = NO;
+        if ([oldProtocols count] != [newProtocols count]) {
+            protocolsChanged = YES;
+        } else {
+            for (NSUInteger protocolIndex = 0; protocolIndex < [oldProtocols count]; protocolIndex++) {
+                PLClangCursor *oldProtocol = oldProtocols[protocolIndex];
+                PLClangCursor *newProtocol = newProtocols[protocolIndex];
+                if ([oldProtocol.USR isEqual:newProtocol.USR] == NO) {
+                    protocolsChanged = YES;
+                    break;
+                }
+            }
+        }
+
+        if (protocolsChanged) {
+            OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeProtocols
+                                                                    previousValue:[self stringForProtocolCursors:oldProtocols]
+                                                                     currentValue:[self stringForProtocolCursors:newProtocols]];
+            [modifications addObject:modification];
+        }
+    }
+
     if (oldCursor.isObjCOptional != newCursor.isObjCOptional) {
         OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeOptional
                                                                 previousValue:oldCursor.isObjCOptional ? @"YES" : @"NO"
@@ -246,6 +271,19 @@
     }];
 
     return superclassCursor;
+}
+
+- (NSArray *)protocolCursorsForCursor:(PLClangCursor *)classCursor {
+    NSMutableArray *protocols = [NSMutableArray array];
+    [classCursor visitChildrenUsingBlock:^PLClangCursorVisitResult(PLClangCursor *cursor) {
+        if (cursor.kind == PLClangCursorKindObjCProtocolReference) {
+            [protocols addObject:cursor.referencedCursor ?: cursor];
+        }
+
+        return PLClangCursorVisitContinue;
+    }];
+
+    return protocols;
 }
 
 - (BOOL)declarationChangedBetweenOldCursor:(PLClangCursor *)oldCursor newCursor:(PLClangCursor *)newCursor {
@@ -344,6 +382,15 @@
         default:
             return cursor.displayName;
     }
+}
+
+- (NSString *)stringForProtocolCursors:(NSArray *)cursors {
+    NSMutableArray *protocolNames = [NSMutableArray array];
+    for (PLClangCursor *cursor in cursors) {
+        [protocolNames addObject:cursor.spelling];
+    }
+
+    return [protocolNames count] > 0 ? [protocolNames componentsJoinedByString:@", "] : nil;
 }
 
 @end

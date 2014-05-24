@@ -62,6 +62,12 @@ static NSString * const OCDNewTestPath = @"new/test.h";
                       addition:@"@interface Test @end"];
 }
 
+- (void)testClassWithProtocol {
+    [self testAddRemoveForName:@"Test"
+                          base:@"@protocol A @end"
+                      addition:@"@protocol A @end @interface Test <A> @end"];
+}
+
 - (void)testClassModificationSuperclass {
     NSArray *differences = [self differencesBetweenOldSource:@"@interface A @end @interface B : A @end @interface Test : A @end"
                                                    newSource:@"@interface A @end @interface B : A @end @interface Test : B @end"];
@@ -69,6 +75,46 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeSuperclass
                                                             previousValue:@"A"
                                                              currentValue:@"B"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
+}
+
+- (void)testClassModificationAddProtocol {
+    NSArray *differences = [self differencesBetweenOldSource:@"@protocol A @end @protocol B @end @interface Test @end"
+                                                   newSource:@"@protocol A @end @protocol B @end @interface Test <A> @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeProtocols
+                                                            previousValue:nil
+                                                             currentValue:@"A"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
+}
+
+- (void)testClassModificationRemoveProtocol {
+    NSArray *differences = [self differencesBetweenOldSource:@"@protocol A @end @protocol B @end @interface Test <A> @end"
+                                                   newSource:@"@protocol A @end @protocol B @end @interface Test @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeProtocols
+                                                            previousValue:@"A"
+                                                             currentValue:nil];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
+}
+
+- (void)testClassModificationChangeProtocol {
+    NSArray *differences = [self differencesBetweenOldSource:@"@protocol A @end @protocol B @end @interface Test <A> @end"
+                                                   newSource:@"@protocol A @end @protocol B @end @interface Test <B> @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeProtocols
+                                                            previousValue:@"A"
+                                                             currentValue:@"B"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
+}
+
+- (void)testClassModificationChangeProtocolList {
+    NSArray *differences = [self differencesBetweenOldSource:@"@protocol A @end @protocol B @end @protocol C @end @interface Test <A, B> @end"
+                                                   newSource:@"@protocol A @end @protocol B @end @protocol C @end @interface Test <A, C> @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeProtocols
+                                                            previousValue:@"A, B"
+                                                             currentValue:@"A, C"];
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
 }
 
@@ -208,6 +254,46 @@ static NSString * const OCDNewTestPath = @"new/test.h";
                                                             previousValue:@"YES"
                                                              currentValue:@"NO"];
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test.testProperty" modification:modification]);
+}
+
+- (void)testProtocolModificationAddProtocol {
+    NSArray *differences = [self differencesBetweenOldSource:@"@protocol A @end @protocol B @end @protocol Test @end"
+                                                   newSource:@"@protocol A @end @protocol B @end @protocol Test <A> @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeProtocols
+                                                            previousValue:nil
+                                                             currentValue:@"A"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
+}
+
+- (void)testProtocolModificationRemoveProtocol {
+    NSArray *differences = [self differencesBetweenOldSource:@"@protocol A @end @protocol B @end @protocol Test <A> @end"
+                                                   newSource:@"@protocol A @end @protocol B @end @protocol Test @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeProtocols
+                                                            previousValue:@"A"
+                                                             currentValue:nil];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
+}
+
+- (void)testProtocolModificationChangeProtocol {
+    NSArray *differences = [self differencesBetweenOldSource:@"@protocol A @end @protocol B @end @protocol Test <A> @end"
+                                                   newSource:@"@protocol A @end @protocol B @end @protocol Test <B> @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeProtocols
+                                                            previousValue:@"A"
+                                                             currentValue:@"B"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
+}
+
+- (void)testProtocolModificationChangeProtocolList {
+    NSArray *differences = [self differencesBetweenOldSource:@"@protocol A @end @protocol B @end @protocol C @end @protocol Test <A, B> @end"
+                                                   newSource:@"@protocol A @end @protocol B @end @protocol C @end @protocol Test <A, C> @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeProtocols
+                                                            previousValue:@"A, B"
+                                                             currentValue:@"A, C"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
 }
 
 - (void)testProperty {
