@@ -386,8 +386,8 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeHeader previousValue:@"old.h" currentValue:@"new.h"];
 
     NSArray *expectedDifferences = @[
-        [OCDifference modificationDifferenceWithName:@"Test()" path:@"old.h" lineNumber:1 modifications:@[modification]],
-        [OCDifference modificationDifferenceWithName:@"Test()" path:@"new.h" lineNumber:1 modifications:@[modification]]
+        [OCDifference modificationDifferenceWithName:@"Test()" path:@"new.h" lineNumber:1 modifications:@[modification]],
+        [OCDifference modificationDifferenceWithName:@"Test()" path:@"old.h" lineNumber:1 modifications:@[modification]]
     ];
     XCTAssertEqualObjects(differences, expectedDifferences);
 }
@@ -404,9 +404,9 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeHeader previousValue:@"old.h" currentValue:@"new.h"];
 
     NSArray *expectedDifferences = @[
-                                     [OCDifference modificationDifferenceWithName:@"Test" path:@"old.h" lineNumber:1 modifications:@[modification]],
-                                     [OCDifference modificationDifferenceWithName:@"Test" path:@"new.h" lineNumber:1 modifications:@[modification]]
-                                     ];
+        [OCDifference modificationDifferenceWithName:@"Test" path:@"new.h" lineNumber:1 modifications:@[modification]],
+        [OCDifference modificationDifferenceWithName:@"Test" path:@"old.h" lineNumber:1 modifications:@[modification]]
+    ];
     XCTAssertEqualObjects(differences, expectedDifferences);
 }
 
@@ -422,9 +422,9 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeHeader previousValue:@"old.h" currentValue:@"new.h"];
 
     NSArray *expectedDifferences = @[
-                                     [OCDifference modificationDifferenceWithName:@"Test" path:@"old.h" lineNumber:1 modifications:@[modification]],
-                                     [OCDifference modificationDifferenceWithName:@"Test" path:@"new.h" lineNumber:1 modifications:@[modification]]
-                                     ];
+        [OCDifference modificationDifferenceWithName:@"Test" path:@"new.h" lineNumber:1 modifications:@[modification]],
+        [OCDifference modificationDifferenceWithName:@"Test" path:@"old.h" lineNumber:1 modifications:@[modification]]
+    ];
     XCTAssertEqualObjects(differences, expectedDifferences);
 }
 

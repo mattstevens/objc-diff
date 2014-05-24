@@ -63,7 +63,31 @@
         [differences addObject:difference];
     }
 
+    [self sortDifferences:differences];
+
     return differences;
+}
+
+- (void)sortDifferences:(NSMutableArray *)differences {
+    [differences sortUsingComparator:^NSComparisonResult(OCDifference *obj1, OCDifference *obj2) {
+        NSComparisonResult result = [[obj1.path lastPathComponent] caseInsensitiveCompare:[obj2.path lastPathComponent]];
+        if (result != NSOrderedSame)
+            return result;
+
+        if (obj1.type < obj2.type) {
+            return NSOrderedAscending;
+        } else if (obj1.type < obj2.type) {
+            return NSOrderedDescending;
+        }
+
+        if (obj1.lineNumber < obj2.lineNumber) {
+            return NSOrderedAscending;
+        } else if (obj1.lineNumber > obj2.lineNumber) {
+            return NSOrderedDescending;
+        }
+
+        return [obj1.name caseInsensitiveCompare:obj2.name];
+    }];
 }
 
 - (NSDictionary *)APIForTranslationUnit:(PLClangTranslationUnit *)translationUnit {

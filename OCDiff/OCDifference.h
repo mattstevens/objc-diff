@@ -2,8 +2,8 @@
 #import "OCDModification.h"
 
 typedef NS_ENUM(NSUInteger, OCDifferenceType) {
-    OCDifferenceTypeAddition,
     OCDifferenceTypeRemoval,
+    OCDifferenceTypeAddition,
     OCDifferenceTypeModification
 };
 
