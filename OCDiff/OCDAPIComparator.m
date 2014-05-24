@@ -154,7 +154,7 @@
     if (cursor.extent.startLocation.lineNumber != cursor.extent.endLocation.lineNumber)
         return NO;
 
-    NSInteger extentLength = cursor.extent.endLocation.columnNumber - cursor.extent.startLocation.columnNumber;
+    NSUInteger extentLength = cursor.extent.endLocation.columnNumber - cursor.extent.startLocation.columnNumber;
     return extentLength == [cursor.spelling length];
 }
 
@@ -270,7 +270,7 @@
 
     data = _unsavedFileData[path];
     if (data != nil) {
-        data = [data subdataWithRange:NSMakeRange(range.startLocation.fileOffset, (NSUInteger)(range.endLocation.fileOffset - range.startLocation.fileOffset))];
+        data = [data subdataWithRange:NSMakeRange((NSUInteger)range.startLocation.fileOffset, ((NSUInteger)range.endLocation.fileOffset - (NSUInteger)range.startLocation.fileOffset))];
     } else {
         NSFileHandle *file = _fileHandles[path];
         if (!file) {
