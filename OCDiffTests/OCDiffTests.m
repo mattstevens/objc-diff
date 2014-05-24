@@ -428,6 +428,28 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     XCTAssertEqualObjects(differences, expectedDifferences);
 }
 
+- (void)testClassForwardDeclaration {
+    NSArray *differences = [self differencesBetweenOldSource:@""
+                                                   newSource:@"@class Test;\n@interface Test\n- (void)testMethod;\n@end"];
+
+    NSArray *expectedDifferences = @[
+        [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"Test" path:OCDNewTestPath lineNumber:2],
+        [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"-[Test testMethod]" path:OCDNewTestPath lineNumber:3]
+    ];
+    XCTAssertEqualObjects(differences, expectedDifferences);
+}
+
+- (void)testProtocolForwardDeclaration {
+    NSArray *differences = [self differencesBetweenOldSource:@""
+                                                   newSource:@"@protocol Test;\n@protocol Test\n- (void)testMethod;\n@end"];
+
+    NSArray *expectedDifferences = @[
+        [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"Test" path:OCDNewTestPath lineNumber:2],
+        [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"-[Test testMethod]" path:OCDNewTestPath lineNumber:3]
+    ];
+    XCTAssertEqualObjects(differences, expectedDifferences);
+}
+
 - (void)testAddRemoveForName:(NSString *)name base:(NSString *)base addition:(NSString *)addition {
     NSArray *differences;
     NSArray *expectedDifferences;
