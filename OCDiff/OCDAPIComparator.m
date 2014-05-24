@@ -76,7 +76,7 @@
 
         if (obj1.type < obj2.type) {
             return NSOrderedAscending;
-        } else if (obj1.type < obj2.type) {
+        } else if (obj1.type > obj2.type) {
             return NSOrderedDescending;
         }
 
