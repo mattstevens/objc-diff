@@ -73,7 +73,7 @@
         if (cursor.location.isInSystemHeader)
             return PLClangCursorVisitContinue;
 
-        if (cursor.isDeclaration && [cursor.canonicalCursor isEqual:cursor]) {
+        if (cursor.isDeclaration && [self isCanonicalCursor:cursor]) {
             if (cursor.kind != PLClangCursorKindEnumDeclaration && cursor.kind != PLClangCursorKindObjCInstanceVariableDeclaration) {
                 [api setObject:cursor forKey:cursor.USR];
             }
@@ -101,7 +101,25 @@
 }
 
 /**
- * Returns a Boolean value indicating whether the specified cursor represents an empty macro definition
+ * Returns a Boolean value indicating whether the specified cursor represents the canonical cursor for a declaration.
+ *
+ * This works around a Clang bug where a forward declaration of a class or protocol appearing before the actual
+ * declaration is incorrectly considered the canonical declaration. Since the actual declaration for these types are
+ * the only cursors that will have a cursor kind of Objective-C class or protocol, it is safe to special-case them to
+ * always be considered canonical.
+ */
+- (BOOL)isCanonicalCursor:(PLClangCursor *)cursor {
+    switch (cursor.kind) {
+        case PLClangCursorKindObjCInterfaceDeclaration:
+        case PLClangCursorKindObjCProtocolDeclaration:
+            return YES;
+        default:
+            return [cursor.canonicalCursor isEqual:cursor];
+    }
+}
+
+/**
+ * Returns a Boolean value indicating whether the specified cursor represents an empty macro definition.
  *
  * An empty definition can be identified by an extent that includes only the macro's spelling.
  */
