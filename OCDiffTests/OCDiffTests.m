@@ -78,6 +78,26 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"-[Test testMethod]" modification:modification]);
 }
 
+- (void)testInstanceMethodModificationReturnTypeConstQualitification {
+    NSArray *differences = [self differencesBetweenOldSource:@"@interface Test - (char *)testMethod; @end"
+                                                   newSource:@"@interface Test - (const char *)testMethod; @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"- (char *)testMethod"
+                                                             currentValue:@"- (const char *)testMethod"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"-[Test testMethod]" modification:modification]);
+}
+
+- (void)testInstanceMethodModificationReturnTypeDifferentObjectType {
+    NSArray *differences = [self differencesBetweenOldSource:@"@interface A @end @interface B : A @end @interface Test - (B *)testMethod; @end"
+                                                   newSource:@"@interface A @end @interface B : A @end @interface Test - (A *)testMethod; @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"- (B *)testMethod"
+                                                             currentValue:@"- (A *)testMethod"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"-[Test testMethod]" modification:modification]);
+}
+
 - (void)testInstanceMethodModificationParameterType {
     NSArray *differences = [self differencesBetweenOldSource:@"@interface Test - (void)testMethodWithParameter:(int)param; @end"
                                                    newSource:@"@interface Test - (void)testMethodWithParameter:(long)param; @end"];
@@ -85,6 +105,26 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
                                                             previousValue:@"- (void)testMethodWithParameter:(int)param"
                                                              currentValue:@"- (void)testMethodWithParameter:(long)param"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"-[Test testMethodWithParameter:]" modification:modification]);
+}
+
+- (void)testInstanceMethodModificationParameterTypeConstQualification {
+    NSArray *differences = [self differencesBetweenOldSource:@"@interface Test - (void)testMethodWithParameter:(char *)param; @end"
+                                                   newSource:@"@interface Test - (void)testMethodWithParameter:(const char *)param; @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"- (void)testMethodWithParameter:(char *)param"
+                                                             currentValue:@"- (void)testMethodWithParameter:(const char *)param"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"-[Test testMethodWithParameter:]" modification:modification]);
+}
+
+- (void)testInstanceMethodModificationParameterTypeDifferentObjectType {
+    NSArray *differences = [self differencesBetweenOldSource:@"@interface A @end @interface B : A @end @interface Test - (void)testMethodWithParameter:(B *)param; @end"
+                                                   newSource:@"@interface A @end @interface B : A @end @interface Test - (void)testMethodWithParameter:(A *)param; @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"- (void)testMethodWithParameter:(B *)param"
+                                                             currentValue:@"- (void)testMethodWithParameter:(A *)param"];
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"-[Test testMethodWithParameter:]" modification:modification]);
 }
 

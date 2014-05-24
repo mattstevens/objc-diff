@@ -233,8 +233,20 @@
     }
 
     if (oldCursor.kind == PLClangCursorKindObjCInstanceMethodDeclaration || oldCursor.kind == PLClangCursorKindObjCClassMethodDeclaration) {
-        if ([oldCursor.objCTypeEncoding isEqual:newCursor.objCTypeEncoding] == NO) {
+        if ([oldCursor.resultType.spelling isEqual:newCursor.resultType.spelling] == NO) {
             return YES;
+        }
+
+        if ([oldCursor.arguments count] != [newCursor.arguments count]) {
+            return YES;
+        }
+
+        for (NSUInteger argIndex = 0; argIndex < [oldCursor.arguments count]; argIndex++) {
+            PLClangCursor *oldArgument = oldCursor.arguments[argIndex];
+            PLClangCursor *newArgument = newCursor.arguments[argIndex];
+            if ([oldArgument.type.spelling isEqual:newArgument.type.spelling] == NO) {
+                return YES;
+            }
         }
     } else if (oldType != newType && [oldType.spelling isEqual:newType.spelling] == NO) {
         return YES;
