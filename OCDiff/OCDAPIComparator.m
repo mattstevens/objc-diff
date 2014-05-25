@@ -109,6 +109,7 @@
 
         switch (cursor.kind) {
             case PLClangCursorKindObjCInterfaceDeclaration:
+            case PLClangCursorKindObjCCategoryDeclaration:
             case PLClangCursorKindObjCProtocolDeclaration:
             case PLClangCursorKindEnumDeclaration:
                 return PLClangCursorVisitRecurse;
@@ -133,6 +134,7 @@
 - (BOOL)isCanonicalCursor:(PLClangCursor *)cursor {
     switch (cursor.kind) {
         case PLClangCursorKindObjCInterfaceDeclaration:
+        case PLClangCursorKindObjCCategoryDeclaration:
         case PLClangCursorKindObjCProtocolDeclaration:
             return YES;
         default:
@@ -304,6 +306,20 @@
     return superclassCursor;
 }
 
+- (PLClangCursor *)classCursorForCategoryAtCursor:(PLClangCursor *)categoryCursor {
+    __block PLClangCursor *classCursor = nil;
+    [categoryCursor visitChildrenUsingBlock:^PLClangCursorVisitResult(PLClangCursor *cursor) {
+        if (cursor.kind == PLClangCursorKindObjCClassReference) {
+            classCursor = cursor.referencedCursor ?: cursor;
+            return PLClangCursorVisitBreak;
+        }
+
+        return PLClangCursorVisitContinue;
+    }];
+
+    return classCursor;
+}
+
 - (NSArray *)protocolCursorsForCursor:(PLClangCursor *)classCursor {
     NSMutableArray *protocols = [NSMutableArray array];
     [classCursor visitChildrenUsingBlock:^PLClangCursorVisitResult(PLClangCursor *cursor) {
@@ -362,6 +378,7 @@
 - (BOOL)shouldReportHeaderChangeForCursor:(PLClangCursor *)cursor {
     switch (cursor.semanticParent.kind) {
         case PLClangCursorKindObjCInterfaceDeclaration:
+        case PLClangCursorKindObjCCategoryDeclaration:
         case PLClangCursorKindObjCProtocolDeclaration:
         case PLClangCursorKindStructDeclaration:
             return NO;
@@ -398,14 +415,24 @@
     return [result stringByTrimmingCharactersInSet: characterSet];
 }
 
+- (NSString *)displayNameForObjCParentCursor:(PLClangCursor *)cursor {
+    if (cursor.kind == PLClangCursorKindObjCCategoryDeclaration) {
+        return [self classCursorForCategoryAtCursor:cursor].spelling;
+    }
+
+    return cursor.spelling;
+}
+
 - (NSString *)displayNameForCursor:(PLClangCursor *)cursor {
     switch (cursor.kind) {
+        case PLClangCursorKindObjCCategoryDeclaration:
+            return [NSString stringWithFormat:@"%@ (%@)", [self displayNameForObjCParentCursor:cursor], cursor.spelling];
         case PLClangCursorKindObjCInstanceMethodDeclaration:
-            return [NSString stringWithFormat:@"-[%@ %@]", cursor.semanticParent.spelling, cursor.spelling];
+            return [NSString stringWithFormat:@"-[%@ %@]", [self displayNameForObjCParentCursor:cursor.semanticParent], cursor.spelling];
         case PLClangCursorKindObjCClassMethodDeclaration:
-            return [NSString stringWithFormat:@"+[%@ %@]", cursor.semanticParent.spelling, cursor.spelling];
+            return [NSString stringWithFormat:@"+[%@ %@]", [self displayNameForObjCParentCursor:cursor.semanticParent], cursor.spelling];
         case PLClangCursorKindObjCPropertyDeclaration:
-            return [NSString stringWithFormat:@"%@.%@", cursor.semanticParent.spelling, cursor.spelling];
+            return [NSString stringWithFormat:@"%@.%@", [self displayNameForObjCParentCursor:cursor.semanticParent], cursor.spelling];
         case PLClangCursorKindFunctionDeclaration:
             return [NSString stringWithFormat:@"%@()", cursor.spelling];
         case PLClangCursorKindMacroDefinition:
