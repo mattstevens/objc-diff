@@ -97,10 +97,8 @@
         if (cursor.location.isInSystemHeader)
             return PLClangCursorVisitContinue;
 
-        if (cursor.isDeclaration && [self isCanonicalCursor:cursor]) {
-            if (cursor.kind != PLClangCursorKindEnumDeclaration && cursor.kind != PLClangCursorKindObjCInstanceVariableDeclaration) {
-                [api setObject:cursor forKey:cursor.USR];
-            }
+        if (cursor.isDeclaration && [self isCanonicalCursor:cursor] && [self shouldIncludeDeclarationAtCursor:cursor]) {
+            [api setObject:cursor forKey:cursor.USR];
         } else if (cursor.kind == PLClangCursorKindMacroDefinition && [self isEmptyMacroDefinitionAtCursor:cursor] == NO) {
             // Macros from non-system headers have file and line number information
             // included in their USR, making it an inappropriate key for comparison
@@ -140,6 +138,32 @@
         default:
             return [cursor.canonicalCursor isEqual:cursor];
     }
+}
+
+/**
+ * Returns a Boolean value indicating whether the declaration at the specified cursor should be included in the API.
+ */
+- (BOOL)shouldIncludeDeclarationAtCursor:(PLClangCursor *)cursor {
+    switch (cursor.kind) {
+        // Exclude enum declarations, in Objective-C these are typically accessed through an appropriate typedef.
+        case PLClangCursorKindEnumDeclaration:
+            return NO;
+
+        // Exclude instance variables.
+        case PLClangCursorKindObjCInstanceVariableDeclaration:
+            return NO;
+
+        default:
+            break;
+    }
+
+    // Exclude unavailable and inaccessible declarations.
+    if (cursor.availability.availabilityKind == PLClangAvailabilityKindUnavailable ||
+        cursor.availability.availabilityKind == PLClangAvailabilityKindInaccessible) {
+        return NO;
+    }
+
+    return YES;
 }
 
 /**

@@ -71,6 +71,27 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     NSArray *expectedDifferences = @[[OCDifference modificationDifferenceWithName:@"Test()" path:OCDNewTestPath lineNumber:1 modifications:modifications]];
     XCTAssertEqualObjects(differences, expectedDifferences);
 }
+
+/**
+ * Tests that an unconditionally unavailable declaration is ignored.
+ */
+- (void)testUnavailable {
+    NSArray *differences = [self differencesBetweenOldSource:@""
+                                                   newSource:@"void Test(void) __attribute__((unavailable));"];
+
+    XCTAssertEqualObjects(differences, @[]);
+}
+
+/**
+ * Tests that a declaration unavailable for the target platform is ignored.
+ */
+- (void)testUnavailableOnPlatform {
+    NSArray *differences = [self differencesBetweenOldSource:@""
+                                                   newSource:@"void Test(void) __attribute__((availability(macosx,unavailable)));"];
+
+    XCTAssertEqualObjects(differences, @[]);
+}
+
 - (void)testClass {
     [self testAddRemoveForName:@"Test"
                           base:@""
