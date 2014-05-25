@@ -97,15 +97,25 @@
         if (cursor.location.isInSystemHeader)
             return PLClangCursorVisitContinue;
 
-        if (cursor.isDeclaration && [self isCanonicalCursor:cursor] && [self shouldIncludeDeclarationAtCursor:cursor]) {
-            [api setObject:cursor forKey:cursor.USR];
-        } else if (cursor.kind == PLClangCursorKindMacroDefinition && [self isEmptyMacroDefinitionAtCursor:cursor] == NO) {
+        if ([self shouldIncludeEntityAtCursor:cursor] == NO) {
+            if (cursor.kind == PLClangCursorKindEnumDeclaration) {
+                // Enum declarations are excluded, but enum constants are included.
+                return PLClangCursorVisitRecurse;
+            } else {
+                return PLClangCursorVisitContinue;
+            }
+        }
+
+        NSString *key = cursor.USR;
+
+        if (cursor.kind == PLClangCursorKindMacroDefinition) {
             // Macros from non-system headers have file and line number information
             // included in their USR, making it an inappropriate key for comparison
             // of API. Use a custom key for these definitions.
-            NSString *key = [NSString stringWithFormat:@"ocd_macro_%@", cursor.spelling];
-            [api setObject:cursor forKey:key];
+            key = [NSString stringWithFormat:@"ocd_macro_%@", cursor.spelling];
         }
+
+        [api setObject:cursor forKey:key];
 
         switch (cursor.kind) {
             case PLClangCursorKindObjCInterfaceDeclaration:
@@ -143,9 +153,25 @@
 }
 
 /**
+ * Returns a Boolean value indicating whether the entity at the specified cursor should be included in the API.
+ */
+- (BOOL)shouldIncludeEntityAtCursor:(PLClangCursor *)cursor {
+    if ((cursor.isDeclaration && [self shouldIncludeDeclarationAtCursor:cursor]) ||
+        (cursor.kind == PLClangCursorKindMacroDefinition && [self isEmptyMacroDefinitionAtCursor:cursor] == NO)) {
+        return ([cursor.spelling length] > 0 && [cursor.spelling hasPrefix:@"_"] == NO);
+    }
+
+    return NO;
+}
+
+/**
  * Returns a Boolean value indicating whether the declaration at the specified cursor should be included in the API.
  */
 - (BOOL)shouldIncludeDeclarationAtCursor:(PLClangCursor *)cursor {
+    if ([self isCanonicalCursor:cursor] == NO) {
+        return NO;
+    }
+
     switch (cursor.kind) {
         // Exclude enum declarations, in Objective-C these are typically accessed through an appropriate typedef.
         case PLClangCursorKindEnumDeclaration:

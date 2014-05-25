@@ -702,6 +702,26 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     XCTAssertEqualObjects(differences, expectedDifferences);
 }
 
+/**
+ * Tests that a declaration begining with a '_' and all of its children are ignored.
+ */
+- (void)testExcludeUnderscorePrefix {
+    NSArray *differences = [self differencesBetweenOldSource:@""
+                                                   newSource:@"struct _private { int test; };"];
+
+    XCTAssertEqualObjects(differences, @[]);
+}
+
+/**
+ * Tests that anonymous structs are ignored.
+ */
+- (void)testExcludeAnonymousStruct {
+    NSArray *differences = [self differencesBetweenOldSource:@""
+                                                   newSource:@"struct { int test; };"];
+
+    XCTAssertEqualObjects(differences, @[]);
+}
+
 - (void)testAddRemoveForName:(NSString *)name base:(NSString *)base addition:(NSString *)addition {
     NSArray *differences;
     NSArray *expectedDifferences;
