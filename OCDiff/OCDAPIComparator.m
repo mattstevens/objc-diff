@@ -216,10 +216,10 @@
         [modifications addObject:modification];
     }
 
-    if (oldCursor.availability.isDeprecated != newCursor.availability.isDeprecated) {
+    if ((oldCursor.availability.availabilityKind == PLClangAvailabilityKindDeprecated) != (newCursor.availability.availabilityKind == PLClangAvailabilityKindDeprecated)) {
         OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeprecation
-                                                                previousValue:oldCursor.availability.isDeprecated ? @"YES" : @"NO"
-                                                                 currentValue:newCursor.availability.isDeprecated ? @"YES" : @"NO"];
+                                                                previousValue:(oldCursor.availability.availabilityKind == PLClangAvailabilityKindDeprecated) ? @"YES" : @"NO"
+                                                                 currentValue:(newCursor.availability.availabilityKind == PLClangAvailabilityKindDeprecated) ? @"YES" : @"NO"];
         [modifications addObject:modification];
     }
 
