@@ -216,11 +216,18 @@
         [modifications addObject:modification];
     }
 
-    if ((oldCursor.availability.availabilityKind == PLClangAvailabilityKindDeprecated) != (newCursor.availability.availabilityKind == PLClangAvailabilityKindDeprecated)) {
-        OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeprecation
-                                                                previousValue:(oldCursor.availability.availabilityKind == PLClangAvailabilityKindDeprecated) ? @"YES" : @"NO"
-                                                                 currentValue:(newCursor.availability.availabilityKind == PLClangAvailabilityKindDeprecated) ? @"YES" : @"NO"];
+    if (oldCursor.availability.availabilityKind != newCursor.availability.availabilityKind) {
+        OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeAvailability
+                                                                previousValue:[self stringForAvailabilityKind:oldCursor.availability.availabilityKind]
+                                                                 currentValue:[self stringForAvailabilityKind:newCursor.availability.availabilityKind]];
         [modifications addObject:modification];
+
+        if (newCursor.availability.availabilityKind == PLClangAvailabilityKindDeprecated && [newCursor.availability.deprecationMessage length] > 0) {
+            modification = [OCDModification modificationWithType:OCDModificationTypeDeprecationMessage
+                                                                    previousValue:nil
+                                                                     currentValue:newCursor.availability.deprecationMessage];
+            [modifications addObject:modification];
+        }
     }
 
     // TODO: Should be relative path from common base.
@@ -391,6 +398,21 @@
     }
 
     return [protocolNames count] > 0 ? [protocolNames componentsJoinedByString:@", "] : nil;
+}
+
+- (NSString *)stringForAvailabilityKind:(PLClangAvailabilityKind)kind {
+    switch (kind) {
+        case PLClangAvailabilityKindAvailable:
+            return @"Available";
+        case PLClangAvailabilityKindDeprecated:
+            return @"Deprecated";
+        case PLClangAvailabilityKindUnavailable:
+            return @"Unavailable";
+        case PLClangAvailabilityKindInaccessible:
+            return @"Inaccessible";
+    }
+
+    abort();
 }
 
 @end

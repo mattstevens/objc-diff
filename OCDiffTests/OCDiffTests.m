@@ -50,12 +50,27 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     NSArray *differences = [self differencesBetweenOldSource:@"void Test(void);"
                                                    newSource:@"void Test(void) __attribute__((deprecated));"];
 
-    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeprecation
-                                                            previousValue:@"NO"
-                                                             currentValue:@"YES"];
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeAvailability
+                                                            previousValue:@"Available"
+                                                             currentValue:@"Deprecated"];
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test()" modification:modification]);
 }
 
+- (void)testModificationDeprecationWithMessage {
+    NSArray *differences = [self differencesBetweenOldSource:@"void Test(void);"
+                                                   newSource:@"void Test(void) __attribute__((deprecated(\"Test message\")));"];
+
+    NSArray *modifications = @[
+        [OCDModification modificationWithType:OCDModificationTypeAvailability
+                               previousValue:@"Available"
+                                currentValue:@"Deprecated"],
+        [OCDModification modificationWithType:OCDModificationTypeDeprecationMessage
+                               previousValue:nil
+                                currentValue:@"Test message"]
+    ];
+    NSArray *expectedDifferences = @[[OCDifference modificationDifferenceWithName:@"Test()" path:OCDNewTestPath lineNumber:1 modifications:modifications]];
+    XCTAssertEqualObjects(differences, expectedDifferences);
+}
 - (void)testClass {
     [self testAddRemoveForName:@"Test"
                           base:@""

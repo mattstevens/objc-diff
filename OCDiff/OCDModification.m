@@ -23,8 +23,11 @@
         case OCDModificationTypeDeclaration:
             [result appendString:@"Declaration"];
             break;
-        case OCDModificationTypeDeprecation:
-            [result appendString:@"Deprecation"];
+        case OCDModificationTypeAvailability:
+            [result appendString:@"Availability"];
+            break;
+        case OCDModificationTypeDeprecationMessage:
+            [result appendString:@"Deprecation Message"];
             break;
         case OCDModificationTypeSuperclass:
             [result appendString:@"Superclass"];
@@ -41,9 +44,9 @@
     }
 
     [result appendString:@": "];
-    [result appendString:self.previousValue ?: @"(nil)"];
+    [result appendString:[self.previousValue length] > 0 ? self.previousValue : @"(none)"];
     [result appendString:@" to "];
-    [result appendString:self.currentValue ?: @"(nil)"];
+    [result appendString:[self.currentValue length] > 0 ? self.currentValue : @"(none)"];
     return result;
 }
 
