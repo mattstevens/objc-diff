@@ -255,8 +255,8 @@
     }
 
     // TODO: Should be relative path from common base.
-    NSString *oldRelativePath = [oldCursor.location.path lastPathComponent];
-    NSString *newRelativePath = [newCursor.location.path lastPathComponent];
+    NSString *oldRelativePath = [oldCursor.location.path lastPathComponent] ?: @"";
+    NSString *newRelativePath = [newCursor.location.path lastPathComponent] ?: @"";
     if ([oldRelativePath isEqual:newRelativePath] == NO && [self shouldReportHeaderChangeForCursor:oldCursor]) {
         OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeHeader
                                                                 previousValue:[oldCursor.location.path lastPathComponent]
