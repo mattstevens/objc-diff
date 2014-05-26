@@ -243,6 +243,18 @@
     if (oldCursor.isImplicit || newCursor.isImplicit)
         return nil;
 
+    // TODO: Should be relative path from common base.
+    NSString *oldRelativePath = [oldCursor.location.path lastPathComponent] ?: @"";
+    NSString *newRelativePath = [newCursor.location.path lastPathComponent] ?: @"";
+    if ([oldRelativePath isEqual:newRelativePath] == NO && [self shouldReportHeaderChangeForCursor:oldCursor]) {
+        OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeHeader
+                                                                previousValue:[oldCursor.location.path lastPathComponent]
+                                                                 currentValue:[newCursor.location.path lastPathComponent]];
+        [modifications addObject:modification];
+
+        reportDifferenceForOldLocation = YES;
+    }
+
     if ([self declarationChangedBetweenOldCursor:oldCursor newCursor:newCursor]) {
         OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
                                                                 previousValue:[self stringForSourceRange:oldCursor.extent]
@@ -305,18 +317,6 @@
                                                                      currentValue:newCursor.availability.deprecationMessage];
             [modifications addObject:modification];
         }
-    }
-
-    // TODO: Should be relative path from common base.
-    NSString *oldRelativePath = [oldCursor.location.path lastPathComponent] ?: @"";
-    NSString *newRelativePath = [newCursor.location.path lastPathComponent] ?: @"";
-    if ([oldRelativePath isEqual:newRelativePath] == NO && [self shouldReportHeaderChangeForCursor:oldCursor]) {
-        OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeHeader
-                                                                previousValue:[oldCursor.location.path lastPathComponent]
-                                                                 currentValue:[newCursor.location.path lastPathComponent]];
-        [modifications addObject:modification];
-
-        reportDifferenceForOldLocation = YES;
     }
 
     if ([modifications count] > 0) {
