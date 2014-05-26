@@ -511,13 +511,13 @@ static NSString * const OCDNewTestPath = @"new/test.h";
                       addition:@"typedef int Test;"];
 }
 
-- (void)testBlockTypedef {
+- (void)testBlockPointerTypedef {
     [self testAddRemoveForName:@"Test"
                           base:@""
                       addition:@"typedef void (^Test)(id param);"];
 }
 
-- (void)testBlockTypedefModificationReturnType {
+- (void)testBlockPointerTypedefModificationReturnType {
     NSArray *differences = [self differencesBetweenOldSource:@"typedef void (^Test)(id param);"
                                                    newSource:@"typedef int (^Test)(id param);"];
 
