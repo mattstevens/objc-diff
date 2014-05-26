@@ -607,6 +607,32 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     XCTAssertEqualObjects(differences, @[]);
 }
 
+- (void)testEnumFixedTypeChange {
+    NSArray *differences = [self differencesBetweenOldSource:@"enum TestEnum : int { TestEnumValue };"
+                                                   newSource:@"enum TestEnum : long { TestEnumValue };"];
+
+    XCTAssertEqualObjects(differences, @[]);
+}
+
+/**
+ * Tests that no changes are reported for conversion from an NS_ENUM-style typedef.
+ */
+- (void)testConversionFromTypedEnum {
+    NSArray *differences = [self differencesBetweenOldSource:@"typedef enum TestOptions : int TestOptions; enum TestOptions : int { TEST };"
+                                                   newSource:@"enum { TEST }; typedef int TestOptions;"];
+
+    XCTAssertEqualObjects(differences, @[]);
+}
+
+/**
+ * Tests that no changes are reported for conversion to an NS_ENUM-style typedef.
+ */
+- (void)testConversionToTypedEnum {
+    NSArray *differences = [self differencesBetweenOldSource:@"enum { TEST }; typedef int TestOptions;"
+                                                   newSource:@"typedef enum TestOptions : int TestOptions; enum TestOptions : int { TEST };"];
+
+    XCTAssertEqualObjects(differences, @[]);
+}
 - (void)testEnumConstant {
     [self testAddRemoveForName:@"TEST"
                           base:@"enum Test { EXISTING };"
