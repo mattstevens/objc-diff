@@ -385,34 +385,60 @@
 }
 
 - (BOOL)declarationChangedBetweenOldCursor:(PLClangCursor *)oldCursor newCursor:(PLClangCursor *)newCursor {
-    PLClangType *oldType = oldCursor.type;
-    PLClangType *newType = newCursor.type;
-
-    if (oldCursor.kind == PLClangCursorKindTypedefDeclaration) {
-        oldType = oldCursor.underlyingType;
-        newType = newCursor.underlyingType;
-    }
-
-    if (oldCursor.kind == PLClangCursorKindObjCInstanceMethodDeclaration || oldCursor.kind == PLClangCursorKindObjCClassMethodDeclaration) {
-        if ([oldCursor.resultType.spelling isEqual:newCursor.resultType.spelling] == NO) {
-            return YES;
-        }
-
-        if ([oldCursor.arguments count] != [newCursor.arguments count]) {
-            return YES;
-        }
-
-        for (NSUInteger argIndex = 0; argIndex < [oldCursor.arguments count]; argIndex++) {
-            PLClangCursor *oldArgument = oldCursor.arguments[argIndex];
-            PLClangCursor *newArgument = newCursor.arguments[argIndex];
-            if ([oldArgument.type.spelling isEqual:newArgument.type.spelling] == NO) {
+    switch (oldCursor.kind) {
+        case PLClangCursorKindObjCInstanceMethodDeclaration:
+        case PLClangCursorKindObjCClassMethodDeclaration:
+        {
+            if (!OCDEqualTypes(oldCursor.resultType, newCursor.resultType)) {
                 return YES;
             }
+
+            if ([oldCursor.arguments count] != [newCursor.arguments count]) {
+                return YES;
+            }
+
+            for (NSUInteger argIndex = 0; argIndex < [oldCursor.arguments count]; argIndex++) {
+                PLClangCursor *oldArgument = oldCursor.arguments[argIndex];
+                PLClangCursor *newArgument = newCursor.arguments[argIndex];
+                if (!OCDEqualTypes(oldArgument.type, newArgument.type)) {
+                    return YES;
+                }
+            }
+
+            break;
         }
-    } else if (oldType != newType && [oldType.spelling isEqual:newType.spelling] == NO) {
-        return YES;
-    } else if (oldCursor.kind == PLClangCursorKindObjCPropertyDeclaration && oldCursor.objCPropertyAttributes != newCursor.objCPropertyAttributes) {
-        return YES;
+
+        case PLClangCursorKindObjCPropertyDeclaration:
+        {
+            return oldCursor.objCPropertyAttributes != newCursor.objCPropertyAttributes || !OCDEqualTypes(oldCursor.type, newCursor.type);
+        }
+
+        case PLClangCursorKindFunctionDeclaration:
+        case PLClangCursorKindVariableDeclaration:
+        {
+            return !OCDEqualTypes(oldCursor.type, newCursor.type);
+        }
+
+        case PLClangCursorKindTypedefDeclaration:
+        {
+            // Report changes to block and function pointer typedefs
+
+            if (oldCursor.underlyingType.kind == PLClangTypeKindBlockPointer && oldCursor.underlyingType.kind == PLClangTypeKindBlockPointer) {
+                return !OCDEqualTypes(oldCursor.underlyingType, newCursor.underlyingType);
+            }
+
+            if (oldCursor.underlyingType.kind == PLClangTypeKindPointer && oldCursor.underlyingType.pointeeType.canonicalType.kind == PLClangTypeKindFunctionPrototype &&
+                newCursor.underlyingType.kind == PLClangTypeKindPointer && newCursor.underlyingType.pointeeType.canonicalType.kind == PLClangTypeKindFunctionPrototype) {
+                return !OCDEqualTypes(oldCursor.underlyingType, newCursor.underlyingType);
+            }
+
+            break;
+        }
+
+        default:
+        {
+            break;
+        }
     }
 
     return NO;
@@ -515,6 +541,16 @@
     }
 
     abort();
+}
+
+/**
+ * Returns a Boolean value indicating whether two types are equal.
+ *
+ * Clang types cannot be compared across translation units, so -[PLClangType isEqual:] is unsuitable for API comparison
+ * purposes. To work around this compare the type's spelling, which includes its qualifiers.
+ */
+static BOOL OCDEqualTypes(PLClangType *type1, PLClangType* type2) {
+    return [type1.spelling isEqual:type2.spelling];
 }
 
 @end
