@@ -505,6 +505,12 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
 }
 
+- (void)testTypedef {
+    [self testAddRemoveForName:@"Test"
+                          base:@""
+                      addition:@"typedef int Test;"];
+}
+
 - (void)testBlockTypedef {
     [self testAddRemoveForName:@"Test"
                           base:@""
