@@ -433,36 +433,99 @@ static NSString * const OCDNewTestPath = @"new/test.h";
 }
 
 /**
- * Tests that a conversion from explicit accessors to a property is reported only as the addition of the
- * property declaration and not removal of the accessor methods.
+ * Tests that a conversion from explicit accessors to a property is reported as modifications to the declarations of the accessor methods.
  */
 - (void)testConversionToProperty {
     NSArray *differences = [self differencesBetweenOldSource:@"@interface Test - (int)testProperty; - (void)setTestProperty:(int)val; @end"
                                                    newSource:@"@interface Test @property int testProperty; @end"];
 
-    XCTAssertEqualObjects(differences, [self additionArrayWithName:@"Test.testProperty"]);
+    OCDModification *getterModification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                                  previousValue:@"- (int)testProperty"
+                                                                   currentValue:@"@property int testProperty"];
+
+    OCDModification *setterModification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                                  previousValue:@"- (void)setTestProperty:(int)val"
+                                                                   currentValue:@"@property int testProperty"];
+
+    NSArray *expectedDifferences = @[
+        [OCDifference modificationDifferenceWithName:@"-[Test setTestProperty:]" path:OCDNewTestPath lineNumber:1 modifications:@[setterModification]],
+        [OCDifference modificationDifferenceWithName:@"-[Test testProperty]" path:OCDNewTestPath lineNumber:1 modifications:@[getterModification]]
+    ];
+    XCTAssertEqualObjects(differences, expectedDifferences);
+}
+
+- (void)testConversionToPropertyWithChangedType {
+    NSArray *differences = [self differencesBetweenOldSource:@"@interface Test - (int)testProperty; - (void)setTestProperty:(int)val; @end"
+                                                   newSource:@"@interface Test @property long testProperty; @end"];
+
+    OCDModification *getterModification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                                  previousValue:@"- (int)testProperty"
+                                                                   currentValue:@"@property long testProperty"];
+
+    OCDModification *setterModification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                                  previousValue:@"- (void)setTestProperty:(int)val"
+                                                                   currentValue:@"@property long testProperty"];
+
+    NSArray *expectedDifferences = @[
+        [OCDifference modificationDifferenceWithName:@"-[Test setTestProperty:]" path:OCDNewTestPath lineNumber:1 modifications:@[setterModification]],
+        [OCDifference modificationDifferenceWithName:@"-[Test testProperty]" path:OCDNewTestPath lineNumber:1 modifications:@[getterModification]]
+    ];
+    XCTAssertEqualObjects(differences, expectedDifferences);
 }
 
 /**
- * Tests that a conversion from explicit accessors to a property with a different implicit accessor reports
- * removal of the previous explicit accessor.
+ * Tests that a conversion from explicit accessors to a property with a different implicit accessor reports removal of the previous explicit accessor.
  */
 - (void)testConversionToPropertyWithRemovedMethod {
     NSArray *differences = [self differencesBetweenOldSource:@"@interface Test - (char)isTestProperty; - (void)setTestProperty:(char)val; @end"
                                                    newSource:@"@interface Test @property char testProperty; @end"];
 
+    OCDModification *setterModification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                                  previousValue:@"- (void)setTestProperty:(char)val"
+                                                                   currentValue:@"@property char testProperty"];
+
     NSArray *expectedDifferences = @[
         [OCDifference differenceWithType:OCDifferenceTypeRemoval name:@"-[Test isTestProperty]" path:OCDOldTestPath lineNumber:1],
-        [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"Test.testProperty" path:OCDNewTestPath lineNumber:1]
+        [OCDifference modificationDifferenceWithName:@"-[Test setTestProperty:]" path:OCDNewTestPath lineNumber:1 modifications:@[setterModification]]
     ];
     XCTAssertEqualObjects(differences, expectedDifferences);
 }
 
+/**
+ * Tests that a conversion from a property to explicit accessors is reported as modifications to the declarations of the accessor methods.
+ */
 - (void)testConversionFromProperty {
     NSArray *differences = [self differencesBetweenOldSource:@"@interface Test @property int testProperty; @end"
                                                    newSource:@"@interface Test - (int)testProperty; - (void)setTestProperty:(int)val; @end"];
 
-    XCTAssertEqualObjects(differences, [self removalArrayWithName:@"Test.testProperty"]);
+    OCDModification *getterModification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                                  previousValue:@"@property int testProperty"
+                                                                   currentValue:@"- (int)testProperty"];
+
+    OCDModification *setterModification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                                  previousValue:@"@property int testProperty"
+                                                                   currentValue:@"- (void)setTestProperty:(int)val"];
+
+    NSArray *expectedDifferences = @[
+        [OCDifference modificationDifferenceWithName:@"-[Test setTestProperty:]" path:OCDNewTestPath lineNumber:1 modifications:@[setterModification]],
+        [OCDifference modificationDifferenceWithName:@"-[Test testProperty]" path:OCDNewTestPath lineNumber:1 modifications:@[getterModification]]
+    ];
+    XCTAssertEqualObjects(differences, expectedDifferences);
+}
+
+- (void)testConversionFromPropertyWithAddedMethod {
+    NSArray *differences = [self differencesBetweenOldSource:@"@interface Test @property (readonly) int testProperty; @end"
+                                                   newSource:@"@interface Test - (int)testProperty; - (void)setTestProperty:(int)val; @end"];
+
+    OCDModification *getterModification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                                  previousValue:@"@property (readonly) int testProperty"
+                                                                   currentValue:@"- (int)testProperty"];
+
+    NSArray *expectedDifferences = @[
+        [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"-[Test setTestProperty:]" path:OCDNewTestPath lineNumber:1],
+        [OCDifference modificationDifferenceWithName:@"-[Test testProperty]" path:OCDNewTestPath lineNumber:1 modifications:@[getterModification]]
+    ];
+    XCTAssertEqualObjects(differences, expectedDifferences);
 }
 
 - (void)testVariable {
