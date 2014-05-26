@@ -527,6 +527,22 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
 }
 
+- (void)testFunctionPointerTypedef {
+    [self testAddRemoveForName:@"Test"
+                          base:@""
+                      addition:@"typedef void (*Test)(id param);"];
+}
+
+- (void)testFunctionPointerTypedefModificationReturnType {
+    NSArray *differences = [self differencesBetweenOldSource:@"typedef void (*Test)(id param);"
+                                                   newSource:@"typedef int (*Test)(id param);"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"typedef void (*Test)(id param)"
+                                                             currentValue:@"typedef int (*Test)(id param)"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
+}
+
 /**
  * Tests that addition / removal of the enum constant is reported, but not the enum declaration.
  */
