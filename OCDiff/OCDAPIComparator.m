@@ -2,22 +2,22 @@
 #import <ObjectDoc/ObjectDoc.h>
 
 @implementation OCDAPIComparator {
-    NSSet *_oldTranslationUnits;
-    NSSet *_newTranslationUnits;
+    PLClangTranslationUnit *_oldTranslationUnit;
+    PLClangTranslationUnit *_newTranslationUnit;
     NSMutableDictionary *_fileHandles;
     NSMutableDictionary *_unsavedFileData;
 }
 
-- (instancetype)initWithOldTranslationUnits:(NSSet *)oldTranslationUnits newTranslationUnits:(NSSet *)newTranslationUnits {
-    return [self initWithOldTranslationUnits:oldTranslationUnits newTranslationUnits:newTranslationUnits unsavedFiles:nil];
+- (instancetype)initWithOldTranslationUnit:(PLClangTranslationUnit *)oldTranslationUnit newTranslationUnit:(PLClangTranslationUnit *)newTranslationUnit {
+    return [self initWithOldTranslationUnit:oldTranslationUnit newTranslationUnit:newTranslationUnit unsavedFiles:nil];
 }
 
-- (instancetype)initWithOldTranslationUnits:(NSSet *)oldTranslationUnits newTranslationUnits:(NSSet *)newTranslationUnits unsavedFiles:(NSArray *)unsavedFiles {
+- (instancetype)initWithOldTranslationUnit:(PLClangTranslationUnit *)oldTranslationUnit newTranslationUnit:(PLClangTranslationUnit *)newTranslationUnit unsavedFiles:(NSArray *)unsavedFiles {
     if (!(self = [super init]))
         return nil;
 
-    _oldTranslationUnits = [oldTranslationUnits copy];
-    _newTranslationUnits = [newTranslationUnits copy];
+    _oldTranslationUnit = oldTranslationUnit;
+    _newTranslationUnit = newTranslationUnit;
     _fileHandles = [[NSMutableDictionary alloc] init];
     _unsavedFileData = [[NSMutableDictionary alloc] init];
 
@@ -30,10 +30,8 @@
 
 - (NSArray *)computeDifferences {
     NSMutableArray *differences = [NSMutableArray array];
-    PLClangTranslationUnit *oldTU = [_oldTranslationUnits allObjects][0];
-    PLClangTranslationUnit *newTU = [_newTranslationUnits allObjects][0];
-    NSDictionary *oldAPI = [self APIForTranslationUnit:oldTU];
-    NSDictionary *newAPI = [self APIForTranslationUnit:newTU];
+    NSDictionary *oldAPI = [self APIForTranslationUnit:_oldTranslationUnit];
+    NSDictionary *newAPI = [self APIForTranslationUnit:_newTranslationUnit];
 
     NSMutableSet *additions = [NSMutableSet setWithArray:[newAPI allKeys]];
     [additions minusSet:[NSSet setWithArray:[oldAPI allKeys]]];

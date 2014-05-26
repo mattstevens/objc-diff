@@ -855,8 +855,8 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     XCTAssertNotNil(newTU, @"Failed to parse: %@", error);
     XCTAssertFalse(newTU.didFail, @"Fatal error encountered during parse");
 
-    OCDAPIComparator *comparator = [[OCDAPIComparator alloc] initWithOldTranslationUnits:[NSSet setWithObject:oldTU]
-                                                                     newTranslationUnits:[NSSet setWithObject:newTU]
+    OCDAPIComparator *comparator = [[OCDAPIComparator alloc] initWithOldTranslationUnit:oldTU
+                                                                     newTranslationUnit:newTU
                                                                             unsavedFiles:@[oldFile, newFile]];
     return [comparator computeDifferences];
 }

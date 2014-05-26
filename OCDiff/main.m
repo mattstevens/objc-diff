@@ -113,7 +113,7 @@ int main(int argc, char *argv[]) {
             return 1;
         }
 
-        OCDAPIComparator *comparator = [[OCDAPIComparator alloc] initWithOldTranslationUnits:[NSSet setWithObject:oldTU] newTranslationUnits:[NSSet setWithObject:newTU]];
+        OCDAPIComparator *comparator = [[OCDAPIComparator alloc] initWithOldTranslationUnit:oldTU newTranslationUnit:newTU];
 
         NSArray *differences = [comparator computeDifferences];
         differences = [differences sortedArrayUsingComparator:^NSComparisonResult(OCDifference *obj1, OCDifference *obj2) {
