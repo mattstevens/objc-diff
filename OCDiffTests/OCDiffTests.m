@@ -639,6 +639,7 @@ static NSString * const OCDNewTestPath = @"new/test.h";
 
     XCTAssertEqualObjects(differences, @[]);
 }
+
 - (void)testEnumConstant {
     [self testAddRemoveForName:@"TEST"
                           base:@"enum Test { EXISTING };"
@@ -713,6 +714,9 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     XCTAssertEqualObjects(differences, expectedDifferences);
 }
 
+/**
+ * Tests that a class and its children are recognized if a forward declaration of the class preceeds the declaration.
+ */
 - (void)testClassForwardDeclaration {
     NSArray *differences = [self differencesBetweenOldSource:@""
                                                    newSource:@"@class Test;\n@interface Test\n- (void)testMethod;\n@end"];
@@ -724,6 +728,9 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     XCTAssertEqualObjects(differences, expectedDifferences);
 }
 
+/**
+ * Tests that a protocol and its children are recognized if a forward declaration of the protocol preceeds the declaration.
+ */
 - (void)testProtocolForwardDeclaration {
     NSArray *differences = [self differencesBetweenOldSource:@""
                                                    newSource:@"@protocol Test;\n@protocol Test\n- (void)testMethod;\n@end"];
