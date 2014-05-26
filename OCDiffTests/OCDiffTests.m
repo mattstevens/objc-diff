@@ -665,6 +665,18 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     [self testHeaderRelocationForName:@"Test()" source:@"void Test(void);"];
 }
 
+- (void)testStaticInlineFunctionHeaderRelocation {
+    [self testHeaderRelocationForName:@"Test()" source:@"static __inline__ __attribute__((always_inline)) void Test(void) {}"];
+}
+
+- (void)testEnumHeaderRelocation {
+    [self testHeaderRelocationForName:@"TEST" source:@"enum { TEST };"];
+}
+
+- (void)testMacroHeaderRelocation {
+    [self testHeaderRelocationForName:@"#def TEST" source:@"#define TEST 1"];
+}
+
 /**
  * Tests that movement of a class to a new header is reported only as movement of the class and not all of its contained declarations.
  */
