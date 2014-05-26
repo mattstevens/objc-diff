@@ -661,55 +661,22 @@ static NSString * const OCDNewTestPath = @"new/test.h";
 /**
  * Tests that a declaration moved between headers is reported as a movement for both the old location and the new one.
  */
-- (void)testFunctionMovedToDifferentHeader {
-    NSArray *differences = [self differencesBetweenOldPath:@"old.h"
-                                                 oldSource:@"void Test(void);"
-                                                   newPath:@"new.h"
-                                                 newSource:@"void Test(void);"];
-
-    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeHeader previousValue:@"old.h" currentValue:@"new.h"];
-
-    NSArray *expectedDifferences = @[
-        [OCDifference modificationDifferenceWithName:@"Test()" path:@"new.h" lineNumber:1 modifications:@[modification]],
-        [OCDifference modificationDifferenceWithName:@"Test()" path:@"old.h" lineNumber:1 modifications:@[modification]]
-    ];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+- (void)testFunctionHeaderRelocation {
+    [self testHeaderRelocationForName:@"Test()" source:@"void Test(void);"];
 }
 
 /**
  * Tests that movement of a class to a new header is reported only as movement of the class and not all of its contained declarations.
  */
-- (void)testClassMovedToDifferentHeader {
-    NSArray *differences = [self differencesBetweenOldPath:@"old.h"
-                                                 oldSource:@"@interface Test - (void)testMethod; @end"
-                                                   newPath:@"new.h"
-                                                 newSource:@"@interface Test - (void)testMethod; @end"];
-
-    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeHeader previousValue:@"old.h" currentValue:@"new.h"];
-
-    NSArray *expectedDifferences = @[
-        [OCDifference modificationDifferenceWithName:@"Test" path:@"new.h" lineNumber:1 modifications:@[modification]],
-        [OCDifference modificationDifferenceWithName:@"Test" path:@"old.h" lineNumber:1 modifications:@[modification]]
-    ];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+- (void)testClassHeaderRelocation {
+    [self testHeaderRelocationForName:@"Test" source:@"@interface Test - (void)testMethod; @end"];
 }
 
 /**
  * Tests that movement of a protocol to a new header is reported only as movement of the protocol and not all of its contained declarations.
  */
 - (void)testProtocolMovedToDifferentHeader {
-    NSArray *differences = [self differencesBetweenOldPath:@"old.h"
-                                                 oldSource:@"@protocol Test - (void)testMethod; @end"
-                                                   newPath:@"new.h"
-                                                 newSource:@"@protocol Test - (void)testMethod; @end"];
-
-    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeHeader previousValue:@"old.h" currentValue:@"new.h"];
-
-    NSArray *expectedDifferences = @[
-        [OCDifference modificationDifferenceWithName:@"Test" path:@"new.h" lineNumber:1 modifications:@[modification]],
-        [OCDifference modificationDifferenceWithName:@"Test" path:@"old.h" lineNumber:1 modifications:@[modification]]
-    ];
-    XCTAssertEqualObjects(differences, expectedDifferences);
+    [self testHeaderRelocationForName:@"Test" source:@"@protocol Test - (void)testMethod; @end"];
 }
 
 /**
@@ -797,6 +764,21 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     // Unchanged, different line number
     differences = [self differencesBetweenOldSource:addition newSource:[@"\n" stringByAppendingString:addition]];
     XCTAssertEqualObjects(differences, @[], @"Move to different line number test failed for %@", name);
+}
+
+- (void)testHeaderRelocationForName:(NSString *)name source:(NSString *)source {
+    NSArray *differences = [self differencesBetweenOldPath:@"old.h"
+                                                 oldSource:source
+                                                   newPath:@"new.h"
+                                                 newSource:source];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeHeader previousValue:@"old.h" currentValue:@"new.h"];
+
+    NSArray *expectedDifferences = @[
+        [OCDifference modificationDifferenceWithName:name path:@"new.h" lineNumber:1 modifications:@[modification]],
+        [OCDifference modificationDifferenceWithName:name path:@"old.h" lineNumber:1 modifications:@[modification]]
+    ];
+    XCTAssertEqualObjects(differences, expectedDifferences);
 }
 
 - (NSArray *)additionArrayWithName:(NSString *)name {
