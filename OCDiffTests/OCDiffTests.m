@@ -16,6 +16,12 @@ static NSString * const OCDNewTestPath = @"new/test.h";
                       addition:@"void Test(void);"];
 }
 
+- (void)testStaticInlineFunction {
+    [self testAddRemoveForName:@"Test()"
+                          base:@""
+                      addition:@"static __inline__ __attribute__((always_inline)) Test(void) {}"];
+}
+
 - (void)testFunctionModificationReturnType {
     NSArray *differences = [self differencesBetweenOldSource:@"void Test(void);"
                                                    newSource:@"int Test(void);"];
