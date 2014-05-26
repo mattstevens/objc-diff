@@ -839,7 +839,8 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     PLClangTranslationUnit *oldTU = [index addTranslationUnitWithSourcePath:oldPath
                                                                unsavedFiles:oldFiles
                                                           compilerArguments:@[@"-x", @"objective-c-header"]
-                                                                    options:PLClangTranslationUnitCreationDetailedPreprocessingRecord
+                                                                    options:PLClangTranslationUnitCreationDetailedPreprocessingRecord |
+                                                                            PLClangTranslationUnitCreationSkipFunctionBodies
                                                                       error:&error];
     XCTAssertNotNil(oldTU, @"Failed to parse: %@", error);
     XCTAssertFalse(oldTU.didFail, @"Fatal error encountered during parse");
@@ -847,7 +848,8 @@ static NSString * const OCDNewTestPath = @"new/test.h";
     PLClangTranslationUnit *newTU = [index addTranslationUnitWithSourcePath:newPath
                                                                unsavedFiles:newFiles
                                                           compilerArguments:@[@"-x", @"objective-c-header"]
-                                                                    options:PLClangTranslationUnitCreationDetailedPreprocessingRecord
+                                                                    options:PLClangTranslationUnitCreationDetailedPreprocessingRecord |
+                                                                            PLClangTranslationUnitCreationSkipFunctionBodies
                                                                       error:&error];
     XCTAssertNotNil(newTU, @"Failed to parse: %@", error);
     XCTAssertFalse(newTU.didFail, @"Fatal error encountered during parse");
