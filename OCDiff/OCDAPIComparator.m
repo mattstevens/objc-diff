@@ -106,16 +106,7 @@
             }
         }
 
-        NSString *key = cursor.USR;
-
-        if (cursor.kind == PLClangCursorKindMacroDefinition) {
-            // Macros from non-system headers have file and line number information
-            // included in their USR, making it an inappropriate key for comparison
-            // of API. Use a custom key for these definitions.
-            key = [NSString stringWithFormat:@"ocd_macro_%@", cursor.spelling];
-        }
-
-        [api setObject:cursor forKey:key];
+        [api setObject:cursor forKey:[self keyForCursor:cursor]];
 
         switch (cursor.kind) {
             case PLClangCursorKindObjCInterfaceDeclaration:
@@ -131,6 +122,40 @@
     }];
 
     return api;
+}
+
+/**
+ * Returns a key suitable for identifying the specified cursor across translation units.
+ *
+ * For declarations that are not externally visible Clang includes location information in the USR if the declaration
+ * is not in a system header. This makes the USR an inappropriate key for comparison between two API versions, as
+ * moving the declaration to a different file or line number would be detected as a removal and addition. As a result
+ * a custom key is generated in place of the USR for these declarations.
+ */
+- (NSString *)keyForCursor:(PLClangCursor *)cursor {
+    NSString *prefix = nil;
+
+    switch (cursor.kind) {
+        case PLClangCursorKindEnumConstantDeclaration:
+            prefix = @"ocd_E_";
+            break;
+        case PLClangCursorKindTypedefDeclaration:
+            prefix = @"ocd_T_";
+            break;
+        case PLClangCursorKindMacroDefinition:
+            prefix = @"ocd_M_";
+            break;
+        case PLClangCursorKindFunctionDeclaration:
+            if (cursor.linkage == PLClangLinkageInternal) {
+                // Static inline function
+                prefix = @"ocd_F_";
+            }
+            break;
+        default:
+            break;
+    }
+
+    return prefix ? [prefix stringByAppendingString:cursor.spelling] : cursor.USR;
 }
 
 /**
