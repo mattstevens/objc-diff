@@ -18,4 +18,6 @@ typedef NS_ENUM(NSUInteger, OCDModificationType) {
 @property (nonatomic, readonly) NSString *previousValue;
 @property (nonatomic, readonly) NSString *currentValue;
 
++ (NSString *)stringForModificationType:(OCDModificationType)type;
+
 @end

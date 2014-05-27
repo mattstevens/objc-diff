@@ -23,6 +23,21 @@
     return [[self alloc] initWithType:OCDifferenceTypeModification name:name path:path lineNumber:lineNumber modifications:modifications];
 }
 
++ (NSString *)stringForDifferenceType:(OCDifferenceType)type {
+    switch (type) {
+        case OCDifferenceTypeAddition:
+            return @"Added";
+
+        case OCDifferenceTypeRemoval:
+            return @"Removed";
+
+        case OCDifferenceTypeModification:
+            return @"Modified";
+    }
+
+    abort();
+}
+
 - (NSString *)description {
     NSMutableString *result = [NSMutableString stringWithString:@"["];
     switch (self.type) {

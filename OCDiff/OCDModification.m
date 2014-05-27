@@ -17,32 +17,35 @@
     return [[self alloc] initWithType:type previousValue:previousValue currentValue:currentValue];
 }
 
-- (NSString *)description {
-    NSMutableString *result = [NSMutableString new];
-    switch (self.type) {
++ (NSString *)stringForModificationType:(OCDModificationType)type {
+    switch (type) {
         case OCDModificationTypeDeclaration:
-            [result appendString:@"Declaration"];
-            break;
+            return @"Declaration";
+
         case OCDModificationTypeAvailability:
-            [result appendString:@"Availability"];
-            break;
+            return @"Availability";
+
         case OCDModificationTypeDeprecationMessage:
-            [result appendString:@"Deprecation Message"];
-            break;
+            return @"Deprecation Message";
+
         case OCDModificationTypeSuperclass:
-            [result appendString:@"Superclass"];
-            break;
+            return @"Superclass";
+
         case OCDModificationTypeProtocols:
-            [result appendString:@"Protocols"];
-            break;
+            return @"Protocols";
+
         case OCDModificationTypeOptional:
-            [result appendString:@"Optional"];
-            break;
+            return @"Optional";
+
         case OCDModificationTypeHeader:
-            [result appendString:@"Header"];
-            break;
+            return @"Header";
     }
 
+    abort();
+}
+
+- (NSString *)description {
+    NSMutableString *result = [NSMutableString stringWithString:[OCDModification stringForModificationType:self.type]];
     [result appendString:@": "];
     [result appendString:[self.previousValue length] > 0 ? self.previousValue : @"(none)"];
     [result appendString:@" to "];
