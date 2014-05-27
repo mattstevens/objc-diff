@@ -3,6 +3,13 @@
 #import <getopt.h>
 
 #import "OCDAPIComparator.h"
+#import "OCDTextReportGenerator.h"
+
+enum OCDReportTypes {
+    OCDReportTypeText = 1 << 0,
+    OCDReportTypeXML  = 1 << 1,
+    OCDReportTypeHTML = 1 << 2
+};
 
 static void print_usage(void) {
     printf(""
@@ -109,6 +116,7 @@ int main(int argc, char *argv[]) {
         NSString *title = nil;
         NSMutableArray *oldCompilerArguments = [NSMutableArray array];
         NSMutableArray *newCompilerArguments = [NSMutableArray array];
+        int reportTypes = 0;
         int optchar;
 
         [oldCompilerArguments addObject:@"-x"];
@@ -199,37 +207,15 @@ int main(int argc, char *argv[]) {
         OCDAPIComparator *comparator = [[OCDAPIComparator alloc] initWithOldTranslationUnit:oldTU newTranslationUnit:newTU];
 
         NSArray *differences = [comparator computeDifferences];
-        differences = [differences sortedArrayUsingComparator:^NSComparisonResult(OCDifference *obj1, OCDifference *obj2) {
-            NSComparisonResult result = [[obj1.path lastPathComponent] caseInsensitiveCompare:[obj2.path lastPathComponent]];
-            if (result != NSOrderedSame)
-                return result;
 
-            // TODO: Sort additions before modifications
-            if (obj1.type != obj2.type) {
-                return obj1.type == OCDifferenceTypeRemoval ? NSOrderedAscending : NSOrderedDescending;
-            }
-
-            if (obj1.lineNumber < obj2.lineNumber) {
-                return NSOrderedAscending;
-            } else if (obj1.lineNumber > obj2.lineNumber) {
-                return NSOrderedDescending;
-            }
-
-            return [obj1.name caseInsensitiveCompare:obj2.name];
-        }];
-
-        NSString *lastFile = @"";
-
-        for (OCDifference *difference in differences) {
-            NSString *file = [difference.path lastPathComponent];
-            if ([file isEqualToString:lastFile] == NO) {
-                lastFile = file;
-                printf("\n%s\n", [file UTF8String]);
-            }
-
-            printf("%s\n", [[difference description] UTF8String]);
+        if (reportTypes == 0) {
+            reportTypes = OCDReportTypeText;
         }
 
+        if (reportTypes & OCDReportTypeText) {
+            OCDTextReportGenerator *generator = [[OCDTextReportGenerator alloc] init];
+            [generator generateReportForDifferences:differences title:title];
+        }
     }
 
     return 0;
