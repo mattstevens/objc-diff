@@ -17,6 +17,67 @@ static void print_usage(void) {
     "      --version    Show the version and exit \n");
 }
 
+static BOOL IsFrameworkAtPath(NSString *path) {
+    return [[path pathExtension] isEqualToString:@"framework"];
+}
+
+static PLClangTranslationUnit *TranslationUnitForHeaderPaths(PLClangSourceIndex *index, NSString *baseDirectory, NSArray *paths, NSArray *compilerArguments) {
+    NSMutableString *source = [[NSMutableString alloc] init];
+    for (NSString *path in paths) {
+        [source appendFormat:@"#import \"%@\"\n", path];
+    }
+
+    NSString *combinedHeaderPath = [baseDirectory stringByAppendingPathComponent:@"_OCDAPI.h"];
+    PLClangUnsavedFile *unsavedFile = [PLClangUnsavedFile unsavedFileWithPath:combinedHeaderPath
+                                                                         data:[source dataUsingEncoding:NSUTF8StringEncoding]];
+
+    NSError *error;
+    PLClangTranslationUnit *translationUnit = [index addTranslationUnitWithSourcePath:combinedHeaderPath
+                                                                         unsavedFiles:@[unsavedFile]
+                                                                    compilerArguments:compilerArguments
+                                                                              options:PLClangTranslationUnitCreationDetailedPreprocessingRecord |
+                                                                                      PLClangTranslationUnitCreationSkipFunctionBodies
+                                                                                error:&error];
+
+    if (translationUnit == nil || translationUnit.didFail) {
+        // TODO: Log error
+        return nil;
+    }
+
+    return translationUnit;
+}
+
+static PLClangTranslationUnit *TranslationUnitForPath(PLClangSourceIndex *index, NSString *path, NSArray *compilerArguments) {
+    BOOL isDirectory = NO;
+    if ([[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDirectory] == NO) {
+        fprintf(stderr, "%s not found\n", [path UTF8String]);
+        return nil;
+    }
+
+    if (isDirectory) {
+        // If the specified path is a framework, search its headers and automatically add its parent
+        // directory to the framework search paths. This enables #import <FrameworkName/Header.h> to
+        // be resolved without any additional configuration.
+        if (IsFrameworkAtPath(path)) {
+            compilerArguments = [compilerArguments arrayByAddingObjectsFromArray:@[@"-F", [path stringByDeletingLastPathComponent]]];
+            path = [path stringByAppendingPathComponent:@"Headers"];
+            return TranslationUnitForPath(index, path, compilerArguments);
+        }
+
+        NSMutableArray *paths = [NSMutableArray array];
+        NSDirectoryEnumerator *enumerator  = [[NSFileManager defaultManager] enumeratorAtPath:path];
+        for (NSString *file in enumerator) {
+            if ([[file pathExtension] isEqual:@"h"]) {
+                [paths addObject:file];
+            }
+        }
+
+        return TranslationUnitForHeaderPaths(index, path, paths, compilerArguments);
+    } else {
+        return TranslationUnitForHeaderPaths(index, [path stringByDeletingLastPathComponent], @[path], compilerArguments);
+    }
+}
+
 int main(int argc, char *argv[]) {
     @autoreleasepool {
         NSString *oldPath;
@@ -94,24 +155,13 @@ int main(int argc, char *argv[]) {
 
         PLClangSourceIndex *index = [PLClangSourceIndex indexWithOptions:PLClangIndexCreationDisplayDiagnostics];
 
-        NSError *error;
-        PLClangTranslationUnit *oldTU = [index addTranslationUnitWithSourcePath:oldPath
-                                                              compilerArguments:oldCompilerArguments
-                                                                        options:PLClangTranslationUnitCreationDetailedPreprocessingRecord |
-                                                                                PLClangTranslationUnitCreationSkipFunctionBodies
-                                                                          error:&error];
-        if (oldTU == nil || oldTU.didFail) {
+        PLClangTranslationUnit *oldTU = TranslationUnitForPath(index, oldPath, oldCompilerArguments);
+        if (oldTU == nil)
             return 1;
-        }
 
-        PLClangTranslationUnit *newTU = [index addTranslationUnitWithSourcePath:newPath
-                                                              compilerArguments:newCompilerArguments
-                                                                        options:PLClangTranslationUnitCreationDetailedPreprocessingRecord |
-                                                                                PLClangTranslationUnitCreationSkipFunctionBodies
-                                                                          error:&error];
-        if (newTU == nil || newTU.didFail) {
+        PLClangTranslationUnit *newTU = TranslationUnitForPath(index, newPath, newCompilerArguments);
+        if (newTU == nil)
             return 1;
-        }
 
         OCDAPIComparator *comparator = [[OCDAPIComparator alloc] initWithOldTranslationUnit:oldTU newTranslationUnit:newTU];
 
