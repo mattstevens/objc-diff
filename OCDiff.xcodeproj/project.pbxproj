@@ -20,6 +20,8 @@
 		C96195361929485B00BDBD7C /* OCDifference.m in Sources */ = {isa = PBXBuildFile; fileRef = C96194F019293B2D00BDBD7C /* OCDifference.m */; };
 		C961953B1929625100BDBD7C /* OCDModification.m in Sources */ = {isa = PBXBuildFile; fileRef = C961953A1929625100BDBD7C /* OCDModification.m */; };
 		C961953C1929655200BDBD7C /* OCDModification.m in Sources */ = {isa = PBXBuildFile; fileRef = C961953A1929625100BDBD7C /* OCDModification.m */; };
+		C9E1BA73193402F500680085 /* OCDTextReportGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = C9E1BA72193402F500680085 /* OCDTextReportGenerator.m */; };
+		C9E1BA76193405DA00680085 /* OCDXMLReportGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = C9E1BA75193405DA00680085 /* OCDXMLReportGenerator.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,6 +63,10 @@
 		C96194F019293B2D00BDBD7C /* OCDifference.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCDifference.m; sourceTree = "<group>"; };
 		C96195391929625100BDBD7C /* OCDModification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCDModification.h; sourceTree = "<group>"; };
 		C961953A1929625100BDBD7C /* OCDModification.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCDModification.m; sourceTree = "<group>"; };
+		C9E1BA71193402F500680085 /* OCDTextReportGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCDTextReportGenerator.h; sourceTree = "<group>"; };
+		C9E1BA72193402F500680085 /* OCDTextReportGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCDTextReportGenerator.m; sourceTree = "<group>"; };
+		C9E1BA74193405DA00680085 /* OCDXMLReportGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCDXMLReportGenerator.h; sourceTree = "<group>"; };
+		C9E1BA75193405DA00680085 /* OCDXMLReportGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCDXMLReportGenerator.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -127,6 +133,10 @@
 				C96194F019293B2D00BDBD7C /* OCDifference.m */,
 				C96195391929625100BDBD7C /* OCDModification.h */,
 				C961953A1929625100BDBD7C /* OCDModification.m */,
+				C9E1BA71193402F500680085 /* OCDTextReportGenerator.h */,
+				C9E1BA72193402F500680085 /* OCDTextReportGenerator.m */,
+				C9E1BA74193405DA00680085 /* OCDXMLReportGenerator.h */,
+				C9E1BA75193405DA00680085 /* OCDXMLReportGenerator.m */,
 			);
 			path = OCDiff;
 			sourceTree = "<group>";
@@ -235,6 +245,8 @@
 			files = (
 				C961953B1929625100BDBD7C /* OCDModification.m in Sources */,
 				C96194F119293B2D00BDBD7C /* OCDifference.m in Sources */,
+				C9E1BA76193405DA00680085 /* OCDXMLReportGenerator.m in Sources */,
+				C9E1BA73193402F500680085 /* OCDTextReportGenerator.m in Sources */,
 				C96194C81928E6AE00BDBD7C /* main.m in Sources */,
 				C96194EE19293B1600BDBD7C /* OCDAPIComparator.m in Sources */,
 			);
