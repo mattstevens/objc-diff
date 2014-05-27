@@ -263,7 +263,7 @@
 
     NSString *oldRelativePath = [self pathForFile:oldCursor.location.path relativeToDirectory:_oldBaseDirectory];
     NSString *newRelativePath = [self pathForFile:newCursor.location.path relativeToDirectory:_newBaseDirectory];
-    if ([oldRelativePath isEqual:newRelativePath] == NO && [self shouldReportHeaderChangeForCursor:oldCursor]) {
+    if (oldRelativePath != newRelativePath && [oldRelativePath isEqual:newRelativePath] == NO && [self shouldReportHeaderChangeForCursor:oldCursor]) {
         OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeHeader
                                                                 previousValue:oldRelativePath
                                                                  currentValue:newRelativePath];
@@ -594,6 +594,14 @@
  * Returns a relative path to a file from the specified directory.
  */
 - (NSString *)pathForFile:(NSString *)path relativeToDirectory:(NSString *)directory {
+    if (path == nil) {
+        return nil;
+    }
+
+    if (directory == nil) {
+        return path;
+    }
+
     NSUInteger index = 0;
     NSMutableArray *baseComponents = [[directory pathComponents] mutableCopy];
 	NSMutableArray *pathComponents = [[path pathComponents] mutableCopy];
