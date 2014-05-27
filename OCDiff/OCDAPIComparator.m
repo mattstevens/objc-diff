@@ -6,6 +6,14 @@
     PLClangTranslationUnit *_newTranslationUnit;
     NSMutableDictionary *_fileHandles;
     NSMutableDictionary *_unsavedFileData;
+
+    /**
+     * Keys for property declarations that have been converted to or from explicit accessor declarations.
+     *
+     * This is used to suppress reporting of the addition or removal of the property declaration, as this change is
+     * instead reported as a modification to the declaration of the accessor methods.
+     */
+    NSMutableSet *_convertedProperties;
 }
 
 - (instancetype)initWithOldTranslationUnit:(PLClangTranslationUnit *)oldTranslationUnit newTranslationUnit:(PLClangTranslationUnit *)newTranslationUnit {
@@ -20,6 +28,7 @@
     _newTranslationUnit = newTranslationUnit;
     _fileHandles = [[NSMutableDictionary alloc] init];
     _unsavedFileData = [[NSMutableDictionary alloc] init];
+    _convertedProperties = [[NSMutableSet alloc] init];
 
     for (PLClangUnsavedFile *unsavedFile in unsavedFiles) {
         _unsavedFileData[unsavedFile.path] = unsavedFile.data;
@@ -32,6 +41,7 @@
     NSMutableArray *differences = [NSMutableArray array];
     NSDictionary *oldAPI = [self APIForTranslationUnit:_oldTranslationUnit];
     NSDictionary *newAPI = [self APIForTranslationUnit:_newTranslationUnit];
+    NSMutableArray *removals = [NSMutableArray array];
 
     NSMutableSet *additions = [NSMutableSet setWithArray:[newAPI allKeys]];
     [additions minusSet:[NSSet setWithArray:[oldAPI allKeys]]];
@@ -43,18 +53,22 @@
                 [differences addObjectsFromArray:cursorDifferences];
             }
         } else {
-            PLClangCursor *cursor = oldAPI[USR];
-            if (cursor.isImplicit)
-                continue;
-
-            OCDifference *difference = [OCDifference differenceWithType:OCDifferenceTypeRemoval name:[self displayNameForCursor:cursor] path:cursor.location.path lineNumber:cursor.location.lineNumber];
-            [differences addObject:difference];
+            [removals addObject:USR];
         }
+    }
+
+    for (NSString *USR in removals) {
+        PLClangCursor *cursor = oldAPI[USR];
+        if (cursor.isImplicit || [_convertedProperties containsObject:USR])
+            continue;
+
+        OCDifference *difference = [OCDifference differenceWithType:OCDifferenceTypeRemoval name:[self displayNameForCursor:cursor] path:cursor.location.path lineNumber:cursor.location.lineNumber];
+        [differences addObject:difference];
     }
 
     for (NSString *USR in additions) {
         PLClangCursor *cursor = newAPI[USR];
-        if (cursor.isImplicit)
+        if (cursor.isImplicit || [_convertedProperties containsObject:USR])
             continue;
 
         OCDifference *difference = [OCDifference differenceWithType:OCDifferenceTypeAddition name:[self displayNameForCursor:cursor] path:cursor.location.path lineNumber:cursor.location.lineNumber];
@@ -238,7 +252,7 @@
     BOOL reportDifferenceForOldLocation = NO;
 
     // Ignore changes to implicit declarations like synthesized property accessors
-    if (oldCursor.isImplicit || newCursor.isImplicit)
+    if (oldCursor.isImplicit && newCursor.isImplicit)
         return nil;
 
     // TODO: Should be relative path from common base.
@@ -253,7 +267,35 @@
         reportDifferenceForOldLocation = YES;
     }
 
-    if ([self declarationChangedBetweenOldCursor:oldCursor newCursor:newCursor]) {
+    if (oldCursor.isImplicit != newCursor.isImplicit) {
+        // Report conversions between properties and explicit accessor methods as modifications to the declaration
+        // rather than additions or removals. This is less straightforward to identify but is a more accurate
+        // difference - the methods have not been added or removed, only their declaration has changed.
+        NSString *oldDeclaration;
+        NSString *newDeclaration;
+        PLClangCursor *propertyCursor;
+
+        if (newCursor.isImplicit) {
+            propertyCursor = [_newTranslationUnit cursorForSourceLocation:newCursor.location];
+            NSAssert(propertyCursor != nil, @"Failed to locate property cursor for conversion from explicit accesor");
+
+            oldDeclaration = [self stringForSourceRange:oldCursor.extent];
+            newDeclaration = [self stringForSourceRange:propertyCursor.extent];
+        } else {
+            propertyCursor = [_oldTranslationUnit cursorForSourceLocation:oldCursor.location];
+            NSAssert(propertyCursor != nil, @"Failed to locate property cursor for conversion to explicit accesor");
+
+            oldDeclaration = [self stringForSourceRange:propertyCursor.extent];
+            newDeclaration = [self stringForSourceRange:newCursor.extent];
+        }
+
+        [_convertedProperties addObject:[self keyForCursor:propertyCursor]];
+
+        OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                                previousValue:oldDeclaration
+                                                                 currentValue:newDeclaration];
+        [modifications addObject:modification];
+    } else if ([self declarationChangedBetweenOldCursor:oldCursor newCursor:newCursor]) {
         OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
                                                                 previousValue:[self stringForSourceRange:oldCursor.extent]
                                                                  currentValue:[self stringForSourceRange:newCursor.extent]];
