@@ -4,6 +4,8 @@
 @implementation OCDAPIComparator {
     PLClangTranslationUnit *_oldTranslationUnit;
     PLClangTranslationUnit *_newTranslationUnit;
+    NSString *_oldBaseDirectory;
+    NSString *_newBaseDirectory;
     NSMutableDictionary *_fileHandles;
     NSMutableDictionary *_unsavedFileData;
 
@@ -26,6 +28,8 @@
 
     _oldTranslationUnit = oldTranslationUnit;
     _newTranslationUnit = newTranslationUnit;
+    _oldBaseDirectory = [oldTranslationUnit.spelling stringByDeletingLastPathComponent];
+    _newBaseDirectory = [newTranslationUnit.spelling stringByDeletingLastPathComponent];
     _fileHandles = [[NSMutableDictionary alloc] init];
     _unsavedFileData = [[NSMutableDictionary alloc] init];
     _convertedProperties = [[NSMutableSet alloc] init];
@@ -62,7 +66,8 @@
         if (cursor.isImplicit || [_convertedProperties containsObject:USR])
             continue;
 
-        OCDifference *difference = [OCDifference differenceWithType:OCDifferenceTypeRemoval name:[self displayNameForCursor:cursor] path:cursor.location.path lineNumber:cursor.location.lineNumber];
+        NSString *relativePath = [self pathForFile:cursor.location.path relativeToDirectory:_oldBaseDirectory];
+        OCDifference *difference = [OCDifference differenceWithType:OCDifferenceTypeRemoval name:[self displayNameForCursor:cursor] path:relativePath lineNumber:cursor.location.lineNumber];
         [differences addObject:difference];
     }
 
@@ -71,7 +76,8 @@
         if (cursor.isImplicit || [_convertedProperties containsObject:USR])
             continue;
 
-        OCDifference *difference = [OCDifference differenceWithType:OCDifferenceTypeAddition name:[self displayNameForCursor:cursor] path:cursor.location.path lineNumber:cursor.location.lineNumber];
+        NSString *relativePath = [self pathForFile:cursor.location.path relativeToDirectory:_newBaseDirectory];
+        OCDifference *difference = [OCDifference differenceWithType:OCDifferenceTypeAddition name:[self displayNameForCursor:cursor] path:relativePath lineNumber:cursor.location.lineNumber];
         [differences addObject:difference];
     }
 
@@ -255,13 +261,12 @@
     if (oldCursor.isImplicit && newCursor.isImplicit)
         return nil;
 
-    // TODO: Should be relative path from common base.
-    NSString *oldRelativePath = [oldCursor.location.path lastPathComponent] ?: @"";
-    NSString *newRelativePath = [newCursor.location.path lastPathComponent] ?: @"";
+    NSString *oldRelativePath = [self pathForFile:oldCursor.location.path relativeToDirectory:_oldBaseDirectory];
+    NSString *newRelativePath = [self pathForFile:newCursor.location.path relativeToDirectory:_newBaseDirectory];
     if ([oldRelativePath isEqual:newRelativePath] == NO && [self shouldReportHeaderChangeForCursor:oldCursor]) {
         OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeHeader
-                                                                previousValue:[oldCursor.location.path lastPathComponent]
-                                                                 currentValue:[newCursor.location.path lastPathComponent]];
+                                                                previousValue:oldRelativePath
+                                                                 currentValue:newRelativePath];
         [modifications addObject:modification];
 
         reportDifferenceForOldLocation = YES;
@@ -364,15 +369,17 @@
         OCDifference *difference;
 
         if (reportDifferenceForOldLocation) {
+            NSString *relativePath = [self pathForFile:oldCursor.location.path relativeToDirectory:_oldBaseDirectory];
             difference = [OCDifference modificationDifferenceWithName:[self displayNameForCursor:oldCursor]
-                                                                 path:oldCursor.location.path
+                                                                 path:relativePath
                                                            lineNumber:oldCursor.location.lineNumber
                                                         modifications:modifications];
             [differences addObject:difference];
         }
 
+        NSString *relativePath = [self pathForFile:newCursor.location.path relativeToDirectory:_newBaseDirectory];
         difference = [OCDifference modificationDifferenceWithName:[self displayNameForCursor:oldCursor]
-                                                             path:newCursor.location.path
+                                                             path:relativePath
                                                        lineNumber:newCursor.location.lineNumber
                                                     modifications:modifications];
         [differences addObject:difference];
@@ -581,6 +588,31 @@
     }
 
     abort();
+}
+
+/**
+ * Returns a relative path to a file from the specified directory.
+ */
+- (NSString *)pathForFile:(NSString *)path relativeToDirectory:(NSString *)directory {
+    NSUInteger index = 0;
+    NSMutableArray *baseComponents = [[directory pathComponents] mutableCopy];
+	NSMutableArray *pathComponents = [[path pathComponents] mutableCopy];
+	if ([[baseComponents lastObject] isEqualToString:@"/"]) {
+        [baseComponents removeLastObject];
+    }
+
+	while (index < [baseComponents count] && index < [pathComponents count] && [baseComponents[index] isEqualToString:pathComponents[index]]) {
+		index++;
+	}
+
+	[baseComponents removeObjectsInRange:NSMakeRange(0, index)];
+	[pathComponents removeObjectsInRange:NSMakeRange(0, index)];
+
+	for (index = 0; index < [baseComponents count]; index++) {
+		[pathComponents insertObject:@".." atIndex:0];
+	}
+
+	return [NSString pathWithComponents:pathComponents];
 }
 
 /**

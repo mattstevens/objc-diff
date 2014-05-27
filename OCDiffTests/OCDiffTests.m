@@ -4,6 +4,7 @@
 
 static NSString * const OCDOldTestPath = @"old/test.h";
 static NSString * const OCDNewTestPath = @"new/test.h";
+static NSString * const OCDTestPath = @"test.h";
 
 @interface OCDiffTests : XCTestCase
 @end
@@ -74,7 +75,7 @@ static NSString * const OCDNewTestPath = @"new/test.h";
                                previousValue:nil
                                 currentValue:@"Test message"]
     ];
-    NSArray *expectedDifferences = @[[OCDifference modificationDifferenceWithName:@"Test()" path:OCDNewTestPath lineNumber:1 modifications:modifications]];
+    NSArray *expectedDifferences = @[[OCDifference modificationDifferenceWithName:@"Test()" path:OCDTestPath lineNumber:1 modifications:modifications]];
     XCTAssertEqualObjects(differences, expectedDifferences);
 }
 
@@ -448,8 +449,8 @@ static NSString * const OCDNewTestPath = @"new/test.h";
                                                                    currentValue:@"@property int testProperty"];
 
     NSArray *expectedDifferences = @[
-        [OCDifference modificationDifferenceWithName:@"-[Test setTestProperty:]" path:OCDNewTestPath lineNumber:1 modifications:@[setterModification]],
-        [OCDifference modificationDifferenceWithName:@"-[Test testProperty]" path:OCDNewTestPath lineNumber:1 modifications:@[getterModification]]
+        [OCDifference modificationDifferenceWithName:@"-[Test setTestProperty:]" path:OCDTestPath lineNumber:1 modifications:@[setterModification]],
+        [OCDifference modificationDifferenceWithName:@"-[Test testProperty]" path:OCDTestPath lineNumber:1 modifications:@[getterModification]]
     ];
     XCTAssertEqualObjects(differences, expectedDifferences);
 }
@@ -467,8 +468,8 @@ static NSString * const OCDNewTestPath = @"new/test.h";
                                                                    currentValue:@"@property long testProperty"];
 
     NSArray *expectedDifferences = @[
-        [OCDifference modificationDifferenceWithName:@"-[Test setTestProperty:]" path:OCDNewTestPath lineNumber:1 modifications:@[setterModification]],
-        [OCDifference modificationDifferenceWithName:@"-[Test testProperty]" path:OCDNewTestPath lineNumber:1 modifications:@[getterModification]]
+        [OCDifference modificationDifferenceWithName:@"-[Test setTestProperty:]" path:OCDTestPath lineNumber:1 modifications:@[setterModification]],
+        [OCDifference modificationDifferenceWithName:@"-[Test testProperty]" path:OCDTestPath lineNumber:1 modifications:@[getterModification]]
     ];
     XCTAssertEqualObjects(differences, expectedDifferences);
 }
@@ -485,8 +486,8 @@ static NSString * const OCDNewTestPath = @"new/test.h";
                                                                    currentValue:@"@property char testProperty"];
 
     NSArray *expectedDifferences = @[
-        [OCDifference differenceWithType:OCDifferenceTypeRemoval name:@"-[Test isTestProperty]" path:OCDOldTestPath lineNumber:1],
-        [OCDifference modificationDifferenceWithName:@"-[Test setTestProperty:]" path:OCDNewTestPath lineNumber:1 modifications:@[setterModification]]
+        [OCDifference differenceWithType:OCDifferenceTypeRemoval name:@"-[Test isTestProperty]" path:OCDTestPath lineNumber:1],
+        [OCDifference modificationDifferenceWithName:@"-[Test setTestProperty:]" path:OCDTestPath lineNumber:1 modifications:@[setterModification]]
     ];
     XCTAssertEqualObjects(differences, expectedDifferences);
 }
@@ -507,8 +508,8 @@ static NSString * const OCDNewTestPath = @"new/test.h";
                                                                    currentValue:@"- (void)setTestProperty:(int)val"];
 
     NSArray *expectedDifferences = @[
-        [OCDifference modificationDifferenceWithName:@"-[Test setTestProperty:]" path:OCDNewTestPath lineNumber:1 modifications:@[setterModification]],
-        [OCDifference modificationDifferenceWithName:@"-[Test testProperty]" path:OCDNewTestPath lineNumber:1 modifications:@[getterModification]]
+        [OCDifference modificationDifferenceWithName:@"-[Test setTestProperty:]" path:OCDTestPath lineNumber:1 modifications:@[setterModification]],
+        [OCDifference modificationDifferenceWithName:@"-[Test testProperty]" path:OCDTestPath lineNumber:1 modifications:@[getterModification]]
     ];
     XCTAssertEqualObjects(differences, expectedDifferences);
 }
@@ -522,8 +523,8 @@ static NSString * const OCDNewTestPath = @"new/test.h";
                                                                    currentValue:@"- (int)testProperty"];
 
     NSArray *expectedDifferences = @[
-        [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"-[Test setTestProperty:]" path:OCDNewTestPath lineNumber:1],
-        [OCDifference modificationDifferenceWithName:@"-[Test testProperty]" path:OCDNewTestPath lineNumber:1 modifications:@[getterModification]]
+        [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"-[Test setTestProperty:]" path:OCDTestPath lineNumber:1],
+        [OCDifference modificationDifferenceWithName:@"-[Test testProperty]" path:OCDTestPath lineNumber:1 modifications:@[getterModification]]
     ];
     XCTAssertEqualObjects(differences, expectedDifferences);
 }
@@ -638,8 +639,8 @@ static NSString * const OCDNewTestPath = @"new/test.h";
                                                    newSource:@"typedef int TestEnum; enum { TestEnumValue };"];
 
     NSArray *expectedDifferences = @[
-        [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"TestEnum" path:OCDNewTestPath lineNumber:1],
-        [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"TestEnumValue" path:OCDNewTestPath lineNumber:1]
+        [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"TestEnum" path:OCDTestPath lineNumber:1],
+        [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"TestEnumValue" path:OCDTestPath lineNumber:1]
     ];
     XCTAssertEqualObjects(differences, expectedDifferences);
 }
@@ -652,8 +653,8 @@ static NSString * const OCDNewTestPath = @"new/test.h";
                                                    newSource:@"typedef enum TestEnum : int TestEnum; enum TestEnum : int { TestEnumValue };"];
 
     NSArray *expectedDifferences = @[
-        [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"TestEnum" path:OCDNewTestPath lineNumber:1],
-        [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"TestEnumValue" path:OCDNewTestPath lineNumber:1]
+        [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"TestEnum" path:OCDTestPath lineNumber:1],
+        [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"TestEnumValue" path:OCDTestPath lineNumber:1]
     ];
     XCTAssertEqualObjects(differences, expectedDifferences);
 }
@@ -663,8 +664,8 @@ static NSString * const OCDNewTestPath = @"new/test.h";
                                                    newSource:@""];
 
     NSArray *expectedDifferences = @[
-        [OCDifference differenceWithType:OCDifferenceTypeRemoval name:@"TestEnum" path:OCDOldTestPath lineNumber:1],
-        [OCDifference differenceWithType:OCDifferenceTypeRemoval name:@"TestEnumValue" path:OCDOldTestPath lineNumber:1]
+        [OCDifference differenceWithType:OCDifferenceTypeRemoval name:@"TestEnum" path:OCDTestPath lineNumber:1],
+        [OCDifference differenceWithType:OCDifferenceTypeRemoval name:@"TestEnumValue" path:OCDTestPath lineNumber:1]
     ];
     XCTAssertEqualObjects(differences, expectedDifferences);
 }
@@ -785,8 +786,8 @@ static NSString * const OCDNewTestPath = @"new/test.h";
                                                    newSource:@"@class Test;\n@interface Test\n- (void)testMethod;\n@end"];
 
     NSArray *expectedDifferences = @[
-        [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"Test" path:OCDNewTestPath lineNumber:2],
-        [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"-[Test testMethod]" path:OCDNewTestPath lineNumber:3]
+        [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"Test" path:OCDTestPath lineNumber:2],
+        [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"-[Test testMethod]" path:OCDTestPath lineNumber:3]
     ];
     XCTAssertEqualObjects(differences, expectedDifferences);
 }
@@ -799,8 +800,8 @@ static NSString * const OCDNewTestPath = @"new/test.h";
                                                    newSource:@"@protocol Test;\n@protocol Test\n- (void)testMethod;\n@end"];
 
     NSArray *expectedDifferences = @[
-        [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"Test" path:OCDNewTestPath lineNumber:2],
-        [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"-[Test testMethod]" path:OCDNewTestPath lineNumber:3]
+        [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"Test" path:OCDTestPath lineNumber:2],
+        [OCDifference differenceWithType:OCDifferenceTypeAddition name:@"-[Test testMethod]" path:OCDTestPath lineNumber:3]
     ];
     XCTAssertEqualObjects(differences, expectedDifferences);
 }
@@ -831,12 +832,12 @@ static NSString * const OCDNewTestPath = @"new/test.h";
 
     // Addition
     differences = [self differencesBetweenOldSource:base newSource:addition];
-    expectedDifferences = @[[OCDifference differenceWithType:OCDifferenceTypeAddition name:name path:OCDNewTestPath lineNumber:1]];
+    expectedDifferences = @[[OCDifference differenceWithType:OCDifferenceTypeAddition name:name path:OCDTestPath lineNumber:1]];
     XCTAssertEqualObjects(differences, expectedDifferences, @"Addition test failed for %@", name);
 
     // Removal
     differences = [self differencesBetweenOldSource:addition newSource:base];
-    expectedDifferences = @[[OCDifference differenceWithType:OCDifferenceTypeRemoval name:name path:OCDOldTestPath lineNumber:1]];
+    expectedDifferences = @[[OCDifference differenceWithType:OCDifferenceTypeRemoval name:name path:OCDTestPath lineNumber:1]];
     XCTAssertEqualObjects(differences, expectedDifferences, @"Removal test failed for %@", name);
 
     // Unchanged
@@ -864,15 +865,15 @@ static NSString * const OCDNewTestPath = @"new/test.h";
 }
 
 - (NSArray *)additionArrayWithName:(NSString *)name {
-    return @[[OCDifference differenceWithType:OCDifferenceTypeAddition name:name path:OCDNewTestPath lineNumber:1]];
+    return @[[OCDifference differenceWithType:OCDifferenceTypeAddition name:name path:OCDTestPath lineNumber:1]];
 }
 
 - (NSArray *)removalArrayWithName:(NSString *)name {
-    return @[[OCDifference differenceWithType:OCDifferenceTypeRemoval name:name path:OCDOldTestPath lineNumber:1]];
+    return @[[OCDifference differenceWithType:OCDifferenceTypeRemoval name:name path:OCDTestPath lineNumber:1]];
 }
 
 - (NSArray *)modificationArrayWithName:(NSString *)name modification:(OCDModification *)modification {
-    return @[[OCDifference modificationDifferenceWithName:name path:OCDNewTestPath lineNumber:1 modifications:@[modification]]];
+    return @[[OCDifference modificationDifferenceWithName:name path:OCDTestPath lineNumber:1 modifications:@[modification]]];
 }
 
 - (NSArray *)differencesBetweenOldSource:(NSString *)oldSource newSource:(NSString *)newSource {
