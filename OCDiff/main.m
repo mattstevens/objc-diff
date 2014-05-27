@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
         }
 
         if ([newPath length] < 1) {
-            fprintf(stderr, "No old API path specified");
+            fprintf(stderr, "No new API path specified");
             return 1;
         }
 
