@@ -88,7 +88,7 @@
 
 - (void)sortDifferences:(NSMutableArray *)differences {
     [differences sortUsingComparator:^NSComparisonResult(OCDifference *obj1, OCDifference *obj2) {
-        NSComparisonResult result = [[obj1.path lastPathComponent] caseInsensitiveCompare:[obj2.path lastPathComponent]];
+        NSComparisonResult result = [obj1.path localizedStandardCompare:obj2.path];
         if (result != NSOrderedSame)
             return result;
 
