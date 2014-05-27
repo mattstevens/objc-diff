@@ -14,6 +14,7 @@ static void print_usage(void) {
     "  -h, --help       Show this help message and exit\n"
     "  -o, --old        Path to the old API header(s)\n"
     "  -n, --new        Path to the new API header(s)\n"
+    "  -t, --title      Title of the generated report\n"
     "      --version    Show the version and exit \n");
 }
 
@@ -78,10 +79,34 @@ static PLClangTranslationUnit *TranslationUnitForPath(PLClangSourceIndex *index,
     }
 }
 
+static NSString *GeneratedTitleForPaths(NSString *oldPath, NSString *newPath) {
+    if (IsFrameworkAtPath(oldPath) && IsFrameworkAtPath(newPath)) {
+        // Attempt to obtain API name and version information from the framework's Info.plist
+        NSDictionary *oldInfo = [NSDictionary dictionaryWithContentsOfFile:[oldPath stringByAppendingPathComponent:@"Resources/Info.plist"]];
+        NSDictionary *newInfo = [NSDictionary dictionaryWithContentsOfFile:[newPath stringByAppendingPathComponent:@"Resources/Info.plist"]];
+        if (oldInfo != nil && newInfo != nil) {
+            NSString *bundleName = newInfo[@"CFBundleName"];
+            NSString *oldVersion = oldInfo[@"CFBundleShortVersionString"];
+            NSString *newVersion = newInfo[@"CFBundleShortVersionString"];
+            if (oldVersion == nil && newVersion == nil) {
+                oldVersion = oldInfo[@"CFBundleVersion"];
+                newVersion = newInfo[@"CFBundleVersion"];
+            }
+
+            if (bundleName != nil && oldVersion != nil && newVersion != nil && [oldVersion isEqualToString:newVersion] == NO) {
+                return [NSString stringWithFormat:@"%@ %@ to %@ API Differences", bundleName, oldVersion, newVersion];
+            }
+        }
+    }
+
+    return nil;
+}
+
 int main(int argc, char *argv[]) {
     @autoreleasepool {
         NSString *oldPath;
         NSString *newPath;
+        NSString *title = nil;
         NSMutableArray *oldCompilerArguments = [NSMutableArray array];
         NSMutableArray *newCompilerArguments = [NSMutableArray array];
         int optchar;
@@ -95,13 +120,14 @@ int main(int argc, char *argv[]) {
             { "help",         no_argument,        NULL,          'h' },
             { "old",          required_argument,  NULL,          'o' },
             { "new",          required_argument,  NULL,          'n' },
+            { "title",        required_argument,  NULL,          't' },
             { "Xold",         required_argument,  NULL,          'x' },
             { "Xnew",         required_argument,  NULL,          'y' },
             { "version",      no_argument,        NULL,          'v' },
             { NULL,           0,                  NULL,           0  }
         };
 
-        while ((optchar = getopt_long(argc, argv, "hon", longopts, NULL)) != -1) {
+        while ((optchar = getopt_long(argc, argv, "hont", longopts, NULL)) != -1) {
             switch (optchar) {
                 case 'h':
                     print_usage();
@@ -111,6 +137,9 @@ int main(int argc, char *argv[]) {
                     break;
                 case 'n':
                     newPath = @(optarg);
+                    break;
+                case 't':
+                    title = @(optarg);
                     break;
                 case 'v':
                     printf("ocdiff %s\n", "DEV");
@@ -149,6 +178,10 @@ int main(int argc, char *argv[]) {
             // Unhandled arguments are passed to the compiler
             [oldCompilerArguments addObject:@(argv[i])];
             [newCompilerArguments addObject:@(argv[i])];
+        }
+
+        if (title == nil) {
+            title = GeneratedTitleForPaths(oldPath, newPath);
         }
 
         // Parse the translation units
