@@ -284,14 +284,14 @@
             propertyCursor = [_newTranslationUnit cursorForSourceLocation:newCursor.location];
             NSAssert(propertyCursor != nil, @"Failed to locate property cursor for conversion from explicit accesor");
 
-            oldDeclaration = [self stringForSourceRange:oldCursor.extent];
-            newDeclaration = [self stringForSourceRange:propertyCursor.extent];
+            oldDeclaration = [self declarationStringForCursor:oldCursor];
+            newDeclaration = [self declarationStringForCursor:propertyCursor];
         } else {
             propertyCursor = [_oldTranslationUnit cursorForSourceLocation:oldCursor.location];
             NSAssert(propertyCursor != nil, @"Failed to locate property cursor for conversion to explicit accesor");
 
-            oldDeclaration = [self stringForSourceRange:propertyCursor.extent];
-            newDeclaration = [self stringForSourceRange:newCursor.extent];
+            oldDeclaration = [self declarationStringForCursor:propertyCursor];
+            newDeclaration = [self declarationStringForCursor:newCursor];
         }
 
         [_convertedProperties addObject:[self keyForCursor:propertyCursor]];
@@ -302,8 +302,8 @@
         [modifications addObject:modification];
     } else if ([self declarationChangedBetweenOldCursor:oldCursor newCursor:newCursor]) {
         OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
-                                                                previousValue:[self stringForSourceRange:oldCursor.extent]
-                                                                 currentValue:[self stringForSourceRange:newCursor.extent]];
+                                                                previousValue:[self declarationStringForCursor:oldCursor]
+                                                                 currentValue:[self declarationStringForCursor:newCursor]];
         [modifications addObject:modification];
     }
 
@@ -525,6 +525,95 @@
         default:
             return YES;
     }
+}
+
+/**
+ * Returns a declaration string for the specified cursor.
+ *
+ * The source extent for function and method declarations includes all of their annotating attributes as well.
+ * For our purposes we want an undecorated declaration that just communicates the changed type information. To
+ * achieve this a declaration is constructed from the cursor's type information. This avoids parsing an
+ * extracted full declaration to exclude the attributes.
+ */
+- (NSString *)declarationStringForCursor:(PLClangCursor *)cursor {
+    NSMutableString *decl = [NSMutableString string];
+
+    switch (cursor.kind) {
+        case PLClangCursorKindObjCInstanceMethodDeclaration:
+        case PLClangCursorKindObjCClassMethodDeclaration:
+        {
+            [decl appendString:(cursor.kind == PLClangCursorKindObjCClassMethodDeclaration ? @"+" : @"-")];
+            [decl appendString:@" ("];
+            [decl appendString:cursor.resultType.spelling];
+            [decl appendString:@")"];
+
+            // TODO: Is there a better way to get the keywords for the method name?
+            if (cursor.arguments.count > 0) {
+                NSArray *keywords = [cursor.spelling componentsSeparatedByString:@":"];
+                NSAssert(keywords.count == (cursor.arguments.count + 1), @"Method name parts do not match argument count");
+
+                [cursor.arguments enumerateObjectsUsingBlock:^(PLClangCursor *argument, NSUInteger index, BOOL *stopArguments) {
+                    if (index > 0) {
+                        [decl appendString:@" "];
+                    }
+                    [decl appendFormat:@"%@:(%@)%@", keywords[index], argument.type.spelling, argument.spelling];
+                }];
+
+                if (cursor.isVariadic) {
+                    [decl appendString:@", ..."];
+                }
+
+            } else {
+                [decl appendString:cursor.spelling];
+            }
+
+            break;
+        }
+
+        case PLClangCursorKindFunctionDeclaration:
+        {
+            [decl appendString:cursor.resultType.spelling];
+
+            if (![cursor.resultType.spelling hasSuffix:@" *"]) {
+                [decl appendString:@" "];
+            }
+
+            [decl appendString:cursor.spelling];
+            [decl appendString:@"("];
+
+            if (cursor.arguments.count > 0) {
+                [cursor.arguments enumerateObjectsUsingBlock:^(PLClangCursor *argument, NSUInteger index, BOOL *stopArguments) {
+                    if (index > 0) {
+                        [decl appendString:@", "];
+                    }
+
+                    NSMutableString *typeSpelling = [NSMutableString stringWithString:argument.type.spelling];
+                    if (![typeSpelling hasSuffix:@" *"] && [argument.spelling length] > 0) {
+                        [typeSpelling appendString:@" "];
+                    }
+
+                    [decl appendFormat:@"%@%@", typeSpelling, argument.spelling];
+                }];
+
+                if (cursor.isVariadic) {
+                    [decl appendString:@", ..."];
+                }
+            } else {
+                [decl appendString:@"void"];
+            }
+
+            [decl appendString:@")"];
+
+            break;
+        }
+
+        default:
+        {
+            return [self stringForSourceRange:cursor.extent];
+        }
+    }
+
+    return decl;
 }
 
 - (NSString *)stringForSourceRange:(PLClangSourceRange *)range {
