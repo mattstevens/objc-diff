@@ -457,7 +457,23 @@
 
         case PLClangCursorKindObjCPropertyDeclaration:
         {
-            return oldCursor.objCPropertyAttributes != newCursor.objCPropertyAttributes || !OCDEqualTypes(oldCursor.type, newCursor.type);
+            if (oldCursor.objCPropertyAttributes != newCursor.objCPropertyAttributes) {
+                return YES;
+            }
+
+            if (!OCDEqualTypes(oldCursor.type, newCursor.type)) {
+                return YES;
+            }
+
+            if (oldCursor.objCPropertyAttributes & PLClangObjCPropertyAttributeGetter && [oldCursor.objCPropertyGetter.USR isEqual:newCursor.objCPropertyGetter.USR] == NO) {
+                return YES;
+            }
+
+            if (oldCursor.objCPropertyAttributes & PLClangObjCPropertyAttributeSetter && [oldCursor.objCPropertySetter.USR isEqual:newCursor.objCPropertySetter.USR] == NO) {
+                return YES;
+            }
+
+            break;
         }
 
         case PLClangCursorKindFunctionDeclaration:
