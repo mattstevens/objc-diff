@@ -538,6 +538,9 @@
  * For our purposes we want an undecorated declaration that just communicates the changed type information. To
  * achieve this a declaration is constructed from the cursor's type information. This avoids parsing an
  * extracted full declaration to exclude the attributes.
+ *
+ * TODO: See if Clang can be enhanced to provide the range of the declaration we're interested in. From the
+ * tool's perspective this would be simpler, less fragile, and include whitespace as written.
  */
 - (NSString *)declarationStringForCursor:(PLClangCursor *)cursor {
     NSMutableString *decl = [NSMutableString string];
