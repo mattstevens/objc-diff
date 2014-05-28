@@ -197,6 +197,16 @@ static NSString * const OCDTestPath = @"test.h";
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"-[Test testMethod]" modification:modification]);
 }
 
+- (void)testInstanceMethodModificationReturnTypeProtocolList {
+    NSArray *differences = [self differencesBetweenOldSource:@"@protocol A @end @protocol B @end @interface Test - (id<A>)testMethod; @end"
+                                                   newSource:@"@protocol A @end @protocol B @end @interface Test - (id<B>)testMethod; @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"- (id<A>)testMethod"
+                                                             currentValue:@"- (id<B>)testMethod"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"-[Test testMethod]" modification:modification]);
+}
+
 - (void)testInstanceMethodModificationParameterType {
     NSArray *differences = [self differencesBetweenOldSource:@"@interface Test - (void)testMethodWithParameter:(int)param; @end"
                                                    newSource:@"@interface Test - (void)testMethodWithParameter:(long)param; @end"];
