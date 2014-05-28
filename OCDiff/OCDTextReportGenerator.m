@@ -20,6 +20,10 @@
         if ([file isEqualToString:lastFile] == NO) {
             lastFile = file;
             printf("\n%s\n", [file UTF8String]);
+            for (NSUInteger i = 0; i < [file length]; i++) {
+                printf("-");
+            }
+            printf("\n");
         }
 
         char indicator = ' ';
