@@ -172,11 +172,6 @@ int main(int argc, char *argv[]) {
         argc -= optind;
         argv += optind;
 
-        if ([oldPath length] < 1) {
-            fprintf(stderr, "No old API path specified");
-            return 1;
-        }
-
         if ([newPath length] < 1) {
             fprintf(stderr, "No new API path specified");
             return 1;
@@ -196,9 +191,12 @@ int main(int argc, char *argv[]) {
 
         PLClangSourceIndex *index = [PLClangSourceIndex indexWithOptions:PLClangIndexCreationDisplayDiagnostics];
 
-        PLClangTranslationUnit *oldTU = TranslationUnitForPath(index, oldPath, oldCompilerArguments);
-        if (oldTU == nil)
-            return 1;
+        PLClangTranslationUnit *oldTU = nil;
+        if (oldPath != nil) {
+            oldTU = TranslationUnitForPath(index, oldPath, oldCompilerArguments);
+            if (oldTU == nil)
+                return 1;
+        }
 
         PLClangTranslationUnit *newTU = TranslationUnitForPath(index, newPath, newCompilerArguments);
         if (newTU == nil)
