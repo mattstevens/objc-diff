@@ -444,6 +444,32 @@ static NSString * const OCDTestPath = @"test.h";
 }
 
 /**
+ * Tests that a modification to a property getter method name is reported.
+ */
+- (void)testPropertyModificationGetterAttribute {
+    NSArray *differences = [self differencesBetweenOldSource:@"@interface Test @property (getter=test1) int testProperty; @end"
+                                                   newSource:@"@interface Test @property (getter=test2) int testProperty; @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"@property (getter=test1) int testProperty"
+                                                             currentValue:@"@property (getter=test2) int testProperty"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test.testProperty" modification:modification]);
+}
+
+/**
+ * Tests that a modification to a property setter method name is reported.
+ */
+- (void)testPropertyModificationSetterAttribute {
+    NSArray *differences = [self differencesBetweenOldSource:@"@interface Test @property (setter=setTest1:) int testProperty; @end"
+                                                   newSource:@"@interface Test @property (setter=setTest2:) int testProperty; @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"@property (setter=setTest1:) int testProperty"
+                                                             currentValue:@"@property (setter=setTest2:) int testProperty"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test.testProperty" modification:modification]);
+}
+
+/**
  * Tests that a conversion from explicit accessors to a property is reported as modifications to the declarations of the accessor methods.
  */
 - (void)testConversionToProperty {
