@@ -548,11 +548,11 @@
         data = [file readDataOfLength:(NSUInteger)(range.endLocation.fileOffset - range.startLocation.fileOffset)];
     }
 
-    NSString *result = [[NSString alloc] initWithData: data encoding: NSUTF8StringEncoding];
+    NSString *result = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 
     NSMutableCharacterSet *characterSet = [NSMutableCharacterSet whitespaceAndNewlineCharacterSet];
     [characterSet addCharactersInString:@";"];
-    return [result stringByTrimmingCharactersInSet: characterSet];
+    return [result stringByTrimmingCharactersInSet:characterSet];
 }
 
 - (NSString *)displayNameForObjCParentCursor:(PLClangCursor *)cursor {
