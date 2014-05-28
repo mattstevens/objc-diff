@@ -570,6 +570,27 @@
             break;
         }
 
+        case PLClangCursorKindObjCPropertyDeclaration:
+        {
+            [decl appendString:@"@property "];
+
+            if (cursor.objCPropertyAttributes != PLClangObjCPropertyAttributeNone) {
+                [decl appendString:@"("];
+                [decl appendString:[self propertyAttributeStringForCursor:cursor]];
+                [decl appendString:@") "];
+            }
+
+            [decl appendString:cursor.type.spelling];
+
+            if (![cursor.type.spelling hasSuffix:@" *"]) {
+                [decl appendString:@" "];
+            }
+
+            [decl appendString:cursor.spelling];
+
+            break;
+        }
+
         case PLClangCursorKindFunctionDeclaration:
         {
             [decl appendString:cursor.resultType.spelling];
@@ -614,6 +635,61 @@
     }
 
     return decl;
+}
+
+- (NSString *)propertyAttributeStringForCursor:(PLClangCursor *)cursor {
+    NSMutableArray *attributeStrings = [NSMutableArray array];
+    PLClangObjCPropertyAttributes attributes = cursor.objCPropertyAttributes;
+
+    if (attributes & PLClangObjCPropertyAttributeAtomic) {
+        [attributeStrings addObject:@"atomic"];
+    }
+
+    if (attributes & PLClangObjCPropertyAttributeNonAtomic) {
+        [attributeStrings addObject:@"nonatomic"];
+    }
+
+    if (attributes & PLClangObjCPropertyAttributeReadOnly) {
+        [attributeStrings addObject:@"readonly"];
+    }
+
+    if (attributes & PLClangObjCPropertyAttributeReadWrite) {
+        [attributeStrings addObject:@"readwrite"];
+    }
+
+    if (attributes & PLClangObjCPropertyAttributeAssign) {
+        [attributeStrings addObject:@"assign"];
+    }
+
+    if (attributes & PLClangObjCPropertyAttributeCopy) {
+        [attributeStrings addObject:@"copy"];
+    }
+
+    if (attributes & PLClangObjCPropertyAttributeRetain) {
+        [attributeStrings addObject:@"retain"];
+    }
+
+    if (attributes & PLClangObjCPropertyAttributeStrong) {
+        [attributeStrings addObject:@"strong"];
+    }
+
+    if (attributes & PLClangObjCPropertyAttributeUnsafeUnretained) {
+        [attributeStrings addObject:@"unsafe_unretained"];
+    }
+
+    if (attributes & PLClangObjCPropertyAttributeWeak) {
+        [attributeStrings addObject:@"weak"];
+    }
+
+    if (attributes & PLClangObjCPropertyAttributeGetter) {
+        [attributeStrings addObject:[NSString stringWithFormat:@"getter=%@", cursor.objCPropertyGetter.spelling]];
+    }
+
+    if (attributes & PLClangObjCPropertyAttributeSetter) {
+        [attributeStrings addObject:[NSString stringWithFormat:@"setter=%@", cursor.objCPropertySetter.spelling]];
+    }
+
+    return [attributeStrings componentsJoinedByString:@", "];
 }
 
 - (NSString *)stringForSourceRange:(PLClangSourceRange *)range {
