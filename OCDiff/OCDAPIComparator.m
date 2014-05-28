@@ -358,8 +358,8 @@
 
         if (newCursor.availability.availabilityKind == PLClangAvailabilityKindDeprecated && [newCursor.availability.deprecationMessage length] > 0) {
             modification = [OCDModification modificationWithType:OCDModificationTypeDeprecationMessage
-                                                                    previousValue:nil
-                                                                     currentValue:newCursor.availability.deprecationMessage];
+                                                   previousValue:nil
+                                                    currentValue:newCursor.availability.deprecationMessage];
             [modifications addObject:modification];
         }
     }
