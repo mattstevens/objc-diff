@@ -865,7 +865,7 @@ static NSString * const OCDTestPath = @"test.h";
 /**
  * Tests that attributes are excluded from the reported declaration for modifications.
  */
-- (void)testAttributesExcludedFromDeclaration {
+- (void)testFunctionAttributesExcludedFromDeclaration {
     NSArray *differences = [self differencesBetweenOldSource:@"void Test(void) __attribute__((deprecated));"
                                                    newSource:@"int Test(void) __attribute__((deprecated));"];
 
@@ -873,6 +873,36 @@ static NSString * const OCDTestPath = @"test.h";
                                                             previousValue:@"void Test(void)"
                                                              currentValue:@"int Test(void)"];
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test()" modification:modification]);
+}
+
+- (void)testInstanceMethodAttributesExcludedFromDeclaration {
+    NSArray *differences = [self differencesBetweenOldSource:@"@interface Test - (int)testMethod __attribute__((deprecated)); @end"
+                                                   newSource:@"@interface Test - (long)testMethod __attribute__((deprecated)); @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"- (int)testMethod"
+                                                             currentValue:@"- (long)testMethod"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"-[Test testMethod]" modification:modification]);
+}
+
+- (void)testClassMethodAttributesExcludedFromDeclaration {
+    NSArray *differences = [self differencesBetweenOldSource:@"@interface Test + (int)testMethod __attribute__((deprecated)); @end"
+                                                   newSource:@"@interface Test + (long)testMethod __attribute__((deprecated)); @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"+ (int)testMethod"
+                                                             currentValue:@"+ (long)testMethod"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"+[Test testMethod]" modification:modification]);
+}
+
+- (void)testPropertyAttributesExcludedFromDeclaration {
+    NSArray *differences = [self differencesBetweenOldSource:@"@interface Test @property int testProperty __attribute__((deprecated)); @end"
+                                                   newSource:@"@interface Test @property long testProperty __attribute__((deprecated)); @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"@property int testProperty"
+                                                             currentValue:@"@property long testProperty"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test.testProperty" modification:modification]);
 }
 
 - (void)testAddRemoveForName:(NSString *)name base:(NSString *)base addition:(NSString *)addition {
