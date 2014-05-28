@@ -22,6 +22,4 @@ typedef NS_ENUM(NSUInteger, OCDifferenceType) {
  */
 @property (nonatomic, readonly) NSArray *modifications;
 
-+ (NSString *)stringForDifferenceType:(OCDifferenceType)type;
-
 @end
