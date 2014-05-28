@@ -836,6 +836,19 @@ static NSString * const OCDTestPath = @"test.h";
     XCTAssertEqualObjects(differences, @[]);
 }
 
+/**
+ * Tests that attributes are excluded from the reported declaration for modifications.
+ */
+- (void)testAttributesExcludedFromDeclaration {
+    NSArray *differences = [self differencesBetweenOldSource:@"void Test(void) __attribute__((deprecated));"
+                                                   newSource:@"int Test(void) __attribute__((deprecated));"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"void Test(void)"
+                                                             currentValue:@"int Test(void)"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test()" modification:modification]);
+}
+
 - (void)testAddRemoveForName:(NSString *)name base:(NSString *)base addition:(NSString *)addition {
     NSArray *differences;
     NSArray *expectedDifferences;
