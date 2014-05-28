@@ -304,8 +304,8 @@ static NSString * const OCDTestPath = @"test.h";
                                                    newSource:@"@protocol Test @optional - (void)testMethod; @end"];
 
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeOptional
-                                                            previousValue:@"NO"
-                                                             currentValue:@"YES"];
+                                                            previousValue:@"Required"
+                                                             currentValue:@"Optional"];
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"-[Test testMethod]" modification:modification]);
 }
 
@@ -314,8 +314,8 @@ static NSString * const OCDTestPath = @"test.h";
                                                    newSource:@"@protocol Test - (void)testMethod; @end"];
 
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeOptional
-                                                            previousValue:@"YES"
-                                                             currentValue:@"NO"];
+                                                            previousValue:@"Optional"
+                                                             currentValue:@"Required"];
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"-[Test testMethod]" modification:modification]);
 }
 
@@ -324,8 +324,8 @@ static NSString * const OCDTestPath = @"test.h";
                                                    newSource:@"@protocol Test @optional @property int testProperty; @end"];
 
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeOptional
-                                                            previousValue:@"NO"
-                                                             currentValue:@"YES"];
+                                                            previousValue:@"Required"
+                                                             currentValue:@"Optional"];
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test.testProperty" modification:modification]);
 }
 
@@ -334,8 +334,8 @@ static NSString * const OCDTestPath = @"test.h";
                                                    newSource:@"@protocol Test @property int testProperty; @end"];
 
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeOptional
-                                                            previousValue:@"YES"
-                                                             currentValue:@"NO"];
+                                                            previousValue:@"Optional"
+                                                             currentValue:@"Required"];
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test.testProperty" modification:modification]);
 }
 

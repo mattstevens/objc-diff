@@ -345,8 +345,8 @@
 
     if (oldCursor.isObjCOptional != newCursor.isObjCOptional) {
         OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeOptional
-                                                                previousValue:oldCursor.isObjCOptional ? @"YES" : @"NO"
-                                                                 currentValue:newCursor.isObjCOptional ? @"YES" : @"NO"];
+                                                                previousValue:oldCursor.isObjCOptional ? @"Optional" : @"Required"
+                                                                 currentValue:newCursor.isObjCOptional ? @"Optional" : @"Required"];
         [modifications addObject:modification];
     }
 
