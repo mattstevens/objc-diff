@@ -53,6 +53,16 @@ static NSString * const OCDTestPath = @"test.h";
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test()" modification:modification]);
 }
 
+- (void)testFunctionModificationMadeVariadic {
+    NSArray *differences = [self differencesBetweenOldSource:@"void Test(int);"
+                                                   newSource:@"void Test(int, ...);"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"void Test(int)"
+                                                             currentValue:@"void Test(int, ...)"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test()" modification:modification]);
+}
+
 - (void)testModificationDeprecation {
     NSArray *differences = [self differencesBetweenOldSource:@"void Test(void);"
                                                    newSource:@"void Test(void) __attribute__((deprecated));"];
@@ -237,6 +247,16 @@ static NSString * const OCDTestPath = @"test.h";
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"-[Test testMethodWithParameter:]" modification:modification]);
 }
 
+- (void)testInstanceMethodModificationMadeVariadic {
+    NSArray *differences = [self differencesBetweenOldSource:@"@interface Test - (void)testMethodWithStringAndThings:(const char *)param; @end"
+                                                   newSource:@"@interface Test - (void)testMethodWithStringAndThings:(const char *)param, ...; @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"- (void)testMethodWithStringAndThings:(const char *)param"
+                                                             currentValue:@"- (void)testMethodWithStringAndThings:(const char *)param, ..."];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"-[Test testMethodWithStringAndThings:]" modification:modification]);
+}
+
 - (void)testClassMethod {
     [self testAddRemoveForName:@"+[Test testMethod]"
                           base:@"@interface Test @end"
@@ -261,6 +281,16 @@ static NSString * const OCDTestPath = @"test.h";
                                                             previousValue:@"+ (void)testMethodWithParameter:(int)param"
                                                              currentValue:@"+ (void)testMethodWithParameter:(long)param"];
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"+[Test testMethodWithParameter:]" modification:modification]);
+}
+
+- (void)testClassMethodModificationMadeVariadic {
+    NSArray *differences = [self differencesBetweenOldSource:@"@interface Test + (void)testMethodWithStringAndThings:(const char *)param; @end"
+                                                   newSource:@"@interface Test + (void)testMethodWithStringAndThings:(const char *)param, ...; @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"+ (void)testMethodWithStringAndThings:(const char *)param"
+                                                             currentValue:@"+ (void)testMethodWithStringAndThings:(const char *)param, ..."];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"+[Test testMethodWithStringAndThings:]" modification:modification]);
 }
 
 - (void)testProtocol {

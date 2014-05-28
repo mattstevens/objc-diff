@@ -440,6 +440,10 @@
                 return YES;
             }
 
+            if (oldCursor.isVariadic != newCursor.isVariadic) {
+                return YES;
+            }
+
             if ([oldCursor.arguments count] != [newCursor.arguments count]) {
                 return YES;
             }
