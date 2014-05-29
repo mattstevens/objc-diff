@@ -12,6 +12,12 @@ enum OCDReportTypes {
     OCDReportTypeHTML = 1 << 2
 };
 
+enum OCDAPIDestination {
+    OCDAPIOld  = 1 << 0,
+    OCDAPINew  = 1 << 1,
+    OCDAPIBoth = OCDAPIOld | OCDAPINew
+};
+
 static void print_usage(void) {
     printf(""
     "Usage: ocdiff --old <path to old API> --new <path to new API> [options]\n"
@@ -19,11 +25,14 @@ static void print_usage(void) {
     "Generates an Objective-C API diff report.\n"
     "\n"
     "Options:\n"
-    "  -h, --help       Show this help message and exit\n"
-    "  -o, --old        Path to the old API header(s)\n"
-    "  -n, --new        Path to the new API header(s)\n"
-    "  -t, --title      Title of the generated report\n"
-    "      --version    Show the version and exit \n");
+    "  -h, --help           Show this help message and exit\n"
+    "  -o, --old <path>     Path to the old API header(s)\n"
+    "  -n, --new <path>     Path to the new API header(s)\n"
+    "  -t, --title          Title of the generated report\n"
+    "      --args <args>    Compiler arguments for both API versions\n"
+    "      --oldargs <args> Compiler arguments for the old API version\n"
+    "      --newargs <args> Compiler arguments for the new API version\n"
+    "      --version        Show the version and exit\n");
 }
 
 static BOOL IsFrameworkAtPath(NSString *path) {
@@ -130,13 +139,16 @@ int main(int argc, char *argv[]) {
             { "old",          required_argument,  NULL,          'o' },
             { "new",          required_argument,  NULL,          'n' },
             { "title",        required_argument,  NULL,          't' },
-            { "Xold",         required_argument,  NULL,          'x' },
-            { "Xnew",         required_argument,  NULL,          'y' },
+            { "args",         no_argument,        NULL,          'x' },
+            { "oldargs",      no_argument,        NULL,          'y' },
+            { "newargs",      no_argument,        NULL,          'z' },
             { "version",      no_argument,        NULL,          'v' },
             { NULL,           0,                  NULL,           0  }
         };
 
-        while ((optchar = getopt_long(argc, argv, "hont", longopts, NULL)) != -1) {
+        BOOL parseCompilerArguments = NO;
+
+        while (!parseCompilerArguments && (optchar = getopt_long(argc, argv, "ho:n:t:", longopts, NULL)) != -1) {
             switch (optchar) {
                 case 'h':
                     print_usage();
@@ -154,19 +166,17 @@ int main(int argc, char *argv[]) {
                     printf("ocdiff %s\n%s\n", "DEV", [PLClangGetVersionString() UTF8String]);
                     return 0;
                 case 'x':
-                    [oldCompilerArguments addObject:@(optarg)];
-                    break;
                 case 'y':
-                    [newCompilerArguments addObject:@(optarg)];
+                case 'z':
+                    parseCompilerArguments = YES;
+                    optind--;
                     break;
                 case 0:
                     break;
                 case '?':
                     return 1;
                 default:
-                    // Unhandled options are passed to the compiler
-                    [oldCompilerArguments addObject:@(optarg)];
-                    [newCompilerArguments addObject:@(optarg)];
+                    fprintf(stderr, "unhandled option -%c\n", optchar);
                     break;
             }
         }
@@ -174,14 +184,37 @@ int main(int argc, char *argv[]) {
         argv += optind;
 
         if ([newPath length] < 1) {
-            fprintf(stderr, "No new API path specified");
+            fprintf(stderr, "No new API path specified.\n");
+            print_usage();
             return 1;
         }
 
+        if (parseCompilerArguments == NO && argc > 0) {
+            fprintf(stderr, "unknown argument %s\n", argv[0]);
+            return 1;
+        }
+
+        int argDestination = 0;
+
         for (int i = 0; i < argc; i++) {
-            // Unhandled arguments are passed to the compiler
-            [oldCompilerArguments addObject:@(argv[i])];
-            [newCompilerArguments addObject:@(argv[i])];
+            NSString *argument = @(argv[i]);
+            if ([argument isEqualToString:@"--args"]) {
+                argDestination = OCDAPIBoth;
+            } else if ([argument isEqualToString:@"--oldargs"]) {
+                argDestination = OCDAPIOld;
+            } else if ([argument isEqualToString:@"--newargs"]) {
+                argDestination = OCDAPINew;
+            } else {
+                assert(argDestination != 0 && "No argument destination");
+
+                if (argDestination & OCDAPIOld) {
+                    [oldCompilerArguments addObject:argument];
+                }
+
+                if (argDestination & OCDAPINew) {
+                    [newCompilerArguments addObject:argument];
+                }
+            }
         }
 
         if (title == nil) {
