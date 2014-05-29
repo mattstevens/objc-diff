@@ -1,5 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <ObjectDoc/ObjectDoc.h>
+#import <ObjectDoc/PLClang.h>
 #import <getopt.h>
 
 #import "OCDAPIComparator.h"
@@ -150,7 +151,7 @@ int main(int argc, char *argv[]) {
                     title = @(optarg);
                     break;
                 case 'v':
-                    printf("ocdiff %s\n", "DEV");
+                    printf("ocdiff %s\n%s\n", "DEV", [PLClangGetVersionString() UTF8String]);
                     return 0;
                 case 'x':
                     [oldCompilerArguments addObject:@(optarg)];
