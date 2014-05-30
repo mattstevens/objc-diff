@@ -112,7 +112,7 @@
     NSMutableDictionary *api = [NSMutableDictionary dictionary];
 
     [translationUnit.cursor visitChildrenUsingBlock:^PLClangCursorVisitResult(PLClangCursor *cursor) {
-        if (cursor.location.isInSystemHeader)
+        if (cursor.location.isInSystemHeader || cursor.location.path == nil)
             return PLClangCursorVisitContinue;
 
         if ([self shouldIncludeEntityAtCursor:cursor] == NO) {
