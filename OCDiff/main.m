@@ -12,12 +12,6 @@ enum OCDReportTypes {
     OCDReportTypeHTML = 1 << 2
 };
 
-enum OCDAPIDestination {
-    OCDAPIOld  = 1 << 0,
-    OCDAPINew  = 1 << 1,
-    OCDAPIBoth = OCDAPIOld | OCDAPINew
-};
-
 static NSString *sdkPath;
 static NSString *sdkVersion;
 
@@ -28,15 +22,15 @@ static void print_usage(void) {
     "Generates an Objective-C API diff report.\n"
     "\n"
     "Options:\n"
-    "  -h, --help           Show this help message and exit\n"
-    "      --sdk <name>     Use the specified SDK\n"
-    "  -o, --old <path>     Path to the old API header(s)\n"
-    "  -n, --new <path>     Path to the new API header(s)\n"
-    "  -t, --title          Title of the generated report\n"
-    "      --args <args>    Compiler arguments for both API versions\n"
-    "      --oldargs <args> Compiler arguments for the old API version\n"
-    "      --newargs <args> Compiler arguments for the new API version\n"
-    "      --version        Show the version and exit\n");
+    "  --help           Show this help message and exit\n"
+    "  --sdk <name>     Use the specified SDK\n"
+    "  --old <path>     Path to the old API header(s)\n"
+    "  --new <path>     Path to the new API header(s)\n"
+    "  --title          Title of the generated report\n"
+    "  --args <args>    Compiler arguments for both API versions\n"
+    "  --oldargs <args> Compiler arguments for the old API version\n"
+    "  --newargs <args> Compiler arguments for the new API version\n"
+    "  --version        Show the version and exit\n");
 }
 
 static BOOL IsFrameworkAtPath(NSString *path) {
@@ -210,6 +204,21 @@ static void ApplySDKToCompilerArguments(NSString *sdk, NSMutableArray *compilerA
     }
 }
 
+static NSArray *GetCompilerArguments(int argc, char *argv[]) {
+    NSMutableArray *arguments = [[NSMutableArray alloc] init];
+
+    for (int i = 0; i < argc; i++) {
+        NSString *argument = @(argv[i]);
+        if ([argument hasPrefix:@"--"]) {
+            break;
+        }
+
+        [arguments addObject:argument];
+    }
+
+    return arguments;
+}
+
 int main(int argc, char *argv[]) {
     @autoreleasepool {
         NSString *sdk;
@@ -232,16 +241,14 @@ int main(int argc, char *argv[]) {
             { "old",          required_argument,  NULL,          'o' },
             { "new",          required_argument,  NULL,          'n' },
             { "title",        required_argument,  NULL,          't' },
-            { "args",         no_argument,        NULL,          'x' },
-            { "oldargs",      no_argument,        NULL,          'y' },
-            { "newargs",      no_argument,        NULL,          'z' },
+            { "args",         no_argument,        NULL,          'A' },
+            { "oldargs",      no_argument,        NULL,          'O' },
+            { "newargs",      no_argument,        NULL,          'N' },
             { "version",      no_argument,        NULL,          'v' },
             { NULL,           0,                  NULL,           0  }
         };
 
-        BOOL parseCompilerArguments = NO;
-
-        while (!parseCompilerArguments && (optchar = getopt_long(argc, argv, "ho:n:t:", longopts, NULL)) != -1) {
+        while ((optchar = getopt_long(argc, argv, "h", longopts, NULL)) != -1) {
             switch (optchar) {
                 case 'h':
                     print_usage();
@@ -261,12 +268,28 @@ int main(int argc, char *argv[]) {
                 case 'v':
                     printf("ocdiff %s\n%s\n", "DEV", [PLClangGetVersionString() UTF8String]);
                     return 0;
-                case 'x':
-                case 'y':
-                case 'z':
-                    parseCompilerArguments = YES;
-                    optind--;
+                case 'A':
+                {
+                    NSArray *arguments = GetCompilerArguments(argc - optind, argv + optind);
+                    [oldCompilerArguments addObjectsFromArray:arguments];
+                    [newCompilerArguments addObjectsFromArray:arguments];
+                    optind += [arguments count];
                     break;
+                }
+                case 'O':
+                {
+                    NSArray *arguments = GetCompilerArguments(argc - optind, argv + optind);
+                    [oldCompilerArguments addObjectsFromArray:arguments];
+                    optind += [arguments count];
+                    break;
+                }
+                case 'N':
+                {
+                    NSArray *arguments = GetCompilerArguments(argc - optind, argv + optind);
+                    [newCompilerArguments addObjectsFromArray:arguments];
+                    optind += [arguments count];
+                    break;
+                }
                 case 0:
                     break;
                 case '?':
@@ -283,34 +306,6 @@ int main(int argc, char *argv[]) {
             fprintf(stderr, "No new API path specified.\n");
             print_usage();
             return 1;
-        }
-
-        if (parseCompilerArguments == NO && argc > 0) {
-            fprintf(stderr, "unknown argument %s\n", argv[0]);
-            return 1;
-        }
-
-        int argDestination = 0;
-
-        for (int i = 0; i < argc; i++) {
-            NSString *argument = @(argv[i]);
-            if ([argument isEqualToString:@"--args"]) {
-                argDestination = OCDAPIBoth;
-            } else if ([argument isEqualToString:@"--oldargs"]) {
-                argDestination = OCDAPIOld;
-            } else if ([argument isEqualToString:@"--newargs"]) {
-                argDestination = OCDAPINew;
-            } else {
-                assert(argDestination != 0 && "No argument destination");
-
-                if (argDestination & OCDAPIOld) {
-                    [oldCompilerArguments addObject:argument];
-                }
-
-                if (argDestination & OCDAPINew) {
-                    [newCompilerArguments addObject:argument];
-                }
-            }
         }
 
         if ((reportTypes & OCDReportTypeText) && (reportTypes & OCDReportTypeXML)) {
