@@ -313,6 +313,11 @@ int main(int argc, char *argv[]) {
             }
         }
 
+        if ((reportTypes & OCDReportTypeText) && (reportTypes & OCDReportTypeXML)) {
+            fprintf(stderr, "Only one of --text or --xml may be specified\n");
+            return 1;
+        }
+
         if (title == nil) {
             title = GeneratedTitleForPaths(oldPath, newPath);
         }
