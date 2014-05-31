@@ -549,15 +549,17 @@
 }
 
 /**
- * Returns a declaration string for the specified cursor.
+ * Returns a declaration string for the specified cursor suitable for display.
  *
  * The source extent for function and method declarations includes all of their annotating attributes as well.
  * For our purposes we want an undecorated declaration that just communicates the changed type information. To
  * achieve this a declaration is constructed from the cursor's type information. This avoids parsing an
- * extracted full declaration to exclude the attributes.
+ * extracted full declaration to exclude the attributes. This also results in a single-line declaration
+ * stripped of inline comments.
  *
- * TODO: See if Clang can be enhanced to provide the range of the declaration we're interested in. From the
- * tool's perspective this would be simpler, less fragile, and include whitespace as written.
+ * TODO: Clang's printers have the ability to generate this type of string using the PolishForDeclaration
+ * option. See if this capability can be exposed, as using the Clang implementation would be simpler and less
+ * fragile.
  */
 - (NSString *)declarationStringForCursor:(PLClangCursor *)cursor {
     NSMutableString *decl = [NSMutableString string];
