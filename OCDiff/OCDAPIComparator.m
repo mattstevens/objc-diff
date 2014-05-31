@@ -112,7 +112,7 @@
     NSMutableDictionary *api = [NSMutableDictionary dictionary];
 
     [translationUnit.cursor visitChildrenUsingBlock:^PLClangCursorVisitResult(PLClangCursor *cursor) {
-        if (cursor.location.isInSystemHeader || cursor.location.path == nil)
+        if (cursor.location.isInSystemHeader)
             return PLClangCursorVisitContinue;
 
         if ([self shouldIncludeEntityAtCursor:cursor] == NO) {
@@ -200,7 +200,7 @@
  */
 - (BOOL)shouldIncludeEntityAtCursor:(PLClangCursor *)cursor {
     if ((cursor.isDeclaration && [self shouldIncludeDeclarationAtCursor:cursor]) ||
-        (cursor.kind == PLClangCursorKindMacroDefinition && [self isEmptyMacroDefinitionAtCursor:cursor] == NO)) {
+        (cursor.kind == PLClangCursorKindMacroDefinition && [self shouldIncludeMacroDefinitionAtCursor:cursor])) {
         return ([cursor.spelling length] > 0 && [cursor.spelling hasPrefix:@"_"] == NO);
     }
 
@@ -232,6 +232,22 @@
 
     if (cursor.availability.availabilityKind == PLClangAvailabilityKindUnavailable ||
         cursor.availability.availabilityKind == PLClangAvailabilityKindInaccessible) {
+        return NO;
+    }
+
+    return YES;
+}
+
+/**
+ * Returns a Boolean value indicating whether the macro definition at the specified cursor should be included in the API.
+ */
+- (BOOL)shouldIncludeMacroDefinitionAtCursor:(PLClangCursor *)cursor {
+    // Exclude cursors without an associated source file, such as those defined via compiler arguments.
+    if (cursor.location.path == nil) {
+        return NO;
+    }
+
+    if ([self isEmptyMacroDefinitionAtCursor:cursor]) {
         return NO;
     }
 

@@ -935,6 +935,27 @@ static NSString * const OCDTestPath = @"test.h";
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test.testProperty" modification:modification]);
 }
 
+/**
+ * Tests that macros defined via compiler arguments are ignored.
+ */
+- (void)testArgumentDefinedMacroExcluded {
+    NSError *error;
+    PLClangSourceIndex *index = [PLClangSourceIndex indexWithOptions:PLClangIndexCreationDisplayDiagnostics];
+    PLClangUnsavedFile *newFile = [PLClangUnsavedFile unsavedFileWithPath:OCDNewTestPath data:[@"" dataUsingEncoding:NSUTF8StringEncoding]];
+    PLClangTranslationUnit *newTU = [index addTranslationUnitWithSourcePath:OCDNewTestPath
+                                                               unsavedFiles:@[newFile]
+                                                          compilerArguments:@[@"-x", @"objective-c-header", @"-DTEST=1"]
+                                                                    options:PLClangTranslationUnitCreationDetailedPreprocessingRecord |
+                                                                            PLClangTranslationUnitCreationSkipFunctionBodies
+                                                                      error:&error];
+    XCTAssertNotNil(newTU, @"Failed to parse: %@", error);
+    XCTAssertFalse(newTU.didFail, @"Fatal error encountered during parse");
+
+    OCDAPIComparator *comparator = [[OCDAPIComparator alloc] initWithOldTranslationUnit:nil
+                                                                     newTranslationUnit:newTU];
+    XCTAssertEqualObjects([comparator computeDifferences], @[]);
+}
+
 - (void)testAddRemoveForName:(NSString *)name base:(NSString *)base addition:(NSString *)addition {
     NSArray *differences;
     NSArray *expectedDifferences;
