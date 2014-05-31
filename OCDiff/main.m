@@ -20,7 +20,7 @@ enum OCDAPIDestination {
 
 static void print_usage(void) {
     printf(""
-    "Usage: ocdiff --old <path to old API> --new <path to new API> [options]\n"
+    "Usage: ocdiff [--old <path to old API>] --new <path to new API> [options]\n"
     "\n"
     "Generates an Objective-C API diff report.\n"
     "\n"
@@ -235,13 +235,15 @@ int main(int argc, char *argv[]) {
         PLClangTranslationUnit *oldTU = nil;
         if (oldPath != nil) {
             oldTU = TranslationUnitForPath(index, oldPath, oldCompilerArguments);
-            if (oldTU == nil)
+            if (oldTU == nil) {
                 return 1;
+            }
         }
 
         PLClangTranslationUnit *newTU = TranslationUnitForPath(index, newPath, newCompilerArguments);
-        if (newTU == nil)
+        if (newTU == nil) {
             return 1;
+        }
 
         OCDAPIComparator *comparator = [[OCDAPIComparator alloc] initWithOldTranslationUnit:oldTU newTranslationUnit:newTU];
 
