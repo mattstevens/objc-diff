@@ -5,6 +5,7 @@
 
 #import "OCDAPIComparator.h"
 #import "OCDTextReportGenerator.h"
+#import "OCDXMLReportGenerator.h"
 
 enum OCDReportTypes {
     OCDReportTypeText = 1 << 0,
@@ -22,15 +23,18 @@ static void print_usage(void) {
     "Generates an Objective-C API diff report.\n"
     "\n"
     "Options:\n"
-    "  --help           Show this help message and exit\n"
-    "  --sdk <name>     Use the specified SDK\n"
-    "  --old <path>     Path to the old API header(s)\n"
-    "  --new <path>     Path to the new API header(s)\n"
-    "  --title          Title of the generated report\n"
-    "  --args <args>    Compiler arguments for both API versions\n"
-    "  --oldargs <args> Compiler arguments for the old API version\n"
-    "  --newargs <args> Compiler arguments for the new API version\n"
-    "  --version        Show the version and exit\n");
+    "  --help             Show this help message and exit\n"
+    "  --title            Title of the generated report\n"
+    "  --text             Print a text report to standard output (the default)\n"
+    "  --xml              Print an XML report to standard output\n"
+    "  --html <directory> Write an HTML report to the specified directory\n"
+    "  --sdk <name>       Use the specified SDK\n"
+    "  --old <path>       Path to the old API\n"
+    "  --new <path>       Path to the new API\n"
+    "  --args <args>      Compiler arguments for both API versions\n"
+    "  --oldargs <args>   Compiler arguments for the old API version\n"
+    "  --newargs <args>   Compiler arguments for the new API version\n"
+    "  --version          Show the version and exit\n");
 }
 
 static BOOL IsFrameworkAtPath(NSString *path) {
@@ -225,6 +229,7 @@ int main(int argc, char *argv[]) {
         NSString *oldPath;
         NSString *newPath;
         NSString *title;
+        NSString *htmlOutputDirectory;
         NSMutableArray *oldCompilerArguments = [NSMutableArray array];
         NSMutableArray *newCompilerArguments = [NSMutableArray array];
         int reportTypes = 0;
@@ -237,10 +242,13 @@ int main(int argc, char *argv[]) {
 
         static struct option longopts[] = {
             { "help",         no_argument,        NULL,          'h' },
+            { "title",        required_argument,  NULL,          't' },
+            { "text",         no_argument,        NULL,          'T' },
+            { "xml",          no_argument,        NULL,          'X' },
+            { "html",         required_argument,  NULL,          'H' },
             { "sdk",          required_argument,  NULL,          's' },
             { "old",          required_argument,  NULL,          'o' },
             { "new",          required_argument,  NULL,          'n' },
-            { "title",        required_argument,  NULL,          't' },
             { "args",         no_argument,        NULL,          'A' },
             { "oldargs",      no_argument,        NULL,          'O' },
             { "newargs",      no_argument,        NULL,          'N' },
@@ -253,6 +261,19 @@ int main(int argc, char *argv[]) {
                 case 'h':
                     print_usage();
                     return 0;
+                case 't':
+                    title = @(optarg);
+                    break;
+                case 'T':
+                    reportTypes |= OCDReportTypeText;
+                    break;
+                case 'X':
+                    reportTypes |= OCDReportTypeXML;
+                    break;
+                case 'H':
+                    reportTypes |= OCDReportTypeHTML;
+                    htmlOutputDirectory = @(optarg);
+                    break;
                 case 's':
                     sdk = @(optarg);
                     break;
@@ -261,9 +282,6 @@ int main(int argc, char *argv[]) {
                     break;
                 case 'n':
                     newPath = @(optarg);
-                    break;
-                case 't':
-                    title = @(optarg);
                     break;
                 case 'v':
                     printf("ocdiff %s\n%s\n", "DEV", [PLClangGetVersionString() UTF8String]);
@@ -351,6 +369,11 @@ int main(int argc, char *argv[]) {
 
         if (reportTypes & OCDReportTypeText) {
             OCDTextReportGenerator *generator = [[OCDTextReportGenerator alloc] init];
+            [generator generateReportForDifferences:differences title:title];
+        }
+
+        if (reportTypes & OCDReportTypeXML) {
+            OCDXMLReportGenerator *generator = [[OCDXMLReportGenerator alloc] init];
             [generator generateReportForDifferences:differences title:title];
         }
     }
