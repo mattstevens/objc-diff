@@ -303,13 +303,13 @@
 
         if (newCursor.isImplicit) {
             propertyCursor = [_newTranslationUnit cursorForSourceLocation:newCursor.location];
-            NSAssert(propertyCursor != nil, @"Failed to locate property cursor for conversion from explicit accesor");
+            NSAssert(propertyCursor != nil, @"Failed to locate property cursor for conversion from explicit accessor");
 
             oldDeclaration = [self declarationStringForCursor:oldCursor];
             newDeclaration = [self declarationStringForCursor:propertyCursor];
         } else {
             propertyCursor = [_oldTranslationUnit cursorForSourceLocation:oldCursor.location];
-            NSAssert(propertyCursor != nil, @"Failed to locate property cursor for conversion to explicit accesor");
+            NSAssert(propertyCursor != nil, @"Failed to locate property cursor for conversion to explicit accessor");
 
             oldDeclaration = [self declarationStringForCursor:propertyCursor];
             newDeclaration = [self declarationStringForCursor:newCursor];
