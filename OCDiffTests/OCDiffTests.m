@@ -935,6 +935,26 @@ static NSString * const OCDTestPath = @"test.h";
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test.testProperty" modification:modification]);
 }
 
+- (void)testFunctionCommentsExcludedFromDeclaration {
+    NSArray *differences = [self differencesBetweenOldSource:@"void Test(int param1 /* a comment */, int param2);"
+                                                   newSource:@"int Test(int param1 /* a comment */, int param2);"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"void Test(int param1, int param2)"
+                                                             currentValue:@"int Test(int param1, int param2)"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test()" modification:modification]);
+}
+
+- (void)testFunctionLineBreaksExcludedFromDeclaration {
+    NSArray *differences = [self differencesBetweenOldSource:@"void Test(int param1,\nint param2);"
+                                                   newSource:@"int Test(int param1,\nint param2);"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"void Test(int param1, int param2)"
+                                                             currentValue:@"int Test(int param1, int param2)"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test()" modification:modification]);
+}
+
 /**
  * Tests that macros defined via compiler arguments are ignored.
  */
