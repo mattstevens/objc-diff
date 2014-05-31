@@ -608,7 +608,7 @@
 
             [decl appendString:cursor.type.spelling];
 
-            if (![cursor.type.spelling hasSuffix:@" *"]) {
+            if (![cursor.type.spelling hasSuffix:@"*"]) {
                 [decl appendString:@" "];
             }
 
@@ -621,7 +621,7 @@
         {
             [decl appendString:cursor.resultType.spelling];
 
-            if (![cursor.resultType.spelling hasSuffix:@" *"]) {
+            if (![cursor.resultType.spelling hasSuffix:@"*"]) {
                 [decl appendString:@" "];
             }
 
@@ -635,7 +635,7 @@
                     }
 
                     NSMutableString *typeSpelling = [NSMutableString stringWithString:argument.type.spelling];
-                    if (![typeSpelling hasSuffix:@" *"] && [argument.spelling length] > 0) {
+                    if (![typeSpelling hasSuffix:@"*"] && [argument.spelling length] > 0) {
                         [typeSpelling appendString:@" "];
                     }
 
