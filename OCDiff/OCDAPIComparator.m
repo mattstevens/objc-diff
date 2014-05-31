@@ -157,18 +157,22 @@
         case PLClangCursorKindEnumConstantDeclaration:
             prefix = @"ocd_E_";
             break;
+
         case PLClangCursorKindTypedefDeclaration:
             prefix = @"ocd_T_";
             break;
+
         case PLClangCursorKindMacroDefinition:
             prefix = @"ocd_M_";
             break;
+
         case PLClangCursorKindFunctionDeclaration:
             if (cursor.linkage == PLClangLinkageInternal) {
                 // Static inline function
                 prefix = @"ocd_F_";
             }
             break;
+
         default:
             break;
     }
@@ -758,16 +762,22 @@
     switch (cursor.kind) {
         case PLClangCursorKindObjCCategoryDeclaration:
             return [NSString stringWithFormat:@"%@ (%@)", [self displayNameForObjCParentCursor:cursor], cursor.spelling];
+
         case PLClangCursorKindObjCInstanceMethodDeclaration:
             return [NSString stringWithFormat:@"-[%@ %@]", [self displayNameForObjCParentCursor:cursor.semanticParent], cursor.spelling];
+
         case PLClangCursorKindObjCClassMethodDeclaration:
             return [NSString stringWithFormat:@"+[%@ %@]", [self displayNameForObjCParentCursor:cursor.semanticParent], cursor.spelling];
+
         case PLClangCursorKindObjCPropertyDeclaration:
             return [NSString stringWithFormat:@"%@.%@", [self displayNameForObjCParentCursor:cursor.semanticParent], cursor.spelling];
+
         case PLClangCursorKindFunctionDeclaration:
             return [NSString stringWithFormat:@"%@()", cursor.spelling];
+
         case PLClangCursorKindMacroDefinition:
             return [NSString stringWithFormat:@"#def %@", cursor.spelling];
+
         default:
             return cursor.displayName;
     }
@@ -786,10 +796,13 @@
     switch (kind) {
         case PLClangAvailabilityKindAvailable:
             return @"Available";
+
         case PLClangAvailabilityKindDeprecated:
             return @"Deprecated";
+
         case PLClangAvailabilityKindUnavailable:
             return @"Unavailable";
+
         case PLClangAvailabilityKindInaccessible:
             return @"Inaccessible";
     }
