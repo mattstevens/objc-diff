@@ -57,8 +57,15 @@ static PLClangTranslationUnit *TranslationUnitForHeaderPaths(PLClangSourceIndex 
                                                                                       PLClangTranslationUnitCreationSkipFunctionBodies
                                                                                 error:&error];
 
-    if (translationUnit == nil || translationUnit.didFail) {
-        // TODO: Log error
+    if (translationUnit == nil) {
+        fprintf(stderr, "Failed to create translation unit: %s\n", [[error description] UTF8String]);
+        return nil;
+    }
+
+    if (translationUnit.didFail) {
+        for (PLClangDiagnostic *diagnostic in translationUnit.diagnostics) {
+            fprintf(stderr, "%s\n", [diagnostic.formattedErrorMessage UTF8String]);
+        }
         return nil;
     }
 
@@ -223,7 +230,7 @@ int main(int argc, char *argv[]) {
 
         // Parse the translation units
 
-        PLClangSourceIndex *index = [PLClangSourceIndex indexWithOptions:PLClangIndexCreationDisplayDiagnostics];
+        PLClangSourceIndex *index = [PLClangSourceIndex indexWithOptions:0];
 
         PLClangTranslationUnit *oldTU = nil;
         if (oldPath != nil) {
