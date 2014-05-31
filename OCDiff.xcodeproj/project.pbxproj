@@ -165,9 +165,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = C96194CD1928E6AE00BDBD7C /* Build configuration list for PBXNativeTarget "OCDiff" */;
 			buildPhases = (
+				C96194D51928F01400BDBD7C /* Copy Frameworks */,
 				C96194C01928E6AE00BDBD7C /* Sources */,
 				C96194C11928E6AE00BDBD7C /* Frameworks */,
-				C96194D51928F01400BDBD7C /* Copy Frameworks */,
 			);
 			buildRules = (
 			);
