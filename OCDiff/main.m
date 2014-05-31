@@ -4,6 +4,7 @@
 #import <getopt.h>
 
 #import "OCDAPIComparator.h"
+#import "OCDHTMLReportGenerator.h"
 #import "OCDTextReportGenerator.h"
 #import "OCDXMLReportGenerator.h"
 
@@ -375,6 +376,11 @@ int main(int argc, char *argv[]) {
         if (reportTypes & OCDReportTypeXML) {
             OCDXMLReportGenerator *generator = [[OCDXMLReportGenerator alloc] init];
             [generator generateReportForDifferences:differences title:title];
+        }
+
+        if (reportTypes & OCDReportTypeHTML) {
+            OCDHTMLReportGenerator *htmlGenerator = [[OCDHTMLReportGenerator alloc] initWithOutputDirectory:htmlOutputDirectory];
+            [htmlGenerator generateReportForDifferences:differences title:title];
         }
     }
 

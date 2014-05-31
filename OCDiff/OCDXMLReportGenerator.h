@@ -1,7 +1,5 @@
-#import <Foundation/Foundation.h>
+#import "OCDReportGenerator.h"
 
-@interface OCDXMLReportGenerator : NSObject
-
-- (void)generateReportForDifferences:(NSArray *)differences title:(NSString *)title;
+@interface OCDXMLReportGenerator : NSObject <OCDReportGenerator>
 
 @end
