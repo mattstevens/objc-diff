@@ -321,8 +321,13 @@ int main(int argc, char *argv[]) {
         argc -= optind;
         argv += optind;
 
+        if (argc > 0) {
+            fprintf(stderr, "Unknown argument \"%s\"\n", argv[0]);
+            return 1;
+        }
+
         if ([newPath length] < 1) {
-            fprintf(stderr, "No new API path specified.\n");
+            fprintf(stderr, "No new API path specified\n");
             print_usage();
             return 1;
         }
