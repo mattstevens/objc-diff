@@ -220,7 +220,6 @@
         case PLClangCursorKindEnumDeclaration:
             return NO;
 
-        // Exclude instance variables.
         case PLClangCursorKindObjCInstanceVariableDeclaration:
             return NO;
 
@@ -231,7 +230,6 @@
             break;
     }
 
-    // Exclude unavailable and inaccessible declarations.
     if (cursor.availability.availabilityKind == PLClangAvailabilityKindUnavailable ||
         cursor.availability.availabilityKind == PLClangAvailabilityKindInaccessible) {
         return NO;
