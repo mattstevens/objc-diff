@@ -37,7 +37,7 @@
     NSXMLDocument *document = [NSXMLDocument documentWithRootElement:rootElement];
     [document setCharacterEncoding:@"UTF-8"];
 
-    printf("%s", [[document XMLStringWithOptions:NSXMLNodePrettyPrint] UTF8String]);
+    printf("%s\n", [[document XMLStringWithOptions:NSXMLNodePrettyPrint] UTF8String]);
 }
 
 - (NSString *)stringForDifferenceType:(OCDifferenceType)type {
