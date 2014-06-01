@@ -121,7 +121,7 @@
 
     NSError *error = nil;
     if (![[NSFileManager defaultManager] createDirectoryAtPath:_outputDirectory withIntermediateDirectories:YES attributes:nil error:&error]) {
-        fprintf(stderr, "Error creating directory at path %s: %s", [_outputDirectory UTF8String], [[error description] UTF8String]);
+        fprintf(stderr, "Error creating directory at path %s: %s\n", [_outputDirectory UTF8String], [[error description] UTF8String]);
         exit(1);
     }
 
