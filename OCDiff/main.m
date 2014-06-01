@@ -3,6 +3,7 @@
 #import <ObjectDoc/PLClang.h>
 #import <getopt.h>
 
+#import "NSString+OCDPathUtilities.h"
 #import "OCDAPIComparator.h"
 #import "OCDHTMLReportGenerator.h"
 #import "OCDTextReportGenerator.h"
@@ -77,6 +78,9 @@ static PLClangTranslationUnit *TranslationUnitForHeaderPaths(PLClangSourceIndex 
 
 static PLClangTranslationUnit *TranslationUnitForPath(PLClangSourceIndex *index, NSString *path, NSArray *compilerArguments) {
     BOOL isDirectory = NO;
+
+    path = [path ocd_stringWithAbsolutePath];
+
     if ([[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDirectory] == NO) {
         fprintf(stderr, "%s not found\n", [path UTF8String]);
         return nil;

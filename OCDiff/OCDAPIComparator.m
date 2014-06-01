@@ -1,4 +1,5 @@
 #import "OCDAPIComparator.h"
+#import "NSString+OCDPathUtilities.h"
 #import <ObjectDoc/ObjectDoc.h>
 
 @implementation OCDAPIComparator {
@@ -28,8 +29,8 @@
 
     _oldTranslationUnit = oldTranslationUnit;
     _newTranslationUnit = newTranslationUnit;
-    _oldBaseDirectory = [oldTranslationUnit.spelling stringByDeletingLastPathComponent];
-    _newBaseDirectory = [newTranslationUnit.spelling stringByDeletingLastPathComponent];
+    _oldBaseDirectory = [[oldTranslationUnit.spelling stringByDeletingLastPathComponent] ocd_stringWithAbsolutePath];
+    _newBaseDirectory = [[newTranslationUnit.spelling stringByDeletingLastPathComponent] ocd_stringWithAbsolutePath];
     _fileHandles = [[NSMutableDictionary alloc] init];
     _unsavedFileData = [[NSMutableDictionary alloc] init];
     _convertedProperties = [[NSMutableSet alloc] init];
@@ -821,6 +822,9 @@
     if (directory == nil) {
         return path;
     }
+
+    path = [path ocd_stringWithAbsolutePath];
+    directory = [directory ocd_stringWithAbsolutePath];
 
     NSUInteger index = 0;
     NSMutableArray *baseComponents = [[directory pathComponents] mutableCopy];
