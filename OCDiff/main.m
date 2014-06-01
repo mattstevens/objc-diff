@@ -106,7 +106,7 @@ static PLClangTranslationUnit *TranslationUnitForPath(PLClangSourceIndex *index,
 
         return TranslationUnitForHeaderPaths(index, path, paths, compilerArguments);
     } else {
-        return TranslationUnitForHeaderPaths(index, [path stringByDeletingLastPathComponent], @[path], compilerArguments);
+        return TranslationUnitForHeaderPaths(index, [path stringByDeletingLastPathComponent], @[[path lastPathComponent]], compilerArguments);
     }
 }
 
