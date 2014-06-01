@@ -43,6 +43,13 @@ static BOOL IsFrameworkAtPath(NSString *path) {
     return [[path pathExtension] isEqualToString:@"framework"];
 }
 
+/**
+ * Returns a translation unit for the specified header paths.
+ *
+ * To represent the API in a single translation unit and to improve performance a virtual umbrella header is
+ * generated importing all of the specified header paths. This way system headers like Foundation.h that
+ * include many declarations are only iterated over once per API, instead of once per header.
+ */
 static PLClangTranslationUnit *TranslationUnitForHeaderPaths(PLClangSourceIndex *index, NSString *baseDirectory, NSArray *paths, NSArray *compilerArguments) {
     NSMutableString *source = [[NSMutableString alloc] init];
     for (NSString *path in paths) {
