@@ -20,10 +20,17 @@
     NSMutableString *html = [[NSMutableString alloc] init];
 
     [html appendString:@"<html>\n<head>\n"];
-    [html appendFormat:@"<title>%@</title>\n", title];
+
+    if (title != nil) {
+        [html appendFormat:@"<title>%@</title>\n", title];
+    }
+
     [html appendString:@"<link rel=\"stylesheet\" href=\"apidiff.css\" type=\"text/css\" />\n"];
     [html appendString:@"</head>\n<body>\n"];
-    [html appendFormat:@"\n<h1>%@</h1>\n", title];
+
+    if (title != nil) {
+        [html appendFormat:@"\n<h1>%@</h1>\n", title];
+    }
 
     if ([differences count] == 0) {
         [html appendString:@"<div class=\"message\">No differences</div>\n"];
