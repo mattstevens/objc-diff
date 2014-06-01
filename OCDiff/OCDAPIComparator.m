@@ -67,7 +67,7 @@
         if (cursor.isImplicit || [_convertedProperties containsObject:USR])
             continue;
 
-        NSString *relativePath = [self pathForFile:cursor.location.path relativeToDirectory:_oldBaseDirectory];
+        NSString *relativePath = [cursor.location.path ocd_stringWithPathRelativeToDirectory:_oldBaseDirectory];
         OCDifference *difference = [OCDifference differenceWithType:OCDifferenceTypeRemoval name:[self displayNameForCursor:cursor] path:relativePath lineNumber:cursor.location.lineNumber];
         [differences addObject:difference];
     }
@@ -77,7 +77,7 @@
         if (cursor.isImplicit || [_convertedProperties containsObject:USR])
             continue;
 
-        NSString *relativePath = [self pathForFile:cursor.location.path relativeToDirectory:_newBaseDirectory];
+        NSString *relativePath = [cursor.location.path ocd_stringWithPathRelativeToDirectory:_newBaseDirectory];
         OCDifference *difference = [OCDifference differenceWithType:OCDifferenceTypeAddition name:[self displayNameForCursor:cursor] path:relativePath lineNumber:cursor.location.lineNumber];
         [differences addObject:difference];
     }
@@ -283,8 +283,8 @@
     if (oldCursor.isImplicit && newCursor.isImplicit)
         return nil;
 
-    NSString *oldRelativePath = [self pathForFile:oldCursor.location.path relativeToDirectory:_oldBaseDirectory];
-    NSString *newRelativePath = [self pathForFile:newCursor.location.path relativeToDirectory:_newBaseDirectory];
+    NSString *oldRelativePath = [oldCursor.location.path ocd_stringWithPathRelativeToDirectory:_oldBaseDirectory];
+    NSString *newRelativePath = [newCursor.location.path ocd_stringWithPathRelativeToDirectory:_newBaseDirectory];
     if (oldRelativePath != newRelativePath && [oldRelativePath isEqual:newRelativePath] == NO && [self shouldReportHeaderChangeForCursor:oldCursor]) {
         OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeHeader
                                                                 previousValue:oldRelativePath
@@ -391,7 +391,7 @@
         OCDifference *difference;
 
         if (reportDifferenceForOldLocation) {
-            NSString *relativePath = [self pathForFile:oldCursor.location.path relativeToDirectory:_oldBaseDirectory];
+            NSString *relativePath = [oldCursor.location.path ocd_stringWithPathRelativeToDirectory:_oldBaseDirectory];
             difference = [OCDifference modificationDifferenceWithName:[self displayNameForCursor:oldCursor]
                                                                  path:relativePath
                                                            lineNumber:oldCursor.location.lineNumber
@@ -399,7 +399,7 @@
             [differences addObject:difference];
         }
 
-        NSString *relativePath = [self pathForFile:newCursor.location.path relativeToDirectory:_newBaseDirectory];
+        NSString *relativePath = [newCursor.location.path ocd_stringWithPathRelativeToDirectory:_newBaseDirectory];
         difference = [OCDifference modificationDifferenceWithName:[self displayNameForCursor:oldCursor]
                                                              path:relativePath
                                                        lineNumber:newCursor.location.lineNumber
@@ -809,42 +809,6 @@
     }
 
     abort();
-}
-
-/**
- * Returns a relative path to a file from the specified directory.
- */
-- (NSString *)pathForFile:(NSString *)path relativeToDirectory:(NSString *)directory {
-    if (path == nil) {
-        return nil;
-    }
-
-    if (directory == nil) {
-        return path;
-    }
-
-    path = [path ocd_stringWithAbsolutePath];
-    directory = [directory ocd_stringWithAbsolutePath];
-
-    NSUInteger index = 0;
-    NSMutableArray *baseComponents = [[directory pathComponents] mutableCopy];
-	NSMutableArray *pathComponents = [[path pathComponents] mutableCopy];
-	if ([[baseComponents lastObject] isEqualToString:@"/"]) {
-        [baseComponents removeLastObject];
-    }
-
-	while (index < [baseComponents count] && index < [pathComponents count] && [baseComponents[index] isEqualToString:pathComponents[index]]) {
-		index++;
-	}
-
-	[baseComponents removeObjectsInRange:NSMakeRange(0, index)];
-	[pathComponents removeObjectsInRange:NSMakeRange(0, index)];
-
-	for (index = 0; index < [baseComponents count]; index++) {
-		[pathComponents insertObject:@".." atIndex:0];
-	}
-
-	return [NSString pathWithComponents:pathComponents];
 }
 
 /**

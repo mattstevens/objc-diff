@@ -9,4 +9,11 @@
  */
 - (NSString *)ocd_stringWithAbsolutePath;
 
+/**
+ * Returns a new string made from the receiver by converting it to a path relative to the specified directory.
+ *
+ * @param directory The directory the new string's path should be relative to.
+ */
+- (NSString *)ocd_stringWithPathRelativeToDirectory:(NSString *)directory;
+
 @end
