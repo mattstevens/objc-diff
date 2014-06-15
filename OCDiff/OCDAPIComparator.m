@@ -221,7 +221,9 @@
     }
 
     switch (cursor.kind) {
-        // Exclude enum declarations, in Objective-C these are typically accessed through an appropriate typedef.
+        // Exclude declarations that are typically accessed through an appropriate typedef.
+        case PLClangCursorKindStructDeclaration:
+        case PLClangCursorKindUnionDeclaration:
         case PLClangCursorKindEnumDeclaration:
             return NO;
 
