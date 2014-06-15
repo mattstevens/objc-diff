@@ -113,7 +113,7 @@
     NSMutableDictionary *api = [NSMutableDictionary dictionary];
 
     [translationUnit.cursor visitChildrenUsingBlock:^PLClangCursorVisitResult(PLClangCursor *cursor) {
-        if (cursor.location.isInSystemHeader)
+        if (cursor.location.isInSystemHeader || cursor.location.path == nil)
             return PLClangCursorVisitContinue;
 
         if ([self shouldIncludeEntityAtCursor:cursor] == NO) {
@@ -249,11 +249,6 @@
  * Returns a Boolean value indicating whether the macro definition at the specified cursor should be included in the API.
  */
 - (BOOL)shouldIncludeMacroDefinitionAtCursor:(PLClangCursor *)cursor {
-    // Exclude cursors without an associated source file, such as those defined via compiler arguments.
-    if (cursor.location.path == nil) {
-        return NO;
-    }
-
     if ([self isEmptyMacroDefinitionAtCursor:cursor]) {
         return NO;
     }
