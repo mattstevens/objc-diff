@@ -6,10 +6,10 @@ static NSString * const OCDOldTestPath = @"old/test.h";
 static NSString * const OCDNewTestPath = @"new/test.h";
 static NSString * const OCDTestPath = @"test.h";
 
-@interface OCDiffTests : XCTestCase
+@interface OCDAPIComparatorTests : XCTestCase
 @end
 
-@implementation OCDiffTests
+@implementation OCDAPIComparatorTests
 
 - (void)testFunction {
     [self testAddRemoveForName:@"Test()"

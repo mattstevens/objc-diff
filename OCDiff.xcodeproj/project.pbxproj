@@ -14,7 +14,7 @@
 		C96194D11928EDD800BDBD7C /* ObjectDoc.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C96194D01928EDD800BDBD7C /* ObjectDoc.framework */; };
 		C96194D61928F01E00BDBD7C /* ObjectDoc.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = C96194D01928EDD800BDBD7C /* ObjectDoc.framework */; };
 		C96194DD19291D0C00BDBD7C /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C96194DC19291D0C00BDBD7C /* XCTest.framework */; };
-		C96194E519291D0C00BDBD7C /* OCDiffTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C96194E419291D0C00BDBD7C /* OCDiffTests.m */; };
+		C96194E519291D0C00BDBD7C /* OCDAPIComparatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C96194E419291D0C00BDBD7C /* OCDAPIComparatorTests.m */; };
 		C96194EE19293B1600BDBD7C /* OCDAPIComparator.m in Sources */ = {isa = PBXBuildFile; fileRef = C96194ED19293B1600BDBD7C /* OCDAPIComparator.m */; };
 		C96194F119293B2D00BDBD7C /* OCDifference.m in Sources */ = {isa = PBXBuildFile; fileRef = C96194F019293B2D00BDBD7C /* OCDifference.m */; };
 		C9619532192945E000BDBD7C /* OCDAPIComparator.m in Sources */ = {isa = PBXBuildFile; fileRef = C96194ED19293B1600BDBD7C /* OCDAPIComparator.m */; };
@@ -64,7 +64,7 @@
 		C96194DB19291D0C00BDBD7C /* OCDiffTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OCDiffTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C96194DC19291D0C00BDBD7C /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		C96194E019291D0C00BDBD7C /* OCDiffTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OCDiffTests-Info.plist"; sourceTree = "<group>"; };
-		C96194E419291D0C00BDBD7C /* OCDiffTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OCDiffTests.m; sourceTree = "<group>"; };
+		C96194E419291D0C00BDBD7C /* OCDAPIComparatorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OCDAPIComparatorTests.m; sourceTree = "<group>"; };
 		C96194EC19293B1600BDBD7C /* OCDAPIComparator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCDAPIComparator.h; sourceTree = "<group>"; };
 		C96194ED19293B1600BDBD7C /* OCDAPIComparator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCDAPIComparator.m; sourceTree = "<group>"; };
 		C96194EF19293B2D00BDBD7C /* OCDifference.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCDifference.h; sourceTree = "<group>"; };
@@ -169,7 +169,7 @@
 		C96194DE19291D0C00BDBD7C /* OCDiffTests */ = {
 			isa = PBXGroup;
 			children = (
-				C96194E419291D0C00BDBD7C /* OCDiffTests.m */,
+				C96194E419291D0C00BDBD7C /* OCDAPIComparatorTests.m */,
 				C96194DF19291D0C00BDBD7C /* Supporting Files */,
 			);
 			path = OCDiffTests;
@@ -286,7 +286,7 @@
 				C9577E9C193AE25500FCAC57 /* NSString+OCDPathUtilities.m in Sources */,
 				C961953C1929655200BDBD7C /* OCDModification.m in Sources */,
 				C96195361929485B00BDBD7C /* OCDifference.m in Sources */,
-				C96194E519291D0C00BDBD7C /* OCDiffTests.m in Sources */,
+				C96194E519291D0C00BDBD7C /* OCDAPIComparatorTests.m in Sources */,
 				C9619532192945E000BDBD7C /* OCDAPIComparator.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
