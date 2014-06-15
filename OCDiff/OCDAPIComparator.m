@@ -237,8 +237,8 @@
             break;
     }
 
-    if (cursor.availability.availabilityKind == PLClangAvailabilityKindUnavailable ||
-        cursor.availability.availabilityKind == PLClangAvailabilityKindInaccessible) {
+    if (cursor.availability.kind == PLClangAvailabilityKindUnavailable ||
+        cursor.availability.kind == PLClangAvailabilityKindInaccessible) {
         return NO;
     }
 
@@ -374,16 +374,16 @@
         [modifications addObject:modification];
     }
 
-    if (oldCursor.availability.availabilityKind != newCursor.availability.availabilityKind) {
+    if (oldCursor.availability.kind != newCursor.availability.kind) {
         OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeAvailability
-                                                                previousValue:[self stringForAvailabilityKind:oldCursor.availability.availabilityKind]
-                                                                 currentValue:[self stringForAvailabilityKind:newCursor.availability.availabilityKind]];
+                                                                previousValue:[self stringForAvailabilityKind:oldCursor.availability.kind]
+                                                                 currentValue:[self stringForAvailabilityKind:newCursor.availability.kind]];
         [modifications addObject:modification];
 
-        if (newCursor.availability.availabilityKind == PLClangAvailabilityKindDeprecated && [newCursor.availability.deprecationMessage length] > 0) {
+        if (newCursor.availability.kind == PLClangAvailabilityKindDeprecated && [newCursor.availability.unconditionalDeprecationMessage length] > 0) {
             modification = [OCDModification modificationWithType:OCDModificationTypeDeprecationMessage
                                                    previousValue:nil
-                                                    currentValue:newCursor.availability.deprecationMessage];
+                                                    currentValue:newCursor.availability.unconditionalDeprecationMessage];
             [modifications addObject:modification];
         }
     }
