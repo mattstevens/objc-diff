@@ -19,8 +19,11 @@ static NSString *sdkPath;
 static NSString *sdkVersion;
 
 static void print_usage(void) {
+    NSBundle *bundle = [NSBundle mainBundle];
+    NSString *name = [bundle objectForInfoDictionaryKey:@"CFBundleName"];
+
     printf(""
-    "Usage: ocdiff [--old <path to old API>] --new <path to new API> [options]\n"
+    "Usage: %s [--old <path to old API>] --new <path to new API> [options]\n"
     "\n"
     "Generates an Objective-C API diff report.\n"
     "\n"
@@ -36,7 +39,8 @@ static void print_usage(void) {
     "  --args <args>      Compiler arguments for both API versions\n"
     "  --oldargs <args>   Compiler arguments for the old API version\n"
     "  --newargs <args>   Compiler arguments for the new API version\n"
-    "  --version          Show the version and exit\n");
+    "  --version          Show the version and exit\n",
+    [name UTF8String]);
 }
 
 static BOOL IsFrameworkAtPath(NSString *path) {
@@ -296,8 +300,17 @@ int main(int argc, char *argv[]) {
                     newPath = @(optarg);
                     break;
                 case 'v':
-                    printf("ocdiff %s\n%s\n", "DEV", [PLClangGetVersionString() UTF8String]);
+                {
+                    NSBundle *bundle = [NSBundle mainBundle];
+                    NSString *name = [bundle objectForInfoDictionaryKey:@"CFBundleName"];
+                    NSString *version = [bundle objectForInfoDictionaryKey:@"CFBundleVersion"];
+                    printf("%s %s\nBased on %s\n",
+                           [name UTF8String],
+                           [version UTF8String],
+                           [PLClangGetVersionString() UTF8String]);
+
                     return 0;
+                }
                 case 'A':
                 {
                     NSArray *arguments = GetCompilerArguments(argc - optind, argv + optind);

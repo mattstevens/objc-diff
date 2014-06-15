@@ -52,6 +52,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		C91516D3194DE40B000AB047 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C934DFCF193A20D50073B1B6 /* apidiff.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = apidiff.css; sourceTree = "<group>"; };
 		C934DFD0193A2E990073B1B6 /* OCDReportGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCDReportGenerator.h; sourceTree = "<group>"; };
 		C9577E99193ADEA800FCAC57 /* NSString+OCDPathUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+OCDPathUtilities.h"; sourceTree = "<group>"; };
@@ -103,6 +104,7 @@
 		C934DFCE193A20C40073B1B6 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				C91516D3194DE40B000AB047 /* Info.plist */,
 				C934DFCF193A20D50073B1B6 /* apidiff.css */,
 			);
 			name = "Supporting Files";
@@ -377,6 +379,8 @@
 		C96194CE1928E6AE00BDBD7C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CREATE_INFOPLIST_SECTION_IN_BINARY = YES;
+				INFOPLIST_FILE = OCDiff/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/";
 				OTHER_LDFLAGS = (
 					"-Xlinker",
@@ -393,6 +397,8 @@
 		C96194CF1928E6AE00BDBD7C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CREATE_INFOPLIST_SECTION_IN_BINARY = YES;
+				INFOPLIST_FILE = OCDiff/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/";
 				OTHER_LDFLAGS = (
 					"-Xlinker",
