@@ -58,7 +58,7 @@
 		C9577E99193ADEA800FCAC57 /* NSString+OCDPathUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+OCDPathUtilities.h"; sourceTree = "<group>"; };
 		C9577E9A193ADEA800FCAC57 /* NSString+OCDPathUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+OCDPathUtilities.m"; sourceTree = "<group>"; };
 		C96194B41928E57700BDBD7C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		C96194C41928E6AE00BDBD7C /* ocdiff */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ocdiff; sourceTree = BUILT_PRODUCTS_DIR; };
+		C96194C41928E6AE00BDBD7C /* objc-diff */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "objc-diff"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C96194C71928E6AE00BDBD7C /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		C96194D01928EDD800BDBD7C /* ObjectDoc.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ObjectDoc.framework; path = Dependencies/ObjectDoc.framework; sourceTree = "<group>"; };
 		C96194DB19291D0C00BDBD7C /* OCDiffTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OCDiffTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -126,7 +126,7 @@
 		C96194B21928E57700BDBD7C /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				C96194C41928E6AE00BDBD7C /* ocdiff */,
+				C96194C41928E6AE00BDBD7C /* objc-diff */,
 				C96194DB19291D0C00BDBD7C /* OCDiffTests.xctest */,
 			);
 			name = Products;
@@ -200,7 +200,7 @@
 			);
 			name = OCDiff;
 			productName = OCDiff;
-			productReference = C96194C41928E6AE00BDBD7C /* ocdiff */;
+			productReference = C96194C41928E6AE00BDBD7C /* objc-diff */;
 			productType = "com.apple.product-type.tool";
 		};
 		C96194DA19291D0C00BDBD7C /* OCDiffTests */ = {
@@ -390,7 +390,7 @@
 					apidiff.css,
 					"$(PROJECT_DIR)/OCDiff/apidiff.css",
 				);
-				PRODUCT_NAME = ocdiff;
+				PRODUCT_NAME = "objc-diff";
 			};
 			name = Debug;
 		};
@@ -408,7 +408,7 @@
 					apidiff.css,
 					"$(PROJECT_DIR)/OCDiff/apidiff.css",
 				);
-				PRODUCT_NAME = ocdiff;
+				PRODUCT_NAME = "objc-diff";
 			};
 			name = Release;
 		};
