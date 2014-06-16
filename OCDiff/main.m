@@ -392,9 +392,7 @@ int main(int argc, char *argv[]) {
             return 1;
         }
 
-        OCDAPIComparator *comparator = [[OCDAPIComparator alloc] initWithOldTranslationUnit:oldTU newTranslationUnit:newTU];
-
-        NSArray *differences = [comparator computeDifferences];
+        NSArray *differences = [OCDAPIComparator differencesBetweenOldTranslationUnit:oldTU newTranslationUnit:newTU];
 
         if (reportTypes == 0) {
             reportTypes = OCDReportTypeText;

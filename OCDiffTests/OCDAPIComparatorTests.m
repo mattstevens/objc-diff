@@ -971,9 +971,8 @@ static NSString * const OCDTestPath = @"test.h";
     XCTAssertNotNil(newTU, @"Failed to parse: %@", error);
     XCTAssertFalse(newTU.didFail, @"Fatal error encountered during parse");
 
-    OCDAPIComparator *comparator = [[OCDAPIComparator alloc] initWithOldTranslationUnit:nil
-                                                                     newTranslationUnit:newTU];
-    XCTAssertEqualObjects([comparator computeDifferences], @[]);
+    NSArray *differences = [OCDAPIComparator differencesBetweenOldTranslationUnit:nil newTranslationUnit:newTU];
+    XCTAssertEqualObjects(differences, @[]);
 }
 
 - (void)testAddRemoveForName:(NSString *)name base:(NSString *)base addition:(NSString *)addition {
@@ -1069,10 +1068,7 @@ static NSString * const OCDTestPath = @"test.h";
     XCTAssertNotNil(newTU, @"Failed to parse: %@", error);
     XCTAssertFalse(newTU.didFail, @"Fatal error encountered during parse");
 
-    OCDAPIComparator *comparator = [[OCDAPIComparator alloc] initWithOldTranslationUnit:oldTU
-                                                                     newTranslationUnit:newTU
-                                                                            unsavedFiles:@[oldFile, newFile]];
-    return [comparator computeDifferences];
+    return [OCDAPIComparator differencesBetweenOldTranslationUnit:oldTU newTranslationUnit:newTU unsavedFiles:@[oldFile, newFile]];
 }
 
 @end

@@ -19,10 +19,6 @@
     NSMutableSet *_convertedProperties;
 }
 
-- (instancetype)initWithOldTranslationUnit:(PLClangTranslationUnit *)oldTranslationUnit newTranslationUnit:(PLClangTranslationUnit *)newTranslationUnit {
-    return [self initWithOldTranslationUnit:oldTranslationUnit newTranslationUnit:newTranslationUnit unsavedFiles:nil];
-}
-
 - (instancetype)initWithOldTranslationUnit:(PLClangTranslationUnit *)oldTranslationUnit newTranslationUnit:(PLClangTranslationUnit *)newTranslationUnit unsavedFiles:(NSArray *)unsavedFiles {
     if (!(self = [super init]))
         return nil;
@@ -42,7 +38,16 @@
     return self;
 }
 
-- (NSArray *)computeDifferences {
++ (NSArray *)differencesBetweenOldTranslationUnit:(PLClangTranslationUnit *)oldTranslationUnit newTranslationUnit:(PLClangTranslationUnit *)newTranslationUnit {
+    return [self differencesBetweenOldTranslationUnit:oldTranslationUnit newTranslationUnit:newTranslationUnit unsavedFiles:nil];
+}
+
++ (NSArray *)differencesBetweenOldTranslationUnit:(PLClangTranslationUnit *)oldTranslationUnit newTranslationUnit:(PLClangTranslationUnit *)newTranslationUnit unsavedFiles:(NSArray *)unsavedFiles {
+    OCDAPIComparator *comparator = [[self alloc] initWithOldTranslationUnit:oldTranslationUnit newTranslationUnit:newTranslationUnit unsavedFiles:unsavedFiles];
+    return [comparator differences];
+}
+
+- (NSArray *)differences {
     NSMutableArray *differences = [NSMutableArray array];
     NSDictionary *oldAPI = [self APIForTranslationUnit:_oldTranslationUnit];
     NSDictionary *newAPI = [self APIForTranslationUnit:_newTranslationUnit];
