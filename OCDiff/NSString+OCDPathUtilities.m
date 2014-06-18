@@ -21,23 +21,23 @@
 
     NSUInteger index = 0;
     NSMutableArray *baseComponents = [[directory pathComponents] mutableCopy];
-	NSMutableArray *pathComponents = [[path pathComponents] mutableCopy];
-	if ([[baseComponents lastObject] isEqualToString:@"/"]) {
+    NSMutableArray *pathComponents = [[path pathComponents] mutableCopy];
+    if ([[baseComponents lastObject] isEqualToString:@"/"]) {
         [baseComponents removeLastObject];
     }
 
-	while (index < [baseComponents count] && index < [pathComponents count] && [baseComponents[index] isEqualToString:pathComponents[index]]) {
-		index++;
-	}
+    while (index < [baseComponents count] && index < [pathComponents count] && [baseComponents[index] isEqualToString:pathComponents[index]]) {
+        index++;
+    }
 
-	[baseComponents removeObjectsInRange:NSMakeRange(0, index)];
-	[pathComponents removeObjectsInRange:NSMakeRange(0, index)];
+    [baseComponents removeObjectsInRange:NSMakeRange(0, index)];
+    [pathComponents removeObjectsInRange:NSMakeRange(0, index)];
 
-	for (index = 0; index < [baseComponents count]; index++) {
-		[pathComponents insertObject:@".." atIndex:0];
-	}
+    for (index = 0; index < [baseComponents count]; index++) {
+        [pathComponents insertObject:@".." atIndex:0];
+    }
 
-	return [NSString pathWithComponents:pathComponents];
+    return [NSString pathWithComponents:pathComponents];
 }
 
 @end
