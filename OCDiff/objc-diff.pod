@@ -1,0 +1,113 @@
+=pod
+
+=head1 NAME
+
+objc-diff - generates an Objective-C API diff report
+
+=head1 SYNOPSIS
+
+B<objc-diff> [B<--old> I<old-api-path>] B<--new> I<new-api-path> [options]
+
+=head1 DESCRIPTION
+
+B<objc-diff> generates a text, XML, or HTML report of the API differences between two versions of an Objective-C library. It assists library authors with creating a diff report for their users and verifying that no unexpected API changes have been made.
+
+The paths to the old and new API versions can be specified in one of three ways:
+
+1. Path to a framework
+
+If the library is distributed as a framework this is the most convenient option. The tool will parse the framework's headers and automatically add the parent directory to the framework search paths so that import directives in the form of C<#import E<lt>FrameworkName/Header.hE<gt>> can be resolved without additional configuration.
+
+If both API paths are frameworks with version information specified in their Info.plist the tool will also generate a report title automatically if no B<--title> argument is provided.
+
+2. Path to a specific header
+
+The header and all non-system headers that it includes will be considered part of the API.
+
+3. Path to a directory of headers
+
+The directory will be searched recursively for header files. All header files found and all non-system headers they include will be considered part of the API.
+
+Only the B<--new> argument is required. If B<--old> is ommitted all declarations in the API will be reported as additions. This supports generating a report for the first version of an API, and can also be used to review the API that the tool has parsed from the headers.
+
+=head2 Specifying Compiler Arguments
+
+Parsing the API headers may require additional compiler arguments such as header search paths or preprocessor definitions. These are specified via the B<--args>, B<--oldargs>, and B<--newargs> options. All arguments following one of these options up to the next B<objc-diff> option or the end of the argument list are passed to the compiler, and follow the same form as the arguments accepted by L<clang(1)>.
+
+When specifying search paths for additional dependencies that are not part of the API, use C<-isystem> rather than C<-I>. This will ensure that the declarations in these headers are excluded from the API.
+
+=head1 OPTIONS
+
+=over
+
+=item B<--old> I<path>
+
+Path to the old API headers.
+
+=item B<--new> I<path>
+
+Path to the new API headers.
+
+=item B<--sdk> I<sdkname>
+
+The SDK to compile the headers against. May be specified as an absolute path or an SDK name in the same form accepted by L<xcrun(1)> or L<xcodebuild(1)>. If not specified the latest OS X SDK will be used.
+
+=item B<--args> I<arguments>
+
+Compiler arguments to use for both API versions.
+
+=item B<--oldargs> I<arguments>
+
+Compiler arguments to use for the old API version.
+
+=item B<--newargs> I<arguments>
+
+Compiler arguments to use for the new API version.
+
+=item B<--title> I<title>
+
+The title to use for the report. If both API paths are frameworks that include version information in their Info.plist a title will be generated automatically if none is provided.
+
+=item B<--text>
+
+Writes a text report to standard output. This is the default if no report format is specified.
+
+=item B<--xml>
+
+Writes an XML report to standard output.
+
+=item B<--html> I<directory>
+
+Writes an HTML report to the specified directory.
+
+=back
+
+=head1 EXAMPLES
+
+Generate an HTML report for a framework:
+
+=over
+
+objc-diff --old 1.0/Example.framework --new 1.1/Example.framework --html apidiff
+
+=back
+
+Generate a text report for an iOS static library that uses import directives in the form of C<#import E<lt>Example/Header.hE<gt>>:
+
+=over
+
+objc-diff --sdk iphonesimulator --old 1.0/Example/Example.h --oldargs -I1.0 --new 1.1/Example/Example.h --newargs -I1.1
+
+=back
+
+Generate an XML report for the first version of an API:
+
+=over
+
+objc-diff --new 1.0/Example.framework --xml
+
+=back
+
+=head1 SEE ALSO
+
+L<clang(1)>, L<xcrun(1)>
