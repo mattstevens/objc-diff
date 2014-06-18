@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C91B953C1951CE9600290AC0 /* LICENSE in Copy Resources */ = {isa = PBXBuildFile; fileRef = C91B95171951CA8000290AC0 /* LICENSE */; };
+		C91B953D1951CE9700290AC0 /* README.md in Copy Resources */ = {isa = PBXBuildFile; fileRef = C91B951A1951CAE800290AC0 /* README.md */; };
 		C9577E9B193ADEA800FCAC57 /* NSString+OCDPathUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = C9577E9A193ADEA800FCAC57 /* NSString+OCDPathUtilities.m */; };
 		C9577E9C193AE25500FCAC57 /* NSString+OCDPathUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = C9577E9A193ADEA800FCAC57 /* NSString+OCDPathUtilities.m */; };
 		C96194C51928E6AE00BDBD7C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C96194B41928E57700BDBD7C /* Foundation.framework */; };
@@ -38,6 +40,18 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		C91B953B1951CE8E00290AC0 /* Copy Resources */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 7;
+			files = (
+				C91B953C1951CE9600290AC0 /* LICENSE in Copy Resources */,
+				C91B953D1951CE9700290AC0 /* README.md in Copy Resources */,
+			);
+			name = "Copy Resources";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C96194D51928F01400BDBD7C /* Copy Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -53,6 +67,9 @@
 
 /* Begin PBXFileReference section */
 		C91516D3194DE40B000AB047 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C91B95171951CA8000290AC0 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = SOURCE_ROOT; };
+		C91B951A1951CAE800290AC0 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.md; sourceTree = SOURCE_ROOT; };
+		C91B95351951CD5900290AC0 /* objc-diff.pod */ = {isa = PBXFileReference; lastKnownFileType = text; path = "objc-diff.pod"; sourceTree = "<group>"; };
 		C934DFCF193A20D50073B1B6 /* apidiff.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = apidiff.css; sourceTree = "<group>"; };
 		C934DFD0193A2E990073B1B6 /* OCDReportGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCDReportGenerator.h; sourceTree = "<group>"; };
 		C9577E99193ADEA800FCAC57 /* NSString+OCDPathUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+OCDPathUtilities.h"; sourceTree = "<group>"; };
@@ -104,8 +121,11 @@
 		C934DFCE193A20C40073B1B6 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				C91516D3194DE40B000AB047 /* Info.plist */,
 				C934DFCF193A20D50073B1B6 /* apidiff.css */,
+				C91516D3194DE40B000AB047 /* Info.plist */,
+				C91B95171951CA8000290AC0 /* LICENSE */,
+				C91B95351951CD5900290AC0 /* objc-diff.pod */,
+				C91B951A1951CAE800290AC0 /* README.md */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -193,6 +213,8 @@
 				C96194D51928F01400BDBD7C /* Copy Frameworks */,
 				C96194C01928E6AE00BDBD7C /* Sources */,
 				C96194C11928E6AE00BDBD7C /* Frameworks */,
+				C91B953B1951CE8E00290AC0 /* Copy Resources */,
+				C91B951F1951CB1D00290AC0 /* Generate Manual Page */,
 			);
 			buildRules = (
 			);
@@ -262,6 +284,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		C91B951F1951CB1D00290AC0 /* Generate Manual Page */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 12;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/$(TARGET_NAME)/objc-diff.pod",
+				"$(SRCROOT)/$(TARGET_NAME)/Info.plist",
+			);
+			name = "Generate Manual Page";
+			outputPaths = (
+				"$(TARGET_BUILD_DIR)/objc-diff.1",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "VERSION=`/usr/libexec/PlistBuddy -c \"Print CFBundleVersion\" \"${SRCROOT}/${TARGET_NAME}/Info.plist\"`\npod2man --release \"${EXECUTABLE_NAME} ${VERSION}\" --center \"\" \"${SRCROOT}/${TARGET_NAME}/objc-diff.pod\" \"${TARGET_BUILD_DIR}/objc-diff.1\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		C96194C01928E6AE00BDBD7C /* Sources */ = {
