@@ -27,4 +27,4 @@ Beta. The tool has been tested against the system frameworks and a number of thi
       --newargs <args>   Compiler arguments for the new API version
       --version          Show the version and exit
 
-See the [man page](http://codeworkshop.net/objc-diff/man-page) for expanded usage information.
+See the [man page](OCDiff/objc-diff.pod) for expanded usage information.
