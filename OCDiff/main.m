@@ -93,7 +93,7 @@ static PLClangTranslationUnit *TranslationUnitForHeaderPaths(PLClangSourceIndex 
 static PLClangTranslationUnit *TranslationUnitForPath(PLClangSourceIndex *index, NSString *path, NSArray *compilerArguments) {
     BOOL isDirectory = NO;
 
-    path = [path ocd_stringWithAbsolutePath];
+    path = [path ocd_absolutePath];
 
     if ([[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDirectory] == NO) {
         fprintf(stderr, "%s not found\n", [path UTF8String]);

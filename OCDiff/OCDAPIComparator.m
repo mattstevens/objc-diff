@@ -25,8 +25,8 @@
 
     _oldTranslationUnit = oldTranslationUnit;
     _newTranslationUnit = newTranslationUnit;
-    _oldBaseDirectory = [[oldTranslationUnit.spelling stringByDeletingLastPathComponent] ocd_stringWithAbsolutePath];
-    _newBaseDirectory = [[newTranslationUnit.spelling stringByDeletingLastPathComponent] ocd_stringWithAbsolutePath];
+    _oldBaseDirectory = [[oldTranslationUnit.spelling stringByDeletingLastPathComponent] ocd_absolutePath];
+    _newBaseDirectory = [[newTranslationUnit.spelling stringByDeletingLastPathComponent] ocd_absolutePath];
     _fileHandles = [[NSMutableDictionary alloc] init];
     _unsavedFileData = [[NSMutableDictionary alloc] init];
     _convertedProperties = [[NSMutableSet alloc] init];

@@ -2,7 +2,7 @@
 
 @implementation NSString (OCDPathUtilities)
 
-- (NSString *)ocd_stringWithAbsolutePath {
+- (NSString *)ocd_absolutePath {
     if ([self isAbsolutePath]) {
         return [self copy];
     }
@@ -16,8 +16,8 @@
         return [self copy];
     }
 
-    NSString *path = [self ocd_stringWithAbsolutePath];
-    directory = [directory ocd_stringWithAbsolutePath];
+    NSString *path = [self ocd_absolutePath];
+    directory = [directory ocd_absolutePath];
 
     NSUInteger index = 0;
     NSMutableArray *baseComponents = [[directory pathComponents] mutableCopy];
