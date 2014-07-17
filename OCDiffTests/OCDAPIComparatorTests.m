@@ -63,6 +63,21 @@ static NSString * const OCDTestPath = @"test.h";
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test()" modification:modification]);
 }
 
+/**
+ * Tests that a change to the inline status of a function is not reported as an addition and removal.
+ */
+- (void)testFunctionModificationInline {
+    NSArray *differences = [self differencesBetweenOldSource:@"void Test(void);"
+                                                   newSource:@"static __inline__ void Test(void) {}"];
+
+    XCTAssertEqualObjects(differences, @[]);
+
+    differences = [self differencesBetweenOldSource:@"static __inline__ void Test(void) {}"
+                                          newSource:@"void Test(void);"];
+
+    XCTAssertEqualObjects(differences, @[]);
+}
+
 - (void)testModificationDeprecation {
     NSArray *differences = [self differencesBetweenOldSource:@"void Test(void);"
                                                    newSource:@"void Test(void) __attribute__((deprecated));"];

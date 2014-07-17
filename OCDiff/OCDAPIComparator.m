@@ -173,10 +173,7 @@
             break;
 
         case PLClangCursorKindFunctionDeclaration:
-            if (cursor.linkage == PLClangLinkageInternal) {
-                // Static inline function
-                prefix = @"ocd_F_";
-            }
+            prefix = @"ocd_F_";
             break;
 
         default:
