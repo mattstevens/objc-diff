@@ -82,7 +82,9 @@ static PLClangTranslationUnit *TranslationUnitForHeaderPaths(PLClangSourceIndex 
 
     if (translationUnit.didFail) {
         for (PLClangDiagnostic *diagnostic in translationUnit.diagnostics) {
-            fprintf(stderr, "%s\n", [diagnostic.formattedErrorMessage UTF8String]);
+            if (diagnostic.severity >= PLClangDiagnosticSeverityError) {
+                fprintf(stderr, "%s\n", [diagnostic.formattedErrorMessage UTF8String]);
+            }
         }
         return nil;
     }
