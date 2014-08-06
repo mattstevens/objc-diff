@@ -176,6 +176,10 @@
             prefix = @"ocd_F_";
             break;
 
+        case PLClangCursorKindVariableDeclaration:
+            prefix = @"ocd_V_";
+            break;
+
         default:
             break;
     }
