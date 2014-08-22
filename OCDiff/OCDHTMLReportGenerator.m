@@ -2,6 +2,7 @@
 #import "OCDifference.h"
 #import <mach-o/dyld.h>
 #import <mach-o/getsect.h>
+#import <mach-o/ldsyms.h>
 
 @implementation OCDHTMLReportGenerator {
     NSString *_outputDirectory;
@@ -144,8 +145,8 @@
 
 - (NSData *)embeddedResouceDataWithName:(NSString *)name {
     unsigned long size = 0;
-    char *data = getsectdata("__TEXT", [name UTF8String], &size);
-    return data ? [NSData dataWithBytesNoCopy:data + _dyld_get_image_vmaddr_slide(0) length:size freeWhenDone:NO] : nil;
+    uint8_t *data = getsectiondata(&_mh_execute_header, "__TEXT", [name UTF8String], &size);
+    return data ? [NSData dataWithBytesNoCopy:data length:size freeWhenDone:NO] : nil;
 }
 
 - (NSString *)stringByHTMLEscapingString:(NSString *)string {
