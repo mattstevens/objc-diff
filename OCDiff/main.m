@@ -107,7 +107,7 @@ static PLClangTranslationUnit *TranslationUnitForPath(PLClangSourceIndex *index,
         // directory to the framework search paths. This enables #import <FrameworkName/Header.h> to
         // be resolved without any additional configuration.
         if (IsFrameworkAtPath(path)) {
-            compilerArguments = [compilerArguments arrayByAddingObjectsFromArray:@[@"-F", [path stringByDeletingLastPathComponent]]];
+            compilerArguments = [compilerArguments arrayByAddingObject:[@"-F" stringByAppendingString:[path stringByDeletingLastPathComponent]]];
             path = [path stringByAppendingPathComponent:@"Headers"];
             return TranslationUnitForPath(index, path, compilerArguments);
         }
