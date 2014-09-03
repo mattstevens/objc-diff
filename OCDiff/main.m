@@ -251,15 +251,10 @@ int main(int argc, char *argv[]) {
         NSString *newPath;
         NSString *title;
         NSString *htmlOutputDirectory;
-        NSMutableArray *oldCompilerArguments = [NSMutableArray array];
-        NSMutableArray *newCompilerArguments = [NSMutableArray array];
+        NSMutableArray *oldCompilerArguments = [NSMutableArray arrayWithObjects:@"-x", @"objective-c-header", nil];
+        NSMutableArray *newCompilerArguments = [oldCompilerArguments mutableCopy];
         int reportTypes = 0;
         int optchar;
-
-        [oldCompilerArguments addObject:@"-x"];
-        [oldCompilerArguments addObject:@"objective-c-header"];
-        [newCompilerArguments addObject:@"-x"];
-        [newCompilerArguments addObject:@"objective-c-header"];
 
         static struct option longopts[] = {
             { "help",         no_argument,        NULL,          'h' },
