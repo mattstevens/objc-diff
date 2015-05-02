@@ -22,7 +22,7 @@ static void PrintUsage(void) {
     NSBundle *bundle = [NSBundle mainBundle];
     NSString *name = [bundle objectForInfoDictionaryKey:@"CFBundleName"];
 
-    printf(""
+    printf(
     "Usage: %s [--old <path to old API>] --new <path to new API> [options]\n"
     "\n"
     "Generates an Objective-C API diff report.\n"
