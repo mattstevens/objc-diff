@@ -18,7 +18,7 @@ enum OCDReportTypes {
 static NSString *sdkPath;
 static NSString *sdkVersion;
 
-static void print_usage(void) {
+static void PrintUsage(void) {
     NSBundle *bundle = [NSBundle mainBundle];
     NSString *name = [bundle objectForInfoDictionaryKey:@"CFBundleName"];
 
@@ -275,7 +275,7 @@ int main(int argc, char *argv[]) {
         while ((optchar = getopt_long(argc, argv, "h", longopts, NULL)) != -1) {
             switch (optchar) {
                 case 'h':
-                    print_usage();
+                    PrintUsage();
                     return 0;
                 case 't':
                     title = @(optarg);
@@ -352,7 +352,7 @@ int main(int argc, char *argv[]) {
 
         if ([newPath length] < 1) {
             fprintf(stderr, "No new API path specified\n");
-            print_usage();
+            PrintUsage();
             return 1;
         }
 
