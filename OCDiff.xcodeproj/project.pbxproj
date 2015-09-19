@@ -250,7 +250,7 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = OCD;
-				LastUpgradeCheck = 0510;
+				LastUpgradeCheck = 0700;
 				TargetAttributes = {
 					C96194DA19291D0C00BDBD7C = {
 						TestTargetID = C96194C31928E6AE00BDBD7C;
@@ -358,6 +358,7 @@
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/Dependencies";
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
@@ -435,6 +436,7 @@
 					apidiff.css,
 					"$(PROJECT_DIR)/OCDiff/apidiff.css",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = "net.codeworkshop.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "objc-diff";
 			};
 			name = Debug;
@@ -453,6 +455,7 @@
 					apidiff.css,
 					"$(PROJECT_DIR)/OCDiff/apidiff.css",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = "net.codeworkshop.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "objc-diff";
 			};
 			name = Release;
@@ -460,12 +463,14 @@
 		C96194EA19291D0C00BDBD7C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 					"$(inherited)",
 					"$(PROJECT_DIR)/Dependencies",
 				);
 				INFOPLIST_FILE = "OCDiffTests/OCDiffTests-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "net.codeworkshop.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = xctest;
 			};
@@ -474,12 +479,14 @@
 		C96194EB19291D0C00BDBD7C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 					"$(inherited)",
 					"$(PROJECT_DIR)/Dependencies",
 				);
 				INFOPLIST_FILE = "OCDiffTests/OCDiffTests-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "net.codeworkshop.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = xctest;
 			};
