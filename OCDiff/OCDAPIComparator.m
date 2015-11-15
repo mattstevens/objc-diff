@@ -7,8 +7,6 @@
     PLClangTranslationUnit *_newTranslationUnit;
     NSString *_oldBaseDirectory;
     NSString *_newBaseDirectory;
-    NSMutableDictionary *_fileHandles;
-    NSMutableDictionary *_unsavedFileData;
 
     /**
      * Keys for property declarations that have been converted to or from explicit accessor declarations.
@@ -19,7 +17,7 @@
     NSMutableSet *_convertedProperties;
 }
 
-- (instancetype)initWithOldTranslationUnit:(PLClangTranslationUnit *)oldTranslationUnit newTranslationUnit:(PLClangTranslationUnit *)newTranslationUnit unsavedFiles:(NSArray *)unsavedFiles {
+- (instancetype)initWithOldTranslationUnit:(PLClangTranslationUnit *)oldTranslationUnit newTranslationUnit:(PLClangTranslationUnit *)newTranslationUnit {
     if (!(self = [super init]))
         return nil;
 
@@ -27,23 +25,13 @@
     _newTranslationUnit = newTranslationUnit;
     _oldBaseDirectory = [[oldTranslationUnit.spelling stringByDeletingLastPathComponent] ocd_absolutePath];
     _newBaseDirectory = [[newTranslationUnit.spelling stringByDeletingLastPathComponent] ocd_absolutePath];
-    _fileHandles = [[NSMutableDictionary alloc] init];
-    _unsavedFileData = [[NSMutableDictionary alloc] init];
     _convertedProperties = [[NSMutableSet alloc] init];
-
-    for (PLClangUnsavedFile *unsavedFile in unsavedFiles) {
-        _unsavedFileData[unsavedFile.path] = unsavedFile.data;
-    }
 
     return self;
 }
 
 + (NSArray *)differencesBetweenOldTranslationUnit:(PLClangTranslationUnit *)oldTranslationUnit newTranslationUnit:(PLClangTranslationUnit *)newTranslationUnit {
-    return [self differencesBetweenOldTranslationUnit:oldTranslationUnit newTranslationUnit:newTranslationUnit unsavedFiles:nil];
-}
-
-+ (NSArray *)differencesBetweenOldTranslationUnit:(PLClangTranslationUnit *)oldTranslationUnit newTranslationUnit:(PLClangTranslationUnit *)newTranslationUnit unsavedFiles:(NSArray *)unsavedFiles {
-    OCDAPIComparator *comparator = [[self alloc] initWithOldTranslationUnit:oldTranslationUnit newTranslationUnit:newTranslationUnit unsavedFiles:unsavedFiles];
+    OCDAPIComparator *comparator = [[self alloc] initWithOldTranslationUnit:oldTranslationUnit newTranslationUnit:newTranslationUnit];
     return [comparator differences];
 }
 
@@ -870,34 +858,6 @@
     } else {
         return type.spelling;
     }
-}
-
-- (NSString *)stringForSourceRange:(PLClangSourceRange *)range {
-    NSData *data;
-    NSString *path = range.startLocation.path;
-
-    data = _unsavedFileData[path];
-    if (data != nil) {
-        data = [data subdataWithRange:NSMakeRange((NSUInteger)range.startLocation.fileOffset, ((NSUInteger)range.endLocation.fileOffset - (NSUInteger)range.startLocation.fileOffset))];
-    } else {
-        NSFileHandle *file = _fileHandles[path];
-        if (!file) {
-            file = [NSFileHandle fileHandleForReadingAtPath:path];
-            if (!file) {
-                return nil;
-            }
-            _fileHandles[path] = file;
-        }
-
-        [file seekToFileOffset:(unsigned long long)range.startLocation.fileOffset];
-        data = [file readDataOfLength:(NSUInteger)(range.endLocation.fileOffset - range.startLocation.fileOffset)];
-    }
-
-    NSString *result = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-
-    NSMutableCharacterSet *characterSet = [NSMutableCharacterSet whitespaceAndNewlineCharacterSet];
-    [characterSet addCharactersInString:@";"];
-    return [result stringByTrimmingCharactersInSet:characterSet];
 }
 
 - (NSString *)displayNameForObjCParentCursor:(PLClangCursor *)cursor {

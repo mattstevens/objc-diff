@@ -1245,7 +1245,7 @@ static NSString * const OCDTestPath = @"test.h";
     XCTAssertNotNil(newTU, @"Failed to parse: %@", error);
     XCTAssertFalse(newTU.didFail, @"Fatal error encountered during parse");
 
-    return [OCDAPIComparator differencesBetweenOldTranslationUnit:oldTU newTranslationUnit:newTU unsavedFiles:@[oldFile, newFile]];
+    return [OCDAPIComparator differencesBetweenOldTranslationUnit:oldTU newTranslationUnit:newTU];
 }
 
 @end
