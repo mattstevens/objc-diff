@@ -136,6 +136,12 @@ static NSString * const OCDTestPath = @"test.h";
                       addition:@"@protocol A @end @interface Test <A> @end"];
 }
 
+- (void)testClassInstanceVariableIgnored {
+    [self testAddRemoveForName:@"Test"
+                          base:@""
+                      addition:@"@interface Test { int _ivar; } @end"];
+}
+
 - (void)testClassModificationSuperclass {
     NSArray *differences = [self differencesBetweenOldSource:@"@interface A @end @interface B : A @end @interface Test : A @end"
                                                    newSource:@"@interface A @end @interface B : A @end @interface Test : B @end"];
