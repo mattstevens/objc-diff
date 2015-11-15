@@ -826,6 +826,126 @@ typedef NS_ENUM(NSUInteger, PLClangCursorKind) {
     PLClangCursorKindOMPParallelDirective                     = 232,
 
     /**
+     * An OpenMP SIMD directive.
+     */
+    PLClangCursorKindOMPSimdDirective                         = 233,
+
+    /**
+     * An OpenMP for directive.
+     */
+    PLClangCursorKindOMPForDirective                          = 234,
+
+    /**
+     * An OpenMP sections directive.
+     */
+    PLClangCursorKindOMPSectionsDirective                     = 235,
+
+    /**
+     * An OpenMP section directive.
+     */
+    PLClangCursorKindOMPSectionDirective                      = 236,
+
+    /**
+     * An OpenMP single directive.
+     */
+    PLClangCursorKindOMPSingleDirective                       = 237,
+
+    /**
+     * An OpenMP parallel for directive.
+     */
+    PLClangCursorKindOMPParallelForDirective                  = 238,
+
+    /**
+     * An OpenMP parallel sections directive.
+     */
+    PLClangCursorKindOMPParallelSectionsDirective             = 239,
+
+    /**
+     * An OpenMP task directive.
+     */
+    PLClangCursorKindOMPTaskDirective                         = 240,
+
+    /**
+     * An OpenMP master directive.
+     */
+    PLClangCursorKindOMPMasterDirective                       = 241,
+
+    /**
+     * An OpenMP critical directive.
+     */
+    PLClangCursorKindOMPCriticalDirective                     = 242,
+
+    /**
+     * An OpenMP taskyield directive.
+     */
+    PLClangCursorKindOMPTaskyieldDirective                    = 243,
+
+    /**
+     * An OpenMP barrier directive.
+     */
+    PLClangCursorKindOMPBarrierDirective                      = 244,
+
+    /**
+     * An OpenMP taskwait directive.
+     */
+    PLClangCursorKindOMPTaskwaitDirective                     = 245,
+
+    /**
+     * An OpenMP flush directive.
+     */
+    PLClangCursorKindOMPFlushDirective                        = 246,
+
+    /**
+     * A Windows Structured Exception Handling's leave statement.
+     */
+    PLClangCursorKindSEHLeaveStatement                        = 247,
+
+    /**
+     * An OpenMP ordered directive.
+     */
+    PLClangCursorKindOMPOrderedDirective                      = 248,
+
+    /**
+     * An OpenMP atomic directive.
+     */
+    PLClangCursorKindOMPAtomicDirective                       = 249,
+
+    /**
+     * An OpenMP for SIMD directive.
+     */
+    PLClangCursorKindOMPForSimdDirective                      = 250,
+
+    /**
+     * An OpenMP parallel for SIMD directive.
+     */
+    PLClangCursorKindOMPParallelForSimdDirective              = 251,
+
+    /**
+     * An OpenMP target directive.
+     */
+    PLClangCursorKindOMPTargetDirective                       = 252,
+
+    /**
+     * An OpenMP teams directive.
+     */
+    PLClangCursorKindOMPTeamsDirective                        = 253,
+
+    /**
+     * An OpenMP taskgroup directive.
+     */
+    PLClangCursorKindOMPTaskgroupDirective                    = 254,
+
+    /**
+     * An OpenMP cancellation point directive.
+     */
+    PLClangCursorKindOMPCancellationPointDirective            = 255,
+
+    /**
+     * An OpenMP cancel directive.
+     */
+    PLClangCursorKindOMPCancelDirective                       = 256,
+
+    /**
      * The translation unit itself.
      *
      * The translation unit cursor exists primarily to act as the root
@@ -881,6 +1001,46 @@ typedef NS_ENUM(NSUInteger, PLClangCursorKind) {
      */
     PLClangCursorKindPackedAttribute                          = 408,
 
+    /**
+     * A pure attribute.
+     */
+    PLClangCursorKindPureAttribute                            = 409,
+
+    /**
+     * A const attribute.
+     */
+    PLClangCursorKindConstAttribute                           = 410,
+
+    /**
+     * A noduplicate attribute.
+     */
+    PLClangCursorKindNoDuplicateAttribute                     = 411,
+
+    /**
+     * A CUDA constant attribute.
+     */
+    PLClangCursorKindCUDAConstantAttribute                    = 412,
+
+    /**
+     * A CUDA device attribute.
+     */
+    PLClangCursorKindCUDADeviceAttribute                      = 413,
+
+    /**
+     * A CUDA global attribute.
+     */
+    PLClangCursorKindCUDAGlobalAttribute                      = 414,
+
+    /**
+     * A CUDA host attribute.
+     */
+    PLClangCursorKindCUDAHostAttribute                        = 415,
+
+    /**
+     * A CUDA shared attribute.
+     */
+    PLClangCursorKindCUDASharedAttribute                      = 416,
+
     /* Preprocessing */
 
     /**
@@ -909,6 +1069,11 @@ typedef NS_ENUM(NSUInteger, PLClangCursorKind) {
      * A module import declaration.
      */
     PLClangCursorKindModuleImportDeclaration                  = 600,
+
+    /**
+     * A code completion overload candidate.
+     */
+    PLClangCursorKindOverloadCandidate                        = 700,
 };
 
 /**
@@ -1008,7 +1173,19 @@ typedef NS_OPTIONS(NSUInteger, PLClangObjCPropertyAttributes) {
     PLClangObjCPropertyAttributeGetter           = 1UL << 10,
 
     /** The property has an explicit setter method. */
-    PLClangObjCPropertyAttributeSetter           = 1UL << 11
+    PLClangObjCPropertyAttributeSetter           = 1UL << 11,
+
+    /** The property's value can never be null. */
+    PLClangObjCPropertyAttributeNonnull          = 1UL << 12,
+
+    /** The property's value can be null. */
+    PLClangObjCPropertyAttributeNullable         = 1UL << 13,
+
+    /** The property is reset to a default value when null is assigned. */
+    PLClangObjCPropertyAttributeNullResettable   = 1UL << 14,
+
+    /** Whether the property's value can be null is explicitly unspecified. */
+    PLClangObjCPropertyAttributeNullUnspecified  = 1UL << 15
 };
 
 /**

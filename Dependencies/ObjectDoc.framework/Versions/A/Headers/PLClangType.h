@@ -169,6 +169,23 @@ typedef NS_ENUM(NSUInteger, PLClangTypeKind) {
     PLClangTypeKindMemberPointer = 117
 };
 
+/**
+ * The nullability of a PLClangType.
+ */
+typedef NS_ENUM(NSUInteger, PLClangNullability) {
+    /** No nullability information is available for the type. */
+    PLClangNullabilityNone = 0,
+
+    /** Values of this type can never be null. */
+    PLClangNullabilityNonnull = 1,
+
+    /** Values of this type can be null. */
+    PLClangNullabilityNullable = 2,
+
+    /** Whether values of this type can be null is explicitly unspecified. */
+    PLClangNullabilityExplicitlyUnspecified = 3
+};
+
 @interface PLClangType : NSObject
 
 @property(nonatomic, readonly) PLClangTypeKind kind;
@@ -191,5 +208,9 @@ typedef NS_ENUM(NSUInteger, PLClangTypeKind) {
 @property(nonatomic, readonly) PLClangType *elementType;
 @property(nonatomic, readonly) long long numberOfElements;
 @property(nonatomic, readonly) NSArray *argumentTypes;
+
+@property(nonatomic, readonly) PLClangNullability nullability;
+
+- (instancetype)typeByRemovingOuterNullability;
 
 @end
