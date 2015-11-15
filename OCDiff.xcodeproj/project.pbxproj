@@ -250,7 +250,7 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = OCD;
-				LastUpgradeCheck = 0700;
+				LastUpgradeCheck = 0710;
 				TargetAttributes = {
 					C96194DA19291D0C00BDBD7C = {
 						TestTargetID = C96194C31928E6AE00BDBD7C;
