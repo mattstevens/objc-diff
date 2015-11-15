@@ -218,6 +218,26 @@ static NSString * const OCDTestPath = @"test.h";
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"-[Test testMethod]" modification:modification]);
 }
 
+- (void)testInstanceMethodModificationReturnTypeNullability {
+    NSArray *differences = [self differencesBetweenOldSource:@"@interface Test - (nonnull char *)testMethod; @end"
+                                                   newSource:@"@interface Test - (nullable char *)testMethod; @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"- (nonnull char *)testMethod"
+                                                             currentValue:@"- (nullable char *)testMethod"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"-[Test testMethod]" modification:modification]);
+}
+
+- (void)testInstanceMethodModificationReturnTypeAssumedNullability {
+    NSArray *differences = [self differencesBetweenOldSource:@"@interface Test - (nullable char *)testMethod; @end"
+                                                   newSource:@"_Pragma(\"clang assume_nonnull begin\") @interface Test - (char *)testMethod; @end _Pragma(\"clang assume_nonnull end\")"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"- (nullable char *)testMethod"
+                                                             currentValue:@"- (nonnull char *)testMethod"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"-[Test testMethod]" modification:modification]);
+}
+
 - (void)testInstanceMethodModificationReturnTypeDifferentObjectType {
     NSArray *differences = [self differencesBetweenOldSource:@"@interface A @end @interface B : A @end @interface Test - (B *)testMethod; @end"
                                                    newSource:@"@interface A @end @interface B : A @end @interface Test - (A *)testMethod; @end"];
@@ -276,6 +296,26 @@ static NSString * const OCDTestPath = @"test.h";
                                                             previousValue:@"- (void)testMethodWithStringAndThings:(const char *)param"
                                                              currentValue:@"- (void)testMethodWithStringAndThings:(const char *)param, ..."];
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"-[Test testMethodWithStringAndThings:]" modification:modification]);
+}
+
+- (void)testInstanceMethodModificationParameterTypeNullability {
+    NSArray *differences = [self differencesBetweenOldSource:@"@interface Test - (void)testMethodWithParameter:(nullable char *)param; @end"
+                                                   newSource:@"@interface Test - (void)testMethodWithParameter:(nonnull char *)param; @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"- (void)testMethodWithParameter:(nullable char *)param"
+                                                             currentValue:@"- (void)testMethodWithParameter:(nonnull char *)param"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"-[Test testMethodWithParameter:]" modification:modification]);
+}
+
+- (void)testInstanceMethodModificationParameterTypeAssumedNullability {
+    NSArray *differences = [self differencesBetweenOldSource:@"@interface Test - (void)testMethodWithParameter:(nullable char *)param; @end"
+                                                   newSource:@"_Pragma(\"clang assume_nonnull begin\") @interface Test - (void)testMethodWithParameter:(char *)param; @end _Pragma(\"clang assume_nonnull end\")"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"- (void)testMethodWithParameter:(nullable char *)param"
+                                                             currentValue:@"- (void)testMethodWithParameter:(nonnull char *)param"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"-[Test testMethodWithParameter:]" modification:modification]);
 }
 
 - (void)testClassMethod {
@@ -520,6 +560,36 @@ static NSString * const OCDTestPath = @"test.h";
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test.testProperty" modification:modification]);
 }
 
+- (void)testPropertyModificationNullability {
+    NSArray *differences = [self differencesBetweenOldSource:@"@interface Test @property (nullable) char *testProperty; @end"
+                                                   newSource:@"@interface Test @property (nonnull) char *testProperty; @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"@property (nullable) char *testProperty"
+                                                             currentValue:@"@property (nonnull) char *testProperty"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test.testProperty" modification:modification]);
+}
+
+- (void)testPropertyModificationAssumedNullability {
+    NSArray *differences = [self differencesBetweenOldSource:@"@interface Test @property (nullable) char *testProperty; @end"
+                                                   newSource:@"_Pragma(\"clang assume_nonnull begin\") @interface Test @property char *testProperty; @end _Pragma(\"clang assume_nonnull end\")"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"@property (nullable) char *testProperty"
+                                                             currentValue:@"@property (nonnull) char *testProperty"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test.testProperty" modification:modification]);
+}
+
+- (void)testPropertyModificationNullResettable {
+    NSArray *differences = [self differencesBetweenOldSource:@"@interface Test @property (nonnull) char *testProperty; @end"
+                                                   newSource:@"@interface Test @property (null_resettable) char *testProperty; @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"@property (nonnull) char *testProperty"
+                                                             currentValue:@"@property (null_resettable) char *testProperty"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test.testProperty" modification:modification]);
+}
+
 /**
  * Tests that a conversion from explicit accessors to a property is reported as modifications to the declarations of the accessor methods.
  */
@@ -662,6 +732,36 @@ static NSString * const OCDTestPath = @"test.h";
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
 }
 
+- (void)testVariableModificationPointerNullability {
+    NSArray *differences = [self differencesBetweenOldSource:@"int * _Nullable Test;"
+                                                   newSource:@"int * _Nonnull Test;"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"int * _Nullable Test"
+                                                             currentValue:@"int * _Nonnull Test"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
+}
+
+- (void)testVariableModificationPointerAssumedNullability {
+    NSArray *differences = [self differencesBetweenOldSource:@"int * _Nullable Test;"
+                                                   newSource:@"_Pragma(\"clang assume_nonnull begin\") int * Test; _Pragma(\"clang assume_nonnull end\")"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"int * _Nullable Test"
+                                                             currentValue:@"int * _Nonnull Test"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
+}
+
+- (void)testVariableModificationCovariantType {
+    NSArray *differences = [self differencesBetweenOldSource:@"@interface A @end @interface B @end @interface NSArray<__covariant T> @end NSArray<A *> *Test;"
+                                                   newSource:@"@interface A @end @interface B @end @interface NSArray<__covariant T> @end NSArray<B *> *Test;"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"NSArray<A *> *Test"
+                                                             currentValue:@"NSArray<B *> *Test"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
+}
+
 - (void)testStaticVariable {
     [self testAddRemoveForName:@"Test"
                           base:@""
@@ -700,6 +800,26 @@ static NSString * const OCDTestPath = @"test.h";
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
 }
 
+- (void)testBlockPointerTypedefModificationParameterTypeNullability {
+    NSArray *differences = [self differencesBetweenOldSource:@"typedef void (^Test)(id _Nullable param);"
+                                                   newSource:@"typedef void (^Test)(id _Nonnull param);"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"typedef void (^Test)(id _Nullable param)"
+                                                             currentValue:@"typedef void (^Test)(id _Nonnull param)"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
+}
+
+- (void)testBlockPointerTypedefModificationParameterTypeAssumedNullability {
+    NSArray *differences = [self differencesBetweenOldSource:@"typedef void (^Test)(id _Nullable param);"
+                                                   newSource:@"_Pragma(\"clang assume_nonnull begin\") typedef void (^Test)(id param); _Pragma(\"clang assume_nonnull end\")"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"typedef void (^Test)(id _Nullable param)"
+                                                             currentValue:@"typedef void (^Test)(id _Nonnull param)"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
+}
+
 - (void)testFunctionPointerTypedef {
     [self testAddRemoveForName:@"Test"
                           base:@""
@@ -713,6 +833,26 @@ static NSString * const OCDTestPath = @"test.h";
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
                                                             previousValue:@"typedef void (*Test)(id param)"
                                                              currentValue:@"typedef int (*Test)(id param)"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
+}
+
+- (void)testFunctionPointerTypedefModificationParameterTypeNullability {
+    NSArray *differences = [self differencesBetweenOldSource:@"typedef void (*Test)(id _Nullable param);"
+                                                   newSource:@"typedef void (*Test)(id _Nonnull param);"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"typedef void (*Test)(id _Nullable param)"
+                                                             currentValue:@"typedef void (*Test)(id _Nonnull param)"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
+}
+
+- (void)testFunctionPointerTypedefModificationParameterTypeAssumedNullability {
+    NSArray *differences = [self differencesBetweenOldSource:@"typedef void (*Test)(id _Nullable param);"
+                                                   newSource:@"_Pragma(\"clang assume_nonnull begin\") typedef void (*Test)(id param); _Pragma(\"clang assume_nonnull end\")"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"typedef void (*Test)(id _Nullable param)"
+                                                             currentValue:@"typedef void (*Test)(id _Nonnull param)"];
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
 }
 

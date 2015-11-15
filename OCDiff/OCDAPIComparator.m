@@ -578,7 +578,7 @@
         {
             [decl appendString:(cursor.kind == PLClangCursorKindObjCClassMethodDeclaration ? @"+" : @"-")];
             [decl appendString:@" ("];
-            [decl appendString:cursor.resultType.spelling];
+            [decl appendString:[self spellingForTypeInObjectiveCMethod:cursor.resultType]];
             [decl appendString:@")"];
 
             // TODO: Is there a better way to get the keywords for the method name?
@@ -590,7 +590,8 @@
                     if (index > 0) {
                         [decl appendString:@" "];
                     }
-                    [decl appendFormat:@"%@:(%@)%@", keywords[index], argument.type.spelling, argument.spelling];
+                    NSString *typeSpelling = [self spellingForTypeInObjectiveCMethod:argument.type];
+                    [decl appendFormat:@"%@:(%@)%@", keywords[index], typeSpelling, argument.spelling];
                 }];
 
                 if (cursor.isVariadic) {
@@ -608,15 +609,16 @@
         {
             [decl appendString:@"@property "];
 
-            if (cursor.objCPropertyAttributes != PLClangObjCPropertyAttributeNone) {
+            if (cursor.objCPropertyAttributes != PLClangObjCPropertyAttributeNone || cursor.type.nullability != PLClangNullabilityNone) {
                 [decl appendString:@"("];
                 [decl appendString:[self propertyAttributeStringForCursor:cursor]];
                 [decl appendString:@") "];
             }
 
-            [decl appendString:cursor.type.spelling];
+            PLClangType *propertyType = [cursor.type typeByRemovingOuterNullability];
+            [decl appendString:propertyType.spelling];
 
-            if (![cursor.type.spelling hasSuffix:@"*"]) {
+            if (![propertyType.spelling hasSuffix:@"*"]) {
                 [decl appendString:@" "];
             }
 
@@ -796,6 +798,30 @@
         [attributeStrings addObject:@"weak"];
     }
 
+    // Always represent the nullability of a property's type as property attributes, even if the nullability is assumed
+    // via the "clang assume_nonnull begin" pragma.
+
+    switch (cursor.type.nullability) {
+        case PLClangNullabilityNone:
+            break;
+
+        case PLClangNullabilityNonnull:
+            [attributeStrings addObject:@"nonnull"];
+            break;
+
+        case PLClangNullabilityNullable:
+            [attributeStrings addObject:@"nullable"];
+            break;
+
+        case PLClangNullabilityExplicitlyUnspecified:
+            if (attributes & PLClangObjCPropertyAttributeNullResettable) {
+                [attributeStrings addObject:@"null_resettable"];
+            } else {
+                [attributeStrings addObject:@"null_unspecified"];
+            }
+            break;
+    }
+
     if (attributes & PLClangObjCPropertyAttributeGetter) {
         [attributeStrings addObject:[NSString stringWithFormat:@"getter=%@", cursor.objCPropertyGetter.spelling]];
     }
@@ -805,6 +831,45 @@
     }
 
     return [attributeStrings componentsJoinedByString:@", "];
+}
+
+/**
+ * Returns the spelling of a nullability kind for use in an Objective-C context.
+ *
+ * In an Objective-C method parameter type, return type, or Objective-C property attribute it is permitted to use
+ * friendlier names than the standard _Nonnull, _Nullable, etc.
+ */
+- (NSString *)objCSpellingForNullability:(PLClangNullability)nullability {
+    switch (nullability) {
+        case PLClangNullabilityNone:
+            return @"";
+
+        case PLClangNullabilityNonnull:
+            return @"nonnull";
+
+        case PLClangNullabilityNullable:
+            return @"nullable";
+
+        case PLClangNullabilityExplicitlyUnspecified:
+            return @"null_unspecified";
+    }
+
+    abort();
+}
+
+/**
+ * Returns the spelling of a type for use in an Objective-C method's parameter or return type.
+ */
+- (NSString *)spellingForTypeInObjectiveCMethod:(PLClangType *)type {
+    PLClangNullability nullability = type.nullability;
+    if (nullability != PLClangNullabilityNone) {
+        type = [type typeByRemovingOuterNullability];
+        return [NSString stringWithFormat:@"%@ %@",
+                [self objCSpellingForNullability:nullability],
+                type.spelling];
+    } else {
+        return type.spelling;
+    }
 }
 
 - (NSString *)stringForSourceRange:(PLClangSourceRange *)range {
