@@ -135,7 +135,7 @@ static NSString *GeneratedTitleForPaths(NSString *oldPath, NSString *newPath) {
             NSString *bundleName = newInfo[@"CFBundleName"];
             NSString *oldVersion = oldInfo[@"CFBundleShortVersionString"];
             NSString *newVersion = newInfo[@"CFBundleShortVersionString"];
-            if (oldVersion == nil && newVersion == nil) {
+            if (oldVersion == nil || newVersion == nil) {
                 oldVersion = oldInfo[@"CFBundleVersion"];
                 newVersion = newInfo[@"CFBundleVersion"];
             }
