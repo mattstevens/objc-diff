@@ -647,12 +647,12 @@ static NSString * const OCDTestPath = @"test.h";
 }
 
 - (void)testVariableModificationConstPointerQualification {
-    NSArray *differences = [self differencesBetweenOldSource:@"int * Test;"
+    NSArray *differences = [self differencesBetweenOldSource:@"int *Test;"
                                                    newSource:@"int * const Test;"];
 
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
-                                                            previousValue:@"int * Test"
-                                                             currentValue:@"int * const Test"];
+                                                            previousValue:@"int *Test"
+                                                             currentValue:@"int *const Test"];
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
 }
 
@@ -681,6 +681,16 @@ static NSString * const OCDTestPath = @"test.h";
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
                                                             previousValue:@"typedef void (^Test)(id param)"
                                                              currentValue:@"typedef int (^Test)(id param)"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
+}
+
+- (void)testBlockPointerTypedefModificationReturnTypeUnnamedParameter {
+    NSArray *differences = [self differencesBetweenOldSource:@"typedef void (^Test)(id);"
+                                                   newSource:@"typedef int (^Test)(id);"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"typedef void (^Test)(id)"
+                                                             currentValue:@"typedef int (^Test)(id)"];
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
 }
 

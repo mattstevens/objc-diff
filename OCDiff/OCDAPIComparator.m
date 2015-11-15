@@ -662,9 +662,90 @@
             break;
         }
 
+        case PLClangCursorKindVariableDeclaration:
+        {
+            NSMutableString *typeSpelling = [NSMutableString stringWithString:cursor.type.spelling];
+            if (![typeSpelling hasSuffix:@"*"]) {
+                [typeSpelling appendString:@" "];
+            }
+
+            [decl appendFormat:@"%@%@", typeSpelling, cursor.spelling];
+
+            break;
+        }
+
+        case PLClangCursorKindTypedefDeclaration:
+        {
+            [decl appendString:@"typedef "];
+
+            PLClangType *underlyingType = cursor.underlyingType;
+
+            if ((underlyingType.kind == PLClangTypeKindPointer && underlyingType.pointeeType.canonicalType.kind == PLClangTypeKindFunctionPrototype) ||
+                underlyingType.kind == PLClangTypeKindBlockPointer) {
+                BOOL isBlockPointer = (underlyingType.kind == PLClangTypeKindBlockPointer);
+                PLClangType *functionType = underlyingType.pointeeType;
+                [decl appendString:functionType.resultType.spelling];
+
+                if (![functionType.spelling hasSuffix:@"*"]) {
+                    [decl appendString:@" "];
+                }
+
+                [decl appendString:@"("];
+                [decl appendString:(isBlockPointer ? @"^" : @"*")];
+                [decl appendString:cursor.spelling];
+                [decl appendString:@")("];
+
+                NSArray *parameterTypes = functionType.argumentTypes;
+                if ([parameterTypes count] > 0) {
+                    NSMutableArray *parameterNames = [NSMutableArray array];
+                    [cursor visitChildrenUsingBlock:^PLClangCursorVisitResult(PLClangCursor *childCursor) {
+                        if (childCursor.kind == PLClangCursorKindParameterDeclaration) {
+                            [parameterNames addObject:childCursor.spelling];
+                        }
+                        return PLClangCursorVisitContinue;
+                    }];
+                    NSAssert(parameterTypes.count == parameterNames.count, @"Parameter name count does not match parameter count");
+
+                    [parameterTypes enumerateObjectsUsingBlock:^(PLClangType *parameterType, NSUInteger index, BOOL *stopParameters) {
+                        if (index > 0) {
+                            [decl appendString:@", "];
+                        }
+
+                        NSString *parameterName = [parameterNames objectAtIndex:index];
+                        NSMutableString *typeSpelling = [NSMutableString stringWithString:parameterType.spelling];
+                        if (![typeSpelling hasSuffix:@"*"] && [parameterName length] > 0) {
+                            [typeSpelling appendString:@" "];
+                        }
+
+                        [decl appendFormat:@"%@%@", typeSpelling, parameterName];
+                    }];
+
+                    if (functionType.isVariadic) {
+                        [decl appendString:@", ..."];
+                    }
+
+                } else {
+                    [decl appendString:@"void"];
+                }
+
+                [decl appendString:@")"];
+            } else {
+                NSMutableString *typeSpelling = [NSMutableString stringWithString:cursor.type.spelling];
+                if (![typeSpelling hasSuffix:@"*"]) {
+                    [typeSpelling appendString:@" "];
+                }
+
+                [decl appendFormat:@"%@%@", typeSpelling, cursor.spelling];
+            }
+
+            break;
+        }
+
         default:
         {
-            return [self stringForSourceRange:cursor.extent];
+            // TODO: Report up as error rather than exiting here
+            fprintf(stderr, "No printer available for cursor kind %tu\n", cursor.kind);
+            exit(1);
         }
     }
 
