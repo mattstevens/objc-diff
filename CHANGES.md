@@ -1,5 +1,7 @@
 0.2.0
 
+* Updated Clang to 3.7.0.
+* Added support for nullability annotations.
 * A change to the inline status of a function is no longer reported as an addition and a removal of that function.
 * Relocation of a static variable is no longer reported as an addition and a removal of that variable.
 
