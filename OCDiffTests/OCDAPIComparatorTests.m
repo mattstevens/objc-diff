@@ -104,6 +104,52 @@ static NSString * const OCDTestPath = @"test.h";
     XCTAssertEqualObjects(differences, expectedDifferences);
 }
 
+- (void)testModificationInstanceMethodDeprecationViaCategory {
+    NSArray *differences = [self differencesBetweenOldSource:@"@interface Test - (void)testMethod; @end @interface Test (NSDeprecated) @end"
+                                                   newSource:@"@interface Test @end @interface Test (NSDeprecated) - (void)testMethod; @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeAvailability
+                                                            previousValue:@"Available"
+                                                             currentValue:@"Deprecated"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"-[Test testMethod]" modification:modification]);
+}
+
+- (void)testModificationClassMethodDeprecationViaCategory {
+    NSArray *differences = [self differencesBetweenOldSource:@"@interface Test + (void)testMethod; @end @interface Test (NSDeprecated) @end"
+                                                   newSource:@"@interface Test @end @interface Test (NSDeprecated) + (void)testMethod; @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeAvailability
+                                                            previousValue:@"Available"
+                                                             currentValue:@"Deprecated"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"+[Test testMethod]" modification:modification]);
+}
+
+- (void)testModificationPropertyDeprecationViaCategory {
+    NSArray *differences = [self differencesBetweenOldSource:@"@interface Test @property int testProperty; @end @interface Test (NSDeprecated) @end"
+                                                   newSource:@"@interface Test @end @interface Test (NSDeprecated) @property int testProperty; @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeAvailability
+                                                            previousValue:@"Available"
+                                                             currentValue:@"Deprecated"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test.testProperty" modification:modification]);
+}
+
+/**
+ * Tests that a conversion of a deprecation via a category to a deprecation via an attribute does not result in any
+ * changes being reported.
+ */
+- (void)testDeprecationConversionToAttribute {
+    NSArray *differences = [self differencesBetweenOldSource:@"@interface Test @end @interface Test (NSDeprecated) - (void)testMethod; @end"
+                                                   newSource:@"@interface Test @end @interface Test (NSDeprecated) - (void)testMethod  __attribute__((deprecated)); @end"];
+
+    XCTAssertEqualObjects(differences, @[]);
+
+    differences = [self differencesBetweenOldSource:@"@interface Test @end @interface Test (NSDeprecated) - (void)testMethod; @end"
+                                          newSource:@"@interface Test - (void)testMethod  __attribute__((deprecated)); @end @interface Test (NSDeprecated) @end"];
+
+    XCTAssertEqualObjects(differences, @[]);
+}
+
 /**
  * Tests that an unconditionally unavailable declaration is ignored.
  */

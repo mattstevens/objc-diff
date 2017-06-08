@@ -366,13 +366,15 @@
         [modifications addObject:modification];
     }
 
-    if (oldCursor.availability.kind != newCursor.availability.kind) {
+    PLClangAvailabilityKind oldAvailabilityKind = [self availabilityKindForCursor:oldCursor];
+    PLClangAvailabilityKind newAvailabilityKind = [self availabilityKindForCursor:newCursor];
+    if (oldAvailabilityKind != newAvailabilityKind) {
         OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeAvailability
-                                                                previousValue:[self stringForAvailabilityKind:oldCursor.availability.kind]
-                                                                 currentValue:[self stringForAvailabilityKind:newCursor.availability.kind]];
+                                                                previousValue:[self stringForAvailabilityKind:oldAvailabilityKind]
+                                                                 currentValue:[self stringForAvailabilityKind:newAvailabilityKind]];
         [modifications addObject:modification];
 
-        if (newCursor.availability.kind == PLClangAvailabilityKindDeprecated && [newCursor.availability.unconditionalDeprecationMessage length] > 0) {
+        if (newAvailabilityKind == PLClangAvailabilityKindDeprecated && [newCursor.availability.unconditionalDeprecationMessage length] > 0) {
             modification = [OCDModification modificationWithType:OCDModificationTypeDeprecationMessage
                                                    previousValue:nil
                                                     currentValue:newCursor.availability.unconditionalDeprecationMessage];
@@ -921,6 +923,39 @@
     }
 
     abort();
+}
+
+/**
+ * Returns the availability kind for a cursor.
+ *
+ * Typically the availability kind is indicated via an availability attribute, but in some cases the platform SDKs use
+ * an "NSDeprecated" category to indicate deprecations that they wish to document but not yet add an availability
+ * attribute for. Old SDKs also used this method to document deprecated methods prior to the introduction of
+ * availability attributes.
+ */
+- (PLClangAvailabilityKind)availabilityKindForCursor:(PLClangCursor *)cursor {
+    PLClangAvailabilityKind availabilityKind = cursor.availability.kind;
+    if (availabilityKind == PLClangAvailabilityKindAvailable) {
+        switch (cursor.kind) {
+            case PLClangCursorKindObjCInstanceMethodDeclaration:
+            case PLClangCursorKindObjCClassMethodDeclaration:
+            case PLClangCursorKindObjCPropertyDeclaration:
+            {
+                if (cursor.semanticParent.kind == PLClangCursorKindObjCCategoryDeclaration &&
+                    [cursor.semanticParent.spelling rangeOfString:@"Deprecated" options:NSCaseInsensitiveSearch].location != NSNotFound) {
+                    // The cursor is deprecated via a "Deprecated" category
+                    return PLClangAvailabilityKindDeprecated;
+                }
+
+                break;
+            }
+
+            default:
+                break;
+        }
+    }
+
+    return availabilityKind;
 }
 
 /**
