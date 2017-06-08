@@ -136,6 +136,12 @@ static NSString * const OCDTestPath = @"test.h";
                       addition:@"@protocol A @end @interface Test <A> @end"];
 }
 
+- (void)testParameterizedClass {
+    [self testAddRemoveForName:@"Test"
+                          base:@""
+                      addition:@"@interface Test <__covariant T> @end"];
+}
+
 - (void)testClassInstanceVariableIgnored {
     [self testAddRemoveForName:@"Test"
                           base:@""

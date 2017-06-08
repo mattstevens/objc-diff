@@ -224,6 +224,9 @@
         case PLClangCursorKindObjCInstanceVariableDeclaration:
             return NO;
 
+        case PLClangCursorKindTemplateTypeParameter:
+            return NO;
+
         case PLClangCursorKindModuleImportDeclaration:
             return NO;
 
