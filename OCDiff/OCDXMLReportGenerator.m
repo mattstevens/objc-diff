@@ -3,7 +3,7 @@
 
 @implementation OCDXMLReportGenerator
 
-- (void)generateReportForDifferences:(NSArray *)differences title:(NSString *)title {
+- (void)generateReportForDifferences:(NSArray<OCDifference *> *)differences title:(NSString *)title {
     NSXMLElement *rootElement = [NSXMLElement elementWithName:@"apidiff"];
     if (title != nil) {
         [rootElement addAttribute:[NSXMLNode attributeWithName:@"title" stringValue:title]];

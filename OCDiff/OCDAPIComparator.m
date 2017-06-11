@@ -30,12 +30,12 @@
     return self;
 }
 
-+ (NSArray *)differencesBetweenOldTranslationUnit:(PLClangTranslationUnit *)oldTranslationUnit newTranslationUnit:(PLClangTranslationUnit *)newTranslationUnit {
++ (NSArray<OCDifference *> *)differencesBetweenOldTranslationUnit:(PLClangTranslationUnit *)oldTranslationUnit newTranslationUnit:(PLClangTranslationUnit *)newTranslationUnit {
     OCDAPIComparator *comparator = [[self alloc] initWithOldTranslationUnit:oldTranslationUnit newTranslationUnit:newTranslationUnit];
     return [comparator differences];
 }
 
-- (NSArray *)differences {
+- (NSArray<OCDifference *> *)differences {
     NSMutableArray *differences = [NSMutableArray array];
     NSDictionary *oldAPI = [self APIForTranslationUnit:_oldTranslationUnit];
     NSDictionary *newAPI = [self APIForTranslationUnit:_newTranslationUnit];

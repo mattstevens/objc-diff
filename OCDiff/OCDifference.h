@@ -10,7 +10,7 @@ typedef NS_ENUM(NSUInteger, OCDifferenceType) {
 @interface OCDifference : NSObject
 
 + (instancetype)differenceWithType:(OCDifferenceType)type name:(NSString *)name path:(NSString *)path lineNumber:(NSUInteger)lineNumber;
-+ (instancetype)modificationDifferenceWithName:(NSString *)name path:(NSString *)path lineNumber:(NSUInteger)lineNumber modifications:(NSArray *)modifications;
++ (instancetype)modificationDifferenceWithName:(NSString *)name path:(NSString *)path lineNumber:(NSUInteger)lineNumber modifications:(NSArray<OCDModification *> *)modifications;
 
 @property (nonatomic, readonly) OCDifferenceType type;
 @property (nonatomic, readonly) NSString *name;
@@ -20,6 +20,6 @@ typedef NS_ENUM(NSUInteger, OCDifferenceType) {
 /**
  * For a modification difference, an array of OCDModification objects describing the modifications.
  */
-@property (nonatomic, readonly) NSArray *modifications;
+@property (nonatomic, readonly) NSArray<OCDModification *> *modifications;
 
 @end

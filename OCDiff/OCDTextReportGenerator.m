@@ -7,7 +7,7 @@
 
 @implementation OCDTextReportGenerator
 
-- (void)generateReportForDifferences:(NSArray *)differences title:(NSString *)title {
+- (void)generateReportForDifferences:(NSArray<OCDifference *> *)differences title:(NSString *)title {
     BOOL useColor = isatty(STDOUT_FILENO) && getenv("TERM") != NULL;
 
     NSString *lastFile = @"";

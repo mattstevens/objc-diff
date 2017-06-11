@@ -17,7 +17,7 @@
     return self;
 }
 
-- (void)generateReportForDifferences:(NSArray *)differences title:(NSString *)title {
+- (void)generateReportForDifferences:(NSArray<OCDifference *> *)differences title:(NSString *)title {
     NSMutableString *html = [[NSMutableString alloc] init];
 
     [html appendString:@"<html>\n<head>\n"];
