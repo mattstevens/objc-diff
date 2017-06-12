@@ -28,6 +28,9 @@
         case OCDModificationTypeDeprecationMessage:
             return @"Deprecation Message";
 
+        case OCDModificationTypeReplacement:
+            return @"Replacement";
+
         case OCDModificationTypeSuperclass:
             return @"Superclass";
 

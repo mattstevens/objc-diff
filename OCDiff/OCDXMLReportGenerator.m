@@ -66,6 +66,9 @@
         case OCDModificationTypeDeprecationMessage:
             return @"deprecationMessage";
 
+        case OCDModificationTypeReplacement:
+            return @"replacement";
+
         case OCDModificationTypeSuperclass:
             return @"superclass";
 

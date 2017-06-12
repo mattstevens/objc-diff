@@ -382,10 +382,20 @@
             deprecationMessage = newPlatformAvailability.message;
         }
 
+        NSString *replacement = newCursor.availability.unconditionalDeprecationReplacement;
+        if ([replacement length] == 0 && newPlatformAvailability != nil) {
+            replacement = newPlatformAvailability.replacement;
+        }
+
         if (newAvailabilityKind == PLClangAvailabilityKindDeprecated && [deprecationMessage length] > 0) {
             modification = [OCDModification modificationWithType:OCDModificationTypeDeprecationMessage
                                                    previousValue:nil
                                                     currentValue:deprecationMessage];
+            [modifications addObject:modification];
+        } else if (newAvailabilityKind == PLClangAvailabilityKindDeprecated && [replacement length] > 0) {
+            modification = [OCDModification modificationWithType:OCDModificationTypeReplacement
+                                                   previousValue:nil
+                                                    currentValue:replacement];
             [modifications addObject:modification];
         }
     }

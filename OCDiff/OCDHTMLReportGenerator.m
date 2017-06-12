@@ -171,6 +171,7 @@
 - (BOOL)isDeclarationType:(OCDModificationType)type {
     switch (type) {
         case OCDModificationTypeDeclaration:
+        case OCDModificationTypeReplacement:
             return YES;
 
         default:

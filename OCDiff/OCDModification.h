@@ -4,6 +4,7 @@ typedef NS_ENUM(NSUInteger, OCDModificationType) {
     OCDModificationTypeDeclaration,
     OCDModificationTypeAvailability,
     OCDModificationTypeDeprecationMessage,
+    OCDModificationTypeReplacement,
     OCDModificationTypeSuperclass,
     OCDModificationTypeProtocols,
     OCDModificationTypeOptional,
