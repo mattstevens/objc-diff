@@ -219,12 +219,44 @@ static void ApplySDKToCompilerArguments(NSString *sdk, NSMutableArray *compilerA
             [compilerArguments addObject:[NSString stringWithFormat:@"-mios-version-min=%@", sdkVersion]];
         }
     } else if ([sdk rangeOfString:@"iphonesimulator"].location != NSNotFound) {
-        if (ArrayContainsStringWithPrefix(compilerArguments, @"-mios-simulator-version-min") == NO && getenv("IOS_SIMULATOR_DEPLOYMENT_TARGET") == NULL) {
+        if (ArrayContainsStringWithPrefix(compilerArguments, @"-mios-simulator-version-min") == NO && getenv("IPHONEOS_DEPLOYMENT_TARGET") == NULL) {
             if (sdkVersion == nil) {
                 sdkVersion = VersionForSDK(sdk);
             }
 
             [compilerArguments addObject:[NSString stringWithFormat:@"-mios-simulator-version-min=%@", sdkVersion]];
+        }
+    } else if ([sdk rangeOfString:@"appletvos"].location != NSNotFound) {
+        if (ArrayContainsStringWithPrefix(compilerArguments, @"-mtvos-version-min") == NO && getenv("TVOS_DEPLOYMENT_TARGET") == NULL) {
+            if (sdkVersion == nil) {
+                sdkVersion = VersionForSDK(sdk);
+            }
+
+            [compilerArguments addObject:[NSString stringWithFormat:@"-mtvos-version-min=%@", sdkVersion]];
+        }
+    } else if ([sdk rangeOfString:@"appletvsimulator"].location != NSNotFound) {
+        if (ArrayContainsStringWithPrefix(compilerArguments, @"-mtvos-simulator-version-min") == NO && getenv("TVOS_DEPLOYMENT_TARGET") == NULL) {
+            if (sdkVersion == nil) {
+                sdkVersion = VersionForSDK(sdk);
+            }
+
+            [compilerArguments addObject:[NSString stringWithFormat:@"-mtvos-simulator-version-min=%@", sdkVersion]];
+        }
+    } else if ([sdk rangeOfString:@"watchos"].location != NSNotFound) {
+        if (ArrayContainsStringWithPrefix(compilerArguments, @"-mwatchos-version-min") == NO && getenv("WATCHOS_DEPLOYMENT_TARGET") == NULL) {
+            if (sdkVersion == nil) {
+                sdkVersion = VersionForSDK(sdk);
+            }
+
+            [compilerArguments addObject:[NSString stringWithFormat:@"-mwatchos-version-min=%@", sdkVersion]];
+        }
+    } else if ([sdk rangeOfString:@"watchsimulator"].location != NSNotFound) {
+        if (ArrayContainsStringWithPrefix(compilerArguments, @"-mwatchos-simulator-version-min") == NO && getenv("WATCHOS_DEPLOYMENT_TARGET") == NULL) {
+            if (sdkVersion == nil) {
+                sdkVersion = VersionForSDK(sdk);
+            }
+
+            [compilerArguments addObject:[NSString stringWithFormat:@"-mwatchos-simulator-version-min=%@", sdkVersion]];
         }
     }
 }
