@@ -374,10 +374,18 @@
                                                                  currentValue:[self stringForAvailabilityKind:newAvailabilityKind]];
         [modifications addObject:modification];
 
-        if (newAvailabilityKind == PLClangAvailabilityKindDeprecated && [newCursor.availability.unconditionalDeprecationMessage length] > 0) {
+        PLClangPlatformAvailability *newPlatformAvailability = [self platformAvailabilityForCursor:newCursor
+                                                                                targetPlatformName:_newTranslationUnit.targetPlatformName];
+
+        NSString *deprecationMessage = newCursor.availability.unconditionalDeprecationMessage;
+        if ([deprecationMessage length] == 0 && newPlatformAvailability != nil) {
+            deprecationMessage = newPlatformAvailability.message;
+        }
+
+        if (newAvailabilityKind == PLClangAvailabilityKindDeprecated && [deprecationMessage length] > 0) {
             modification = [OCDModification modificationWithType:OCDModificationTypeDeprecationMessage
                                                    previousValue:nil
-                                                    currentValue:newCursor.availability.unconditionalDeprecationMessage];
+                                                    currentValue:deprecationMessage];
             [modifications addObject:modification];
         }
     }
@@ -960,6 +968,16 @@
     }
 
     return availabilityKind;
+}
+
+- (PLClangPlatformAvailability *)platformAvailabilityForCursor:(PLClangCursor *)cursor targetPlatformName:(NSString *)targetPlatformName {
+    for (PLClangPlatformAvailability *availability in cursor.availability.platformAvailabilityEntries) {
+        if ([availability.platformName isEqualToString:targetPlatformName]) {
+            return availability;
+        }
+    }
+
+    return nil;
 }
 
 /**

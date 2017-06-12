@@ -104,6 +104,50 @@ static NSString * const OCDTestPath = @"test.h";
     XCTAssertEqualObjects(differences, expectedDifferences);
 }
 
+- (void)testModificationDeprecationViaAvailability {
+    NSArray *differences = [self differencesBetweenOldSource:@"void Test(void);"
+                                                   newSource:@"void Test(void) __attribute__((availability(macos,introduced=10.0,deprecated=10.1)));"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeAvailability
+                                                            previousValue:@"Available"
+                                                             currentValue:@"Deprecated"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test()" modification:modification]);
+}
+
+- (void)testModificationDeprecationViaAvailabilityWithMessage {
+    NSArray *differences = [self differencesBetweenOldSource:@"void Test(void);"
+                                                   newSource:@"void Test(void) __attribute__((availability(macos,introduced=10.0,deprecated=10.1,message=\"Test message\")));"];
+
+    NSArray *modifications = @[
+        [OCDModification modificationWithType:OCDModificationTypeAvailability
+                               previousValue:@"Available"
+                                currentValue:@"Deprecated"],
+        [OCDModification modificationWithType:OCDModificationTypeDeprecationMessage
+                               previousValue:nil
+                                currentValue:@"Test message"]
+    ];
+    NSArray *expectedDifferences = @[[OCDifference modificationDifferenceWithName:@"Test()" path:OCDTestPath lineNumber:1 modifications:modifications]];
+    XCTAssertEqualObjects(differences, expectedDifferences);
+}
+
+- (void)testModificationDeprecationViaMultiPlatformAvailabilityWithMessage {
+    NSArray *differences = [self differencesBetweenOldSource:@"void Test(void);"
+                                                   newSource:@"void Test(void) "
+                                                             @"__attribute__((availability(ios,introduced=1.0,deprecated=1.1,message=\"iOS test message\"))) "
+                                                             @"__attribute__((availability(macos,introduced=10.0,deprecated=10.1,message=\"Test message\")));"];
+
+    NSArray *modifications = @[
+        [OCDModification modificationWithType:OCDModificationTypeAvailability
+                               previousValue:@"Available"
+                                currentValue:@"Deprecated"],
+        [OCDModification modificationWithType:OCDModificationTypeDeprecationMessage
+                               previousValue:nil
+                                currentValue:@"Test message"]
+    ];
+    NSArray *expectedDifferences = @[[OCDifference modificationDifferenceWithName:@"Test()" path:OCDTestPath lineNumber:1 modifications:modifications]];
+    XCTAssertEqualObjects(differences, expectedDifferences);
+}
+
 - (void)testModificationInstanceMethodDeprecationViaCategory {
     NSArray *differences = [self differencesBetweenOldSource:@"@interface Test - (void)testMethod; @end @interface Test (NSDeprecated) @end"
                                                    newSource:@"@interface Test @end @interface Test (NSDeprecated) - (void)testMethod; @end"];
