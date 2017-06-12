@@ -751,6 +751,10 @@
     NSMutableArray *attributeStrings = [NSMutableArray array];
     PLClangObjCPropertyAttributes attributes = cursor.objCPropertyAttributes;
 
+    if (attributes & PLClangObjCPropertyAttributeClass) {
+        [attributeStrings addObject:@"class"];
+    }
+
     if (attributes & PLClangObjCPropertyAttributeAtomic) {
         [attributeStrings addObject:@"atomic"];
     }
