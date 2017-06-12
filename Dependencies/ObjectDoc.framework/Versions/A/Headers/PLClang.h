@@ -36,4 +36,4 @@ typedef NS_ENUM(NSInteger, PLClangErrorCode) {
 
 #import "PLClangSourceIndex.h"
 
-FOUNDATION_EXPORT NSString *PLClangGetVersionString();
+FOUNDATION_EXPORT NSString *PLClangGetVersionString(void);

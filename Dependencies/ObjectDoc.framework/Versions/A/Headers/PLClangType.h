@@ -103,6 +103,9 @@ typedef NS_ENUM(NSUInteger, PLClangTypeKind) {
     /** SEL in Objective-C */
     PLClangTypeKindObjCSel = 29,
 
+    /** __float128 */
+    PLClangTypeKindFloat128 = 30,
+
     /** A complex type. */
     PLClangTypeKindComplex = 100,
 
@@ -166,7 +169,17 @@ typedef NS_ENUM(NSUInteger, PLClangTypeKind) {
     PLClangTypeKindDependentSizedArray = 116,
 
     /** A C++ member pointer. */
-    PLClangTypeKindMemberPointer = 117
+    PLClangTypeKindMemberPointer = 117,
+
+    /** A C++11 auto or C++14 decltype(auto) type. */
+    PLClangTypeKindAuto = 118,
+
+    /**
+     * A type that was referred to using an elaborated type keyword.
+     *
+     * E.g., struct S, or via a qualified name, e.g., N::M::type, or both.
+     */
+    PLClangTypeKindElaborated = 119
 };
 
 /**
@@ -211,6 +224,6 @@ typedef NS_ENUM(NSUInteger, PLClangNullability) {
 
 @property(nonatomic, readonly) PLClangNullability nullability;
 
-- (instancetype)typeByRemovingOuterNullability;
+- (instancetype) typeByRemovingOuterNullability;
 
 @end

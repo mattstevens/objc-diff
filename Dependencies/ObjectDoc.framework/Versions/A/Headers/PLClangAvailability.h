@@ -52,6 +52,11 @@ typedef NS_ENUM(NSUInteger, PLClangAvailabilityKind) {
 @property(nonatomic, readonly) NSString *unconditionalDeprecationMessage;
 
 /**
+ * The replacement provided along with the unconditional deprecation of the entity, or nil if no replacement was provided.
+ */
+@property(nonatomic, readonly) NSString *unconditionalDeprecationReplacement;
+
+/**
  * A Boolean value indicating whether the entity is unavailable on all platforms.
  */
 @property(nonatomic, readonly) BOOL isUnconditionallyUnavailable;

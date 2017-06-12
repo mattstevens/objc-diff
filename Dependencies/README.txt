@@ -3,7 +3,7 @@ ObjectDoc
       Objective-C wrapper for libclang.
 
     Version:
-      a0c08576cdc5dcf095744c2cc027412b290285e9 built from https://github.com/landonf/objectdoc.git
+      c7b39e58aae4a2857df080b0a1cc7eb57492e7d6 built from https://github.com/landonf/objectdoc.git
 
     License:
       MIT
@@ -23,7 +23,7 @@ LLVM (via ObjectDoc)
       LLVM and Clang sources.
 
     Version:
-      3.7 downloaded from http://llvm.org/releases/download.html
+      4.0 downloaded from http://llvm.org/releases/download.html
 
     License:
       University of Illinois/NCSA Open Source License

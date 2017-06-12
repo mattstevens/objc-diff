@@ -35,4 +35,9 @@
  */
 @property(nonatomic, copy) NSString *message;
 
+/**
+ * Optional message text that Clang will use to provide Fix-It when emitting a warning about use of a deprecated declaration.
+ */
+@property(nonatomic, copy) NSString *replacement;
+
 @end

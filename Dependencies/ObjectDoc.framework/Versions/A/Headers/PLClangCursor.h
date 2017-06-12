@@ -639,6 +639,16 @@ typedef NS_ENUM(NSUInteger, PLClangCursorKind) {
      */
     PLClangCursorKindObjCSelfExpression                       = 146,
 
+    /**
+     * An OpenMP array section expression.
+     */
+    PLClangCursorKindOMPArraySectionExpression                = 147,
+
+    /**
+     * An Objective-C an @available() check.
+     */
+    PLClangCursorKindObjCAvailabilityCheckExpression          = 148,
+
     /* Statements */
 
     /**
@@ -946,6 +956,121 @@ typedef NS_ENUM(NSUInteger, PLClangCursorKind) {
     PLClangCursorKindOMPCancelDirective                       = 256,
 
     /**
+     * An OpenMP target data directive.
+     */
+    PLClangCursorKindOMPTargetDataDirective                   = 257,
+
+    /**
+     * An OpenMP taskloop directive.
+     */
+    PLClangCursorKindOMPTaskLoopDirective                     = 258,
+
+    /**
+     * An OpenMP taskloop directive.
+     */
+    PLClangCursorKindOMPTaskLoopSimdDirective                 = 259,
+
+    /**
+     * An OpenMP distribute directive.
+     */
+    PLClangCursorKindOMPDistributeDirective                   = 260,
+
+    /**
+     * An OpenMP target enter data directive.
+     */
+    PLClangCursorKindOMPTargetEnterDataDirective              = 261,
+
+    /**
+     * An OpenMP target exit data directive.
+     */
+    PLClangCursorKindOMPTargetExitDataDirective               = 262,
+
+    /**
+     * An OpenMP target parallel directive.
+     */
+    PLClangCursorKindOMPTargetParallelDirective               = 263,
+
+    /**
+     * An OpenMP target parallel for directive.
+     */
+    PLClangCursorKindOMPTargetParallelForDirective            = 264,
+
+    /**
+     * An OpenMP target update directive.
+     */
+    PLClangCursorKindOMPTargetUpdateDirective                 = 265,
+
+    /**
+     * An OpenMP distribute parallel for directive.
+     */
+    PLClangCursorKindOMPDistributeParallelForDirective        = 266,
+
+    /**
+     * An OpenMP distribute parallel for simd directive.
+     */
+    PLClangCursorKindOMPDistributeParallelForSimdDirective    = 267,
+
+    /**
+     * An OpenMP distribute simd directive.
+     */
+    PLClangCursorKindOMPDistributeSimdDirective               = 268,
+
+    /**
+     * An OpenMP target parallel for simd directive.
+     */
+    PLClangCursorKindOMPTargetParallelForSimdDirective        = 269,
+
+    /**
+     * An OpenMP target simd directive.
+     */
+    PLClangCursorKindOMPTargetSimdDirective                   = 270,
+
+    /**
+     * An OpenMP teams distribute directive.
+     */
+    PLClangCursorKindOMPTeamsDistributeDirective              = 271,
+
+    /**
+     * An OpenMP teams distribute simd directive.
+     */
+    PLClangCursorKindOMPTeamsDistributeSimdDirective          = 272,
+
+    /**
+     * An OpenMP teams distribute parallel for simd directive.
+     */
+    PLClangCursorKindOMPTeamsDistributeParallelForSimdDirective = 273,
+
+    /**
+     * An OpenMP teams distribute parallel for directive.
+     */
+    PLClangCursorKindOMPTeamsDistributeParallelForDirective   = 274,
+
+    /**
+     * An OpenMP target teams directive.
+     */
+    PLClangCursorKindOMPTargetTeamsDirective                  = 275,
+
+    /**
+     * An OpenMP target teams distribute directive.
+     */
+    PLClangCursorKindOMPTargetTeamsDistributeDirective        = 276,
+
+    /**
+     * An OpenMP target teams distribute parallel for directive.
+     */
+    PLClangCursorKindOMPTargetTeamsDistributeParallelForDirective = 277,
+
+    /**
+     * An OpenMP target teams distribute parallel for simd directive.
+     */
+    PLClangCursorKindOMPTargetTeamsDistributeParallelForSimdDirective = 278,
+
+    /**
+     * An OpenMP target teams distribute simd directive.
+     */
+    PLClangCursorKindOMPTargetTeamsDistributeSimdDirective    = 279,
+
+    /**
      * The translation unit itself.
      *
      * The translation unit cursor exists primarily to act as the root
@@ -1041,6 +1166,21 @@ typedef NS_ENUM(NSUInteger, PLClangCursorKind) {
      */
     PLClangCursorKindCUDASharedAttribute                      = 416,
 
+    /**
+     * A visibility attribute.
+     */
+    PLClangCursorKindVisibilityAttribute                      = 417,
+
+    /**
+     * A dllexport attribute.
+     */
+    PLClangCursorKindDLLExportAttribute                       = 418,
+
+    /**
+     * A dllimport attribute.
+     */
+    PLClangCursorKindDLLImportAttribute                       = 419,
+
     /* Preprocessing */
 
     /**
@@ -1069,6 +1209,27 @@ typedef NS_ENUM(NSUInteger, PLClangCursorKind) {
      * A module import declaration.
      */
     PLClangCursorKindModuleImportDeclaration                  = 600,
+
+    /**
+     * An alias template declaration.
+     *
+     * For example:
+     *
+     * @code
+     * template \<typename T> using V = std::map<T*, int, MyCompare<T>>;
+     * @endcode
+     */
+    PLClangCursorKindTypeAliasTemplateDeclaration             = 601,
+
+    /**
+     * A static_assert or _Static_assert node.
+     */
+    PLClangCursorKindStaticAssert                             = 602,
+
+    /**
+     * A friend declaration.
+     */
+    PLClangCursorKindFriendDeclaration                        = 603,
 
     /**
      * A code completion overload candidate.
@@ -1185,7 +1346,10 @@ typedef NS_OPTIONS(NSUInteger, PLClangObjCPropertyAttributes) {
     PLClangObjCPropertyAttributeNullResettable   = 1UL << 14,
 
     /** Whether the property's value can be null is explicitly unspecified. */
-    PLClangObjCPropertyAttributeNullUnspecified  = 1UL << 15
+    PLClangObjCPropertyAttributeNullUnspecified  = 1UL << 15,
+
+    /** The property is a class property. */
+    PLClangObjCPropertyAttributeClass            = 1UL << 16,
 };
 
 /**
