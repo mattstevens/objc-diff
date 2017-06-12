@@ -1,3 +1,10 @@
+0.3.0
+
+* Updated Clang to 4.0.0
+* Added support for class properties.
+* Added support for replacements in availability and deprecated attributes.
+* Added support for "soft deprecations" via categories containing "Deprecated" in their name.
+
 0.2.0 (2015-11-19)
 
 * Updated Clang to 3.7.0.
