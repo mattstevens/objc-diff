@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>AlternateSDK</key>
+	<string>iphonesimulator7.0</string>
+	<key>CanonicalName</key>
+	<string>iphoneos7.0</string>
+	<key>CustomProperties</key>
+	<dict/>
+	<key>DefaultProperties</key>
+	<dict>
+		<key>AD_HOC_CODE_SIGNING_ALLOWED</key>
+		<string>NO</string>
+		<key>CODE_SIGNING_REQUIRED</key>
+		<string>YES</string>
+		<key>CODE_SIGN_ENTITLEMENTS</key>
+		<string></string>
+		<key>DEAD_CODE_STRIPPING</key>
+		<string>YES</string>
+		<key>DEFAULT_COMPILER</key>
+		<string>com.apple.compilers.llvm.clang.1_0</string>
+		<key>ENTITLEMENTS_REQUIRED</key>
+		<string>YES</string>
+		<key>GCC_THUMB_SUPPORT</key>
+		<string>YES</string>
+		<key>IPHONEOS_DEPLOYMENT_TARGET</key>
+		<string>7.0</string>
+		<key>PLATFORM_NAME</key>
+		<string>iphoneos</string>
+		<key>SUPPORTED_DEVICE_FAMILIES</key>
+		<string>1,2</string>
+	</dict>
+	<key>DisplayName</key>
+	<string>iOS 7.0</string>
+	<key>DocSetFeedName</key>
+	<string>Apple iPhone OS 7.0</string>
+	<key>DocSetFeedURL</key>
+	<string>http://developer.apple.com/rss/com.apple.adc.documentation.AppleiPhone7_0.atom</string>
+	<key>IsBaseSDK</key>
+	<string>YES</string>
+	<key>MaximumDeploymentTarget</key>
+	<string>7.0.99</string>
+	<key>MinimalDisplayName</key>
+	<string>7.0</string>
+	<key>MinimumSupportedToolsVersion</key>
+	<string>3.2.3</string>
+	<key>Toolchains</key>
+	<array>
+		<string>com.apple.dt.toolchain.iOS7_0</string>
+	</array>
+	<key>Version</key>
+	<string>7.0</string>
+</dict>
+</plist>

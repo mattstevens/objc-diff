@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>BuildMachineOSBuild</key>
+	<string>12C54</string>
+	<key>CanonicalName</key>
+	<string>iphonesimulator7.0</string>
+	<key>CustomProperties</key>
+	<dict/>
+	<key>DTCompiler</key>
+	<string>com.apple.compilers.llvm.clang.1_0</string>
+	<key>DTPlatformBuild</key>
+	<string>5A1344i</string>
+	<key>DTPlatformVersion</key>
+	<string>GM</string>
+	<key>DTSDKBuild</key>
+	<string>12C54</string>
+	<key>DTSDKName</key>
+	<string></string>
+	<key>DTXcode</key>
+	<string>0500</string>
+	<key>DTXcodeBuild</key>
+	<string>5A1344i</string>
+	<key>DefaultProperties</key>
+	<dict>
+		<key>IPHONEOS_DEPLOYMENT_TARGET</key>
+		<string>7.0</string>
+		<key>MACOSX_DEPLOYMENT_TARGET</key>
+		<string>10.6</string>
+		<key>PLATFORM_NAME</key>
+		<string>iphonesimulator</string>
+		<key>PLATFORM_VERSION_AVAILABILITY_H_FORMAT</key>
+		<string>70000</string>
+		<key>SUPPORTED_DEVICE_FAMILIES</key>
+		<array>
+			<string>1</string>
+			<string>2</string>
+		</array>
+	</dict>
+	<key>DisplayName</key>
+	<string>Simulator - iOS 7.0</string>
+	<key>DocSetFeedName</key>
+	<string>Apple iPhone OS</string>
+	<key>DocSetFeedURL</key>
+	<string>http://developer.apple.com/rss/com.apple.adc.documentation.AppleiPhone.atom</string>
+	<key>MaximumDeploymentTarget</key>
+	<string>10.6</string>
+	<key>MinimalDisplayName</key>
+	<string>Simulator - 7.0</string>
+	<key>MinimumSupportedToolsVersion</key>
+	<string>3.2.3</string>
+	<key>Toolchains</key>
+	<array>
+		<string>com.apple.dt.toolchain.iOS7_0</string>
+	</array>
+	<key>Version</key>
+	<string>7.0</string>
+	<key>isBaseSDK</key>
+	<string>YES</string>
+</dict>
+</plist>
