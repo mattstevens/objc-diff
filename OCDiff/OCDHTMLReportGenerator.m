@@ -1,5 +1,4 @@
 #import "OCDHTMLReportGenerator.h"
-#import "OCDifference.h"
 #import <mach-o/dyld.h>
 #import <mach-o/getsect.h>
 #import <mach-o/ldsyms.h>
@@ -17,7 +16,95 @@
     return self;
 }
 
-- (void)generateReportForDifferences:(NSArray<OCDifference *> *)differences title:(NSString *)title {
+- (void)generateReportForDifferences:(OCDAPIDifferences *)differences title:(NSString *)title {
+    NSError *error = nil;
+    if (![[NSFileManager defaultManager] createDirectoryAtPath:_outputDirectory withIntermediateDirectories:YES attributes:nil error:&error]) {
+        fprintf(stderr, "Error creating directory at path %s: %s\n", [_outputDirectory UTF8String], [[error description] UTF8String]);
+        exit(1);
+    }
+
+    NSString *outputFile;
+    NSData *cssData = [self embeddedResouceDataWithName:@"apidiff.css"];
+    NSAssert(cssData != nil, @"apidiff.css not found in executable");
+
+    outputFile = [_outputDirectory stringByAppendingPathComponent:@"apidiff.css"];
+    if (![cssData writeToFile:outputFile options:0 error:&error]) {
+        fprintf(stderr, "Error writing HTML report to %s: %s\n", [outputFile UTF8String], [[error description] UTF8String]);
+        exit(1);
+    }
+
+    if (differences.modules.count == 1) {
+        outputFile = [_outputDirectory stringByAppendingPathComponent:@"apidiff.html"];
+        [self generateFileForDifferences:differences.modules.firstObject.differences title:title path:outputFile];
+    } else {
+        BOOL hasDifferences = NO;
+        NSMutableString *html = [[NSMutableString alloc] init];
+
+        [html appendString:@"<html>\n<head>\n"];
+
+        if (title != nil) {
+            [html appendFormat:@"<title>%@</title>\n", title];
+        }
+
+        [html appendString:@"<link rel=\"stylesheet\" href=\"apidiff.css\" type=\"text/css\" />\n"];
+        [html appendString:@"<meta charset=\"utf-8\" />\n"];
+        [html appendString:@"</head>\n<body>\n"];
+
+        if (title != nil) {
+            [html appendFormat:@"\n<h1>%@</h1>\n", title];
+        }
+
+        for (OCDModule *module in differences.modules) {
+            if (module.differenceType == OCDifferenceTypeRemoval) {
+                if (hasDifferences == NO) {
+                    hasDifferences = YES;
+                    [html appendString:@"\n<ul>\n"];
+                }
+                [html appendFormat:@"<li>%@ <span class=\"status removed\">(Removed)</span></li>\n", module.name];
+                continue;
+            } else if (module.differences.count < 1) {
+                continue;
+            } else {
+                if (hasDifferences == NO) {
+                    hasDifferences = YES;
+                    [html appendString:@"\n<ul>\n"];
+                }
+                [html appendFormat:@"<li><a href=\"%@.html\">%@</a>", module.name, module.name];
+                if (module.differenceType == OCDifferenceTypeAddition) {
+                    [html appendString:@" <span class=\"status added\">(Added)</span>"];
+                }
+                [html appendString:@"</li>\n"];
+            }
+
+            NSString *moduleTitle;
+            if (title != nil) {
+                moduleTitle = [NSString stringWithFormat:@"%@ %@", module.name, title ?: @""];
+            } else {
+                moduleTitle = module.name;
+            }
+
+            NSString *fileName = [module.name stringByAppendingPathExtension:@"html"];
+            outputFile = [_outputDirectory stringByAppendingPathComponent:fileName];
+            [self generateFileForDifferences:module.differences title:moduleTitle path:outputFile];
+        }
+
+        if (hasDifferences) {
+            [html appendString:@"</ul>\n"];
+        } else {
+            [html appendString:@"<div class=\"message\">No differences</div>\n"];
+        }
+
+        [html appendString:@"</body>\n</html>\n"];
+
+        outputFile = [_outputDirectory stringByAppendingPathComponent:@"index.html"];
+        if (![html writeToFile:outputFile atomically:NO encoding:NSUTF8StringEncoding error:&error]) {
+            fprintf(stderr, "Error writing HTML report to %s: %s\n", [outputFile UTF8String], [[error description] UTF8String]);
+            exit(1);
+        }
+    }
+}
+
+- (void)generateFileForDifferences:(NSArray<OCDifference *> *)differences title:(NSString *)title path:(NSString *)outputFile {
     NSMutableString *html = [[NSMutableString alloc] init];
 
     [html appendString:@"<html>\n<head>\n"];
@@ -27,6 +114,7 @@
     }
 
     [html appendString:@"<link rel=\"stylesheet\" href=\"apidiff.css\" type=\"text/css\" />\n"];
+    [html appendString:@"<meta charset=\"utf-8\" />\n"];
     [html appendString:@"</head>\n<body>\n"];
 
     if (title != nil) {
@@ -120,23 +208,7 @@
 
     [html appendString:@"</body>\n</html>\n"];
 
-    NSError *error = nil;
-    if (![[NSFileManager defaultManager] createDirectoryAtPath:_outputDirectory withIntermediateDirectories:YES attributes:nil error:&error]) {
-        fprintf(stderr, "Error creating directory at path %s: %s\n", [_outputDirectory UTF8String], [[error description] UTF8String]);
-        exit(1);
-    }
-
-    NSString *outputFile;
-    NSData *cssData = [self embeddedResouceDataWithName:@"apidiff.css"];
-    NSAssert(cssData != nil, @"apidiff.css not found in executable");
-
-    outputFile = [_outputDirectory stringByAppendingPathComponent:@"apidiff.css"];
-    if (![cssData writeToFile:outputFile options:0 error:&error]) {
-        fprintf(stderr, "Error writing HTML report to %s: %s\n", [outputFile UTF8String], [[error description] UTF8String]);
-        exit(1);
-    }
-
-    outputFile = [_outputDirectory stringByAppendingPathComponent:@"apidiff.html"];
+    NSError *error;
     if (![html writeToFile:outputFile atomically:NO encoding:NSUTF8StringEncoding error:&error]) {
         fprintf(stderr, "Error writing HTML report to %s: %s\n", [outputFile UTF8String], [[error description] UTF8String]);
         exit(1);

@@ -1,37 +1,43 @@
 #import "OCDXMLReportGenerator.h"
-#import "OCDifference.h"
 
 @implementation OCDXMLReportGenerator
 
-- (void)generateReportForDifferences:(NSArray<OCDifference *> *)differences title:(NSString *)title {
+- (void)generateReportForDifferences:(OCDAPIDifferences *)differences title:(NSString *)title {
     NSXMLElement *rootElement = [NSXMLElement elementWithName:@"apidiff"];
     if (title != nil) {
         [rootElement addAttribute:[NSXMLNode attributeWithName:@"title" stringValue:title]];
     }
 
-    for (OCDifference *difference in differences) {
-        NSXMLElement *differenceElement = [NSXMLElement elementWithName:@"difference"];
-        [differenceElement addChild:[NSXMLElement elementWithName:@"type" stringValue:[self stringForDifferenceType:difference.type]]];
-        [differenceElement addChild:[NSXMLElement elementWithName:@"name" stringValue:difference.name]];
-        [differenceElement addChild:[NSXMLElement elementWithName:@"path" stringValue:difference.path]];
-        [differenceElement addChild:[NSXMLElement elementWithName:@"lineNumber" stringValue:[NSString stringWithFormat:@"%tu", difference.lineNumber]]];
+    for (OCDModule *module in differences.modules) {
+        for (OCDifference *difference in module.differences) {
+            NSXMLElement *differenceElement = [NSXMLElement elementWithName:@"difference"];
+            [differenceElement addChild:[NSXMLElement elementWithName:@"type" stringValue:[self stringForDifferenceType:difference.type]]];
+            [differenceElement addChild:[NSXMLElement elementWithName:@"name" stringValue:difference.name]];
 
-        if ([difference.modifications count] > 0) {
-            NSXMLElement *modificationsElement = [NSXMLElement elementWithName:@"modifications"];
-
-            for (OCDModification *modification in difference.modifications) {
-                NSXMLElement *modificationElement = [NSXMLElement elementWithName:@"modification"];
-                [modificationElement addChild:[NSXMLElement elementWithName:@"type" stringValue:[self stringForModificationType:modification.type]]];
-                [modificationElement addChild:[NSXMLElement elementWithName:@"previousValue" stringValue:modification.previousValue]];
-                [modificationElement addChild:[NSXMLElement elementWithName:@"currentValue" stringValue:modification.currentValue]];
-
-                [modificationsElement addChild:modificationElement];
+            if ([module.name length] > 0) {
+                [differenceElement addChild:[NSXMLElement elementWithName:@"module" stringValue:module.name]];
             }
 
-            [differenceElement addChild:modificationsElement];
-        }
+            [differenceElement addChild:[NSXMLElement elementWithName:@"path" stringValue:difference.path]];
+            [differenceElement addChild:[NSXMLElement elementWithName:@"lineNumber" stringValue:[NSString stringWithFormat:@"%tu", difference.lineNumber]]];
 
-        [rootElement addChild:differenceElement];
+            if ([difference.modifications count] > 0) {
+                NSXMLElement *modificationsElement = [NSXMLElement elementWithName:@"modifications"];
+
+                for (OCDModification *modification in difference.modifications) {
+                    NSXMLElement *modificationElement = [NSXMLElement elementWithName:@"modification"];
+                    [modificationElement addChild:[NSXMLElement elementWithName:@"type" stringValue:[self stringForModificationType:modification.type]]];
+                    [modificationElement addChild:[NSXMLElement elementWithName:@"previousValue" stringValue:modification.previousValue]];
+                    [modificationElement addChild:[NSXMLElement elementWithName:@"currentValue" stringValue:modification.currentValue]];
+
+                    [modificationsElement addChild:modificationElement];
+                }
+
+                [differenceElement addChild:modificationsElement];
+            }
+
+            [rootElement addChild:differenceElement];
+        }
     }
 
     NSXMLDocument *document = [NSXMLDocument documentWithRootElement:rootElement];

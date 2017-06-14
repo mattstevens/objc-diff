@@ -1,8 +1,8 @@
 #import <Foundation/Foundation.h>
-@class OCDifference;
+#import "OCDAPIDifferences.h"
 
 @protocol OCDReportGenerator <NSObject>
 
-- (void)generateReportForDifferences:(NSArray<OCDifference *> *)differences title:(NSString *)title;
+- (void)generateReportForDifferences:(OCDAPIDifferences *)differences title:(NSString *)title;
 
 @end

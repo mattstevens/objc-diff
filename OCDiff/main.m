@@ -5,6 +5,8 @@
 
 #import "NSString+OCDPathUtilities.h"
 #import "OCDAPIComparator.h"
+#import "OCDAPIDifferences.h"
+#import "OCDSDK.h"
 #import "OCDHTMLReportGenerator.h"
 #import "OCDTextReportGenerator.h"
 #import "OCDXMLReportGenerator.h"
@@ -15,8 +17,7 @@ enum OCDReportTypes {
     OCDReportTypeHTML = 1 << 2
 };
 
-static NSString *sdkPath;
-static NSString *sdkVersion;
+static NSString *temporaryDirectory;
 
 static void PrintUsage(void) {
     NSBundle *bundle = [NSBundle mainBundle];
@@ -50,6 +51,63 @@ static BOOL IsFrameworkAtPath(NSString *path) {
     return [[path pathExtension] isEqualToString:@"framework"];
 }
 
+NSString *ContainingFrameworkForPath(NSString *path) {
+    do {
+        if (IsFrameworkAtPath(path)) {
+            return path;
+        }
+    } while ((path = [path stringByDeletingLastPathComponent]) && [path length] > 1);
+
+    return nil;
+}
+
+static OCDSDK *ContainingSDKForPath(NSString *path) {
+    do {
+        OCDSDK *sdk = [[OCDSDK alloc] initWithPath:path];
+        if (sdk != nil) {
+            return sdk;
+        }
+    } while ((path = [path stringByDeletingLastPathComponent]) && [path length] > 1);
+
+    return nil;
+}
+
+static NSSet *FrameworksAtPath(NSString *path) {
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSMutableSet *frameworkPaths = [NSMutableSet set];
+    NSArray *contents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path error:nil];
+    for (NSString *frameworkName in contents) {
+        NSString *frameworkPath = [path stringByAppendingPathComponent:frameworkName];
+        NSString *headersPath = [frameworkPath stringByAppendingPathComponent:@"Headers"];
+        if (IsFrameworkAtPath(frameworkPath) && [fileManager fileExistsAtPath:headersPath]) {
+            [frameworkPaths addObject:frameworkName];
+        }
+    }
+
+    return frameworkPaths;
+}
+
+static NSString *CreateSymbolicLinkForPath(NSString *path, NSString *tempPath) {
+    NSError *error;
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if ([fileManager createDirectoryAtPath:tempPath withIntermediateDirectories:YES attributes:nil error:&error] == NO) {
+        fprintf(stderr, "Failed to create temporary directory: %s\n", [[error description] UTF8String]);
+        return nil;
+    }
+
+    NSString *linkPath = [tempPath stringByAppendingPathComponent:[path lastPathComponent]];
+    if ([fileManager createSymbolicLinkAtPath:linkPath withDestinationPath:path error:&error] == NO) {
+        fprintf(stderr, "Failed to create symbolic link for \"%s\" at \"%s\": %s\n",
+                [path fileSystemRepresentation],
+                [linkPath fileSystemRepresentation],
+                [[error description] UTF8String]);
+
+        return nil;
+    }
+
+    return linkPath;
+}
+
 /**
  * Returns a translation unit for the specified header paths.
  *
@@ -57,7 +115,7 @@ static BOOL IsFrameworkAtPath(NSString *path) {
  * generated importing all of the specified header paths. This way system headers like Foundation.h that
  * include many declarations are only iterated over once per API, instead of once per header.
  */
-static PLClangTranslationUnit *TranslationUnitForHeaderPaths(PLClangSourceIndex *index, NSString *baseDirectory, NSArray *paths, NSArray *compilerArguments) {
+static PLClangTranslationUnit *TranslationUnitForHeaderPaths(PLClangSourceIndex *index, NSString *baseDirectory, NSArray *paths, NSArray *compilerArguments, BOOL printErrors) {
     NSMutableString *source = [[NSMutableString alloc] init];
     for (NSString *path in paths) {
         [source appendFormat:@"#import \"%@\"\n", path];
@@ -81,9 +139,11 @@ static PLClangTranslationUnit *TranslationUnitForHeaderPaths(PLClangSourceIndex 
     }
 
     if (translationUnit.didFail) {
-        for (PLClangDiagnostic *diagnostic in translationUnit.diagnostics) {
-            if (diagnostic.severity >= PLClangDiagnosticSeverityError) {
-                fprintf(stderr, "%s\n", [diagnostic.formattedErrorMessage UTF8String]);
+        if (printErrors) {
+            for (PLClangDiagnostic *diagnostic in translationUnit.diagnostics) {
+                if (diagnostic.severity >= PLClangDiagnosticSeverityError) {
+                    fprintf(stderr, "%s\n", [diagnostic.formattedErrorMessage UTF8String]);
+                }
             }
         }
         return nil;
@@ -92,7 +152,7 @@ static PLClangTranslationUnit *TranslationUnitForHeaderPaths(PLClangSourceIndex 
     return translationUnit;
 }
 
-static PLClangTranslationUnit *TranslationUnitForPath(PLClangSourceIndex *index, NSString *path, NSArray *compilerArguments) {
+static PLClangTranslationUnit *TranslationUnitForPath(PLClangSourceIndex *index, NSString *path, NSArray *compilerArguments, BOOL printErrors) {
     BOOL isDirectory = NO;
 
     path = [path ocd_absolutePath];
@@ -109,7 +169,7 @@ static PLClangTranslationUnit *TranslationUnitForPath(PLClangSourceIndex *index,
         if (IsFrameworkAtPath(path)) {
             compilerArguments = [compilerArguments arrayByAddingObject:[@"-F" stringByAppendingString:[path stringByDeletingLastPathComponent]]];
             path = [path stringByAppendingPathComponent:@"Headers"];
-            return TranslationUnitForPath(index, path, compilerArguments);
+            return TranslationUnitForPath(index, path, compilerArguments, printErrors);
         }
 
         NSMutableArray *paths = [NSMutableArray array];
@@ -120,10 +180,117 @@ static PLClangTranslationUnit *TranslationUnitForPath(PLClangSourceIndex *index,
             }
         }
 
-        return TranslationUnitForHeaderPaths(index, path, paths, compilerArguments);
+        return TranslationUnitForHeaderPaths(index, path, paths, compilerArguments, printErrors);
     } else {
-        return TranslationUnitForHeaderPaths(index, [path stringByDeletingLastPathComponent], @[[path lastPathComponent]], compilerArguments);
+        NSString *containingFrameworkPath = ContainingFrameworkForPath(path);
+        if (containingFrameworkPath != nil) {
+            compilerArguments = [compilerArguments arrayByAddingObject:[@"-F" stringByAppendingString:[containingFrameworkPath stringByDeletingLastPathComponent]]];
+        }
+
+        return TranslationUnitForHeaderPaths(index, [path stringByDeletingLastPathComponent], @[[path lastPathComponent]], compilerArguments, printErrors);
     }
+}
+
+static PLClangTranslationUnit *TranslationUnitForSDKFramework(PLClangSourceIndex *index, NSString *path, NSArray *compilerArguments, NSString *pathPrefix) {
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *tempPath = [temporaryDirectory stringByAppendingPathComponent:pathPrefix];
+    NSString *linkPath = CreateSymbolicLinkForPath(path, tempPath);
+    path = linkPath;
+
+    PLClangTranslationUnit *translationUnit = TranslationUnitForPath(index, path, compilerArguments, NO);
+    if (translationUnit == nil) {
+        // Some SDK frameworks can only be parsed through their umbrella header.
+        // If parsing all headers fails, retry through the umbrella header.
+        // TODO: Look into using module definition to avoid this issue.
+        NSString *frameworkName = [path lastPathComponent];
+        NSString *umbrellaHeader = [@"Headers" stringByAppendingPathComponent:[[frameworkName stringByDeletingPathExtension] stringByAppendingPathExtension:@"h"]];
+        if ([fileManager fileExistsAtPath:[path stringByAppendingPathComponent:umbrellaHeader]]) {
+            path = [path stringByAppendingPathComponent:umbrellaHeader];
+            translationUnit = TranslationUnitForPath(index, path, compilerArguments, YES);
+        }
+    }
+
+    [fileManager removeItemAtPath:linkPath error:nil];
+
+    return translationUnit;
+}
+
+static OCDAPIDifferences *DiffSDKs(NSString *oldSDKPath, NSArray *oldCompilerArguments, NSString *newSDKPath, NSArray *newCompilerArguments) {
+    oldSDKPath = [oldSDKPath stringByAppendingPathComponent:@"System/Library/Frameworks"];
+    newSDKPath = [newSDKPath stringByAppendingPathComponent:@"System/Library/Frameworks"];
+
+    NSMutableArray *modules = [NSMutableArray array];
+    NSSet *oldFrameworks = FrameworksAtPath(oldSDKPath);
+    NSSet *newFrameworks = FrameworksAtPath(newSDKPath);
+
+    // The following frameworks cannot currently be parsed.
+    NSArray *unsupportedFrameworks = @[
+        @"IOKit.framework", // Uses C++ unconditionally
+        @"Kernel.framework", // Must include headers in specific order
+        @"Tk.framework" // Requires X11
+    ];
+
+    PLClangSourceIndex *index = [PLClangSourceIndex indexWithOptions:0];
+
+    for (NSString *frameworkName in oldFrameworks) {
+        if ([newFrameworks containsObject:frameworkName] == NO) {
+            [modules addObject:[OCDModule moduleWithName:[frameworkName stringByDeletingPathExtension]
+                                          differenceType:OCDifferenceTypeRemoval
+                                             differences:nil]];
+        }
+    }
+
+    NSSortDescriptor *nameSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"self" ascending:YES selector:@selector(localizedStandardCompare:)];
+    NSArray *orderedNewFrameworks = [newFrameworks sortedArrayUsingDescriptors:@[nameSortDescriptor]];
+
+    for (NSString *frameworkName in orderedNewFrameworks) {
+        @autoreleasepool {
+            if ([unsupportedFrameworks containsObject:frameworkName]) {
+                printf("Skipping %s (unsupported)\n", frameworkName.UTF8String);
+                continue;
+            }
+
+            printf("Comparing %s\n", frameworkName.UTF8String);
+
+            NSString *oldPath = [oldSDKPath stringByAppendingPathComponent:frameworkName];
+            NSString *newPath = [newSDKPath stringByAppendingPathComponent:frameworkName];
+
+            if ([oldFrameworks containsObject:frameworkName]) {
+                PLClangTranslationUnit *oldTU = TranslationUnitForSDKFramework(index, oldPath, oldCompilerArguments, @"old");
+                if (oldTU == nil) {
+                    continue;
+                }
+
+                PLClangTranslationUnit *newTU = TranslationUnitForSDKFramework(index, newPath, newCompilerArguments, @"new");
+                if (newTU == nil) {
+                    continue;
+                }
+
+                NSArray<OCDifference *> *differences = [OCDAPIComparator differencesBetweenOldTranslationUnit:oldTU newTranslationUnit:newTU];
+
+                [modules addObject:[OCDModule moduleWithName:[frameworkName stringByDeletingPathExtension]
+                                              differenceType:OCDifferenceTypeModification
+                                                 differences:differences]];
+            } else {
+                PLClangTranslationUnit *newTU = TranslationUnitForSDKFramework(index, newPath, newCompilerArguments, @"new");
+                if (newTU == nil) {
+                    continue;
+                }
+
+                NSArray<OCDifference *> *differences = [OCDAPIComparator differencesBetweenOldTranslationUnit:nil newTranslationUnit:newTU];
+
+                [modules addObject:[OCDModule moduleWithName:[frameworkName stringByDeletingPathExtension]
+                                              differenceType:OCDifferenceTypeAddition
+                                                 differences:differences]];
+            }
+        }
+    }
+
+    [modules sortUsingComparator:^NSComparisonResult(OCDModule *obj1, OCDModule *obj2) {
+        return [obj1.name localizedStandardCompare:obj2.name];
+    }];
+
+    return [OCDAPIDifferences APIDifferencesWithModules:modules];
 }
 
 static NSString *GeneratedTitleForPaths(NSString *oldPath, NSString *newPath) {
@@ -149,45 +316,12 @@ static NSString *GeneratedTitleForPaths(NSString *oldPath, NSString *newPath) {
     return nil;
 }
 
-static NSString *XCRunResultForArguments(NSArray *arguments) {
-    NSPipe *outputPipe = [NSPipe pipe];
-    NSTask *task = [[NSTask alloc] init];
-    task.launchPath = @"/usr/bin/xcrun";
-    task.arguments = arguments;
-    task.standardInput = [NSPipe pipe];
-    task.standardOutput = outputPipe;
-    task.standardError = [NSPipe pipe];
-    [task launch];
-    [task waitUntilExit];
-
-    if ([task terminationStatus] != 0) {
-        return nil;
+static NSString *GeneratedTitleForSDKs(OCDSDK *oldSDK, OCDSDK *newSDK) {
+    if (newSDK.platformDisplayName != nil && oldSDK.version != nil && newSDK.version != nil && [oldSDK.version isEqualToString:newSDK.version] == NO) {
+        return [NSString stringWithFormat:@"%@ %@ to %@ API Differences", newSDK.platformDisplayName, oldSDK.version, newSDK.version];
     }
 
-    NSData *resultData = [outputPipe.fileHandleForReading readDataToEndOfFile];
-    NSString *path = [[NSString alloc] initWithData:resultData encoding:NSUTF8StringEncoding];
-    path = [path stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    return path;
-}
-
-static NSString *PathForSDK(NSString *sdk) {
-    NSString *result = XCRunResultForArguments(@[@"--sdk", sdk, @"--show-sdk-path"]);
-    if (result == nil) {
-        fprintf(stderr, "Could not locate SDK \"%s\" using xcrun\n", [sdk UTF8String]);
-        exit(1);
-    }
-
-    return result;
-}
-
-static NSString *VersionForSDK(NSString *sdk) {
-    NSString *result = XCRunResultForArguments(@[@"--sdk", sdk, @"--show-sdk-version"]);
-    if (result == nil) {
-        fprintf(stderr, "Could not identify version of SDK \"%s\" using xcrun\n", [sdk UTF8String]);
-        exit(1);
-    }
-
-    return result;
+    return nil;
 }
 
 static BOOL ArrayContainsStringWithPrefix(NSArray *array, NSString *prefix) {
@@ -200,64 +334,15 @@ static BOOL ArrayContainsStringWithPrefix(NSArray *array, NSString *prefix) {
     return NO;
 }
 
-static void ApplySDKToCompilerArguments(NSString *sdk, NSMutableArray *compilerArguments) {
-    if ([compilerArguments containsObject:@"-isysroot"] == NO && getenv("SDKROOT") == NULL) {
-        if (sdkPath == nil) {
-            sdkPath = PathForSDK(sdk);
-        }
-
-        [compilerArguments addObjectsFromArray:@[@"-isysroot", sdkPath]];
+static void ApplySDKToCompilerArguments(OCDSDK *sdk, NSMutableArray *compilerArguments) {
+    if ([compilerArguments containsObject:@"-isysroot"] == NO) {
+        [compilerArguments addObjectsFromArray:@[@"-isysroot", sdk.path]];
     }
 
-    // A deployment target must be specified for iOS
-    if ([sdk rangeOfString:@"iphoneos"].location != NSNotFound) {
-        if (ArrayContainsStringWithPrefix(compilerArguments, @"-mios-version-min") == NO && getenv("IPHONEOS_DEPLOYMENT_TARGET") == NULL) {
-            if (sdkVersion == nil) {
-                sdkVersion = VersionForSDK(sdk);
-            }
-
-            [compilerArguments addObject:[NSString stringWithFormat:@"-mios-version-min=%@", sdkVersion]];
-        }
-    } else if ([sdk rangeOfString:@"iphonesimulator"].location != NSNotFound) {
-        if (ArrayContainsStringWithPrefix(compilerArguments, @"-mios-simulator-version-min") == NO && getenv("IPHONEOS_DEPLOYMENT_TARGET") == NULL) {
-            if (sdkVersion == nil) {
-                sdkVersion = VersionForSDK(sdk);
-            }
-
-            [compilerArguments addObject:[NSString stringWithFormat:@"-mios-simulator-version-min=%@", sdkVersion]];
-        }
-    } else if ([sdk rangeOfString:@"appletvos"].location != NSNotFound) {
-        if (ArrayContainsStringWithPrefix(compilerArguments, @"-mtvos-version-min") == NO && getenv("TVOS_DEPLOYMENT_TARGET") == NULL) {
-            if (sdkVersion == nil) {
-                sdkVersion = VersionForSDK(sdk);
-            }
-
-            [compilerArguments addObject:[NSString stringWithFormat:@"-mtvos-version-min=%@", sdkVersion]];
-        }
-    } else if ([sdk rangeOfString:@"appletvsimulator"].location != NSNotFound) {
-        if (ArrayContainsStringWithPrefix(compilerArguments, @"-mtvos-simulator-version-min") == NO && getenv("TVOS_DEPLOYMENT_TARGET") == NULL) {
-            if (sdkVersion == nil) {
-                sdkVersion = VersionForSDK(sdk);
-            }
-
-            [compilerArguments addObject:[NSString stringWithFormat:@"-mtvos-simulator-version-min=%@", sdkVersion]];
-        }
-    } else if ([sdk rangeOfString:@"watchos"].location != NSNotFound) {
-        if (ArrayContainsStringWithPrefix(compilerArguments, @"-mwatchos-version-min") == NO && getenv("WATCHOS_DEPLOYMENT_TARGET") == NULL) {
-            if (sdkVersion == nil) {
-                sdkVersion = VersionForSDK(sdk);
-            }
-
-            [compilerArguments addObject:[NSString stringWithFormat:@"-mwatchos-version-min=%@", sdkVersion]];
-        }
-    } else if ([sdk rangeOfString:@"watchsimulator"].location != NSNotFound) {
-        if (ArrayContainsStringWithPrefix(compilerArguments, @"-mwatchos-simulator-version-min") == NO && getenv("WATCHOS_DEPLOYMENT_TARGET") == NULL) {
-            if (sdkVersion == nil) {
-                sdkVersion = VersionForSDK(sdk);
-            }
-
-            [compilerArguments addObject:[NSString stringWithFormat:@"-mwatchos-simulator-version-min=%@", sdkVersion]];
-        }
+    if (ArrayContainsStringWithPrefix(compilerArguments, sdk.deploymentTargetCompilerArgument)) {
+        const char *environmentDeploymentTarget = getenv([sdk.deploymentTargetEnvironmentVariable UTF8String]);
+        NSString *deploymentTarget = environmentDeploymentTarget ? @(environmentDeploymentTarget) : sdk.deploymentTarget;
+        [compilerArguments addObject:[NSString stringWithFormat:@"%@=%@", sdk.deploymentTargetCompilerArgument, deploymentTarget]];
     }
 }
 
@@ -278,7 +363,7 @@ static NSArray *GetCompilerArguments(int argc, char *argv[]) {
 
 int main(int argc, char *argv[]) {
     @autoreleasepool {
-        NSString *sdk;
+        NSString *sdkName;
         NSString *oldPath;
         NSString *newPath;
         NSString *title;
@@ -323,7 +408,7 @@ int main(int argc, char *argv[]) {
                     htmlOutputDirectory = @(optarg);
                     break;
                 case 's':
-                    sdk = @(optarg);
+                    sdkName = @(optarg);
                     break;
                 case 'o':
                     oldPath = @(optarg);
@@ -397,31 +482,86 @@ int main(int argc, char *argv[]) {
             title = GeneratedTitleForPaths(oldPath, newPath);
         }
 
-        if (sdk == nil) {
-            sdk = @"macosx";
+        if (sdkName == nil) {
+            const char *sdkRoot = getenv("SDKROOT");
+            if (sdkRoot != nil) {
+                sdkName = @(sdkRoot);
+            } else {
+                sdkName = @"macosx";
+            }
         }
 
-        ApplySDKToCompilerArguments(sdk, oldCompilerArguments);
-        ApplySDKToCompilerArguments(sdk, newCompilerArguments);
+        temporaryDirectory = [NSTemporaryDirectory() stringByAppendingPathComponent:[[NSBundle mainBundle] bundleIdentifier]];
+        [[NSFileManager defaultManager] removeItemAtPath:temporaryDirectory error:nil];
 
-        // Parse the translation units
+        OCDSDK *defaultSDK = nil;
+        OCDSDK *oldSDK = ContainingSDKForPath(oldPath);
+        OCDSDK *newSDK = ContainingSDKForPath(newPath);
 
-        PLClangSourceIndex *index = [PLClangSourceIndex indexWithOptions:0];
+        BOOL oldPathIsSDK = [oldSDK.path isEqualToString:oldPath];
+        BOOL newPathIsSDK = [newSDK.path isEqualToString:newPath];
 
-        PLClangTranslationUnit *oldTU = nil;
-        if (oldPath != nil) {
-            oldTU = TranslationUnitForPath(index, oldPath, oldCompilerArguments);
-            if (oldTU == nil) {
+        if (oldPathIsSDK != newPathIsSDK) {
+            fprintf(stderr, "An SDK can only be compared against another SDK\n");
+            return 1;
+        }
+
+        if (oldSDK == nil || newSDK == nil) {
+            defaultSDK = [OCDSDK SDKForName:sdkName];
+            if (defaultSDK == nil) {
+                fprintf(stderr, "Could not locate SDK \"%s\"\n", [sdkName UTF8String]);
                 return 1;
             }
         }
 
-        PLClangTranslationUnit *newTU = TranslationUnitForPath(index, newPath, newCompilerArguments);
-        if (newTU == nil) {
-            return 1;
+        ApplySDKToCompilerArguments(oldSDK ?: defaultSDK, oldCompilerArguments);
+        ApplySDKToCompilerArguments(newSDK ?: defaultSDK, newCompilerArguments);
+
+        OCDAPIDifferences *differences;
+
+        if (oldPathIsSDK) {
+            if (title == nil) {
+                title = GeneratedTitleForSDKs(oldSDK, newSDK);
+            }
+
+            differences = DiffSDKs(oldPath, oldCompilerArguments, newPath, newCompilerArguments);
+        } else {
+            PLClangSourceIndex *index = [PLClangSourceIndex indexWithOptions:0];
+
+            PLClangTranslationUnit *oldTU;
+            if (oldPath != nil) {
+                if (oldSDK != nil) {
+                    oldTU = TranslationUnitForSDKFramework(index, oldPath, oldCompilerArguments, @"old");
+                } else {
+                    oldTU = TranslationUnitForPath(index, oldPath, oldCompilerArguments, YES);
+                }
+
+                if (oldTU == nil) {
+                    return 1;
+                }
+            }
+
+            PLClangTranslationUnit *newTU;
+
+            if (newSDK != nil) {
+                newTU = TranslationUnitForSDKFramework(index, newPath, newCompilerArguments, @"new");
+            } else {
+                newTU = TranslationUnitForPath(index, newPath, newCompilerArguments, YES);
+            }
+
+            if (newTU == nil) {
+                return 1;
+            }
+
+            NSString *moduleName = [[newPath lastPathComponent] stringByDeletingPathExtension];
+            NSArray<OCDifference *> *moduleDifferences = [OCDAPIComparator differencesBetweenOldTranslationUnit:oldTU newTranslationUnit:newTU];
+            OCDModule *module = [OCDModule moduleWithName:moduleName differenceType:OCDifferenceTypeModification differences:moduleDifferences];
+            differences = [OCDAPIDifferences APIDifferencesWithModules:@[module]];
         }
 
-        NSArray *differences = [OCDAPIComparator differencesBetweenOldTranslationUnit:oldTU newTranslationUnit:newTU];
+        if (temporaryDirectory != nil) {
+            [[NSFileManager defaultManager] removeItemAtPath:temporaryDirectory error:nil];
+        }
 
         if (reportTypes == 0) {
             reportTypes = OCDReportTypeText;

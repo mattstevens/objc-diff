@@ -1,5 +1,4 @@
 #import "OCDTextReportGenerator.h"
-#import "OCDifference.h"
 
 #define COLOR_RED   "\x1b[31m"
 #define COLOR_GREEN "\x1b[32m"
@@ -7,19 +6,62 @@
 
 @implementation OCDTextReportGenerator
 
-- (void)generateReportForDifferences:(NSArray<OCDifference *> *)differences title:(NSString *)title {
+- (void)generateReportForDifferences:(OCDAPIDifferences *)differences title:(NSString *)title {
     BOOL useColor = isatty(STDOUT_FILENO) && getenv("TERM") != NULL;
-
-    NSString *lastFile = @"";
 
     if (title != nil) {
         printf("%s\n", [title UTF8String]);
     }
 
-    if ([differences count] == 0) {
-        printf("No differences\n");
-        return;
+    BOOL hasDifferences = NO;
+
+    for (OCDModule *module in differences.modules) {
+        if (differences.modules.count > 1) {
+            if (module.differenceType != OCDifferenceTypeRemoval && module.differences.count < 1) {
+                continue;
+            }
+
+            hasDifferences = YES;
+            printf("\n%s", module.name.UTF8String);
+
+            if (module.differenceType == OCDifferenceTypeAddition) {
+                if (useColor) {
+                    printf(COLOR_GREEN);
+                }
+                printf(" (Added)");
+            } else if (module.differenceType == OCDifferenceTypeRemoval) {
+                if (useColor) {
+                    printf(COLOR_RED);
+                }
+                printf(" (Removed)");
+            }
+
+            if (useColor) {
+                printf(COLOR_RESET);
+            }
+
+            printf("\n");
+
+            for (NSUInteger i = 0; i < module.name.length; i++) {
+                printf("=");
+            }
+
+            printf("\n");
+        }
+
+        if (module.differences.count > 0) {
+            hasDifferences = YES;
+            [self printDifferences:module.differences useColor:useColor];
+        }
     }
+
+    if (hasDifferences == NO) {
+        printf("No differences\n");
+    }
+}
+
+- (void)printDifferences:(NSArray<OCDifference *> *)differences useColor:(BOOL)useColor {
+    NSString *lastFile = @"";
 
     for (OCDifference *difference in differences) {
         NSString *file = difference.path;
@@ -69,7 +111,6 @@
             printf("      To: %s\n\n", modification.currentValue ? [modification.currentValue UTF8String] : "(none)");
         }
     }
-
 }
 
 @end

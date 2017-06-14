@@ -80,8 +80,24 @@ td {
     text-align: left;
 }
 
+ul {
+    list-style: disc outside;
+    margin: 0 0 0 16px;
+    padding: 0;
+}
+
+li {
+    margin-top: 7px;
+}
+
 .message {
     margin-left: 20px;
     font-style: italic;
     color: #888;
 }
+
+a:link          { color: #18396E; text-decoration: none; }
+a:active        { color: #18396E; text-decoration: none; }
+a:visited       { color: #003366; text-decoration: none; }
+a:link:hover    { color: #18396E; text-decoration: underline; }
+a:visited:hover { color: #003366; text-decoration: underline; }
