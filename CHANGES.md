@@ -1,4 +1,4 @@
-0.3.0
+0.3.0 (2017-06-14)
 
 * Updated Clang to 4.0.0
 * Added support for class properties.
