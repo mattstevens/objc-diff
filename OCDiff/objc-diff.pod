@@ -12,7 +12,9 @@ B<objc-diff> [B<--old> I<old-api-path>] B<--new> I<new-api-path> [options]
 
 B<objc-diff> generates a text, XML, or HTML report of the API differences between two versions of an Objective-C library. It assists library authors with creating a diff report for their users and verifying that no unexpected API changes have been made.
 
-The paths to the old and new API versions can be specified in one of three ways:
+Only the B<--new> argument is required. If B<--old> is ommitted all declarations in the API will be reported as additions. This supports generating a report for the first version of an API, and can also be used to review the API that the tool has parsed from the headers.
+
+The paths to the old and new API versions can be specified in one of four ways:
 
 1. Path to a framework
 
@@ -28,7 +30,21 @@ The header and all non-system headers that it includes will be considered part o
 
 The directory will be searched recursively for header files. All header files found and all non-system headers they include will be considered part of the API.
 
-Only the B<--new> argument is required. If B<--old> is ommitted all declarations in the API will be reported as additions. This supports generating a report for the first version of an API, and can also be used to review the API that the tool has parsed from the headers.
+4. Path to a platform SDK
+
+All frameworks in the SDK will be included in the API, with the following exceptions:
+
+=over
+
+=item * IOKit.framework
+
+=item * Kernel.framework
+
+=item * Tk.framework
+
+=back
+
+The contents of /usr/include are not included. A platform SDK can only be compared against another platform SDK.
 
 =head2 Specifying Compiler Arguments
 
