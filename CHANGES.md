@@ -4,6 +4,17 @@
 * Added support for class properties.
 * Added support for replacements in availability and deprecated attributes.
 * Added support for "soft deprecations" via categories containing "Deprecated" in their name.
+* Added support for comparing platform SDKs (e.g. the iOS SDK in Xcode). All frameworks in the SDK are
+  compared, with a few exceptions that cannot currently be parsed:
+
+  - IOKit.framework
+  - Kernel.framework
+  - Tk.framework
+
+  The contents of /usr/include are also not currently parsed, as some of these headers must be included in
+  a specific order.
+
+  SDK comparisions may be performed on a whole-SDK basis or for specific frameworks within the SDK.
 
 0.2.0 (2015-11-19)
 
