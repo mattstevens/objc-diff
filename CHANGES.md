@@ -1,3 +1,14 @@
+0.4.0
+
+* Fixed class extensions being excluded
+* Changed the way categories are handled. Categories and class extensions for classes within the same module
+  are no longer reported. Their children are still reported, but the extensions that the category or class
+  extension make to the class are now reported as modifications of the class (e.g., extending the set of
+  protocols that a class conforms to). This better reflects the effect that the addition or removal of a
+  category has on the API.
+
+  Categories on classes from other modules are still reported.
+
 0.3.0 (2017-06-14)
 
 * Updated Clang to 4.0.0
