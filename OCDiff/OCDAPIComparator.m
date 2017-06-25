@@ -200,7 +200,17 @@
 - (BOOL)shouldIncludeEntityAtCursor:(PLClangCursor *)cursor {
     if ((cursor.isDeclaration && [self shouldIncludeDeclarationAtCursor:cursor]) ||
         (cursor.kind == PLClangCursorKindMacroDefinition && [self shouldIncludeMacroDefinitionAtCursor:cursor])) {
-        return ([cursor.spelling length] > 0 && [cursor.spelling hasPrefix:@"_"] == NO);
+        // Exclude private APIs indicated by name
+        if ([cursor.spelling hasPrefix:@"_"]) {
+            return NO;
+        }
+
+        // Class extensions have an empty spelling but should be included
+        if (cursor.kind == PLClangCursorKindObjCCategoryDeclaration) {
+            return YES;
+        }
+
+        return ([cursor.spelling length] > 0);
     }
 
     return NO;
