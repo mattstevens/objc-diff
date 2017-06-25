@@ -281,8 +281,8 @@ static NSString * const OCDTestPath = @"test.h";
 }
 
 - (void)testClassModificationAddProtocol {
-    NSArray *differences = [self differencesBetweenOldSource:@"@protocol A @end @protocol B @end @interface Test @end"
-                                                   newSource:@"@protocol A @end @protocol B @end @interface Test <A> @end"];
+    NSArray *differences = [self differencesBetweenOldSource:@"@protocol A @end @interface Test @end"
+                                                   newSource:@"@protocol A @end @interface Test <A> @end"];
 
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeProtocols
                                                             previousValue:nil
@@ -291,8 +291,8 @@ static NSString * const OCDTestPath = @"test.h";
 }
 
 - (void)testClassModificationRemoveProtocol {
-    NSArray *differences = [self differencesBetweenOldSource:@"@protocol A @end @protocol B @end @interface Test <A> @end"
-                                                   newSource:@"@protocol A @end @protocol B @end @interface Test @end"];
+    NSArray *differences = [self differencesBetweenOldSource:@"@protocol A @end @interface Test <A> @end"
+                                                   newSource:@"@protocol A @end @interface Test @end"];
 
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeProtocols
                                                             previousValue:@"A"
@@ -597,8 +597,8 @@ static NSString * const OCDTestPath = @"test.h";
 }
 
 - (void)testCategoryModificationAddProtocol {
-    NSArray *differences = [self differencesBetweenOldSource:@"@protocol A @end @protocol B @end @interface Base @end @interface Base (Test) @end"
-                                                   newSource:@"@protocol A @end @protocol B @end @interface Base @end @interface Base (Test) <A> @end"];
+    NSArray *differences = [self differencesBetweenOldSource:@"@protocol A @end @interface Base @end @interface Base (Test) @end"
+                                                   newSource:@"@protocol A @end @interface Base @end @interface Base (Test) <A> @end"];
 
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeProtocols
                                                             previousValue:nil
@@ -607,8 +607,8 @@ static NSString * const OCDTestPath = @"test.h";
 }
 
 - (void)testCategoryModificationRemoveProtocol {
-    NSArray *differences = [self differencesBetweenOldSource:@"@protocol A @end @protocol B @end @interface Base @end @interface Base (Test) <A> @end"
-                                                   newSource:@"@protocol A @end @protocol B @end @interface Base @end @interface Base (Test) @end"];
+    NSArray *differences = [self differencesBetweenOldSource:@"@protocol A @end @interface Base @end @interface Base (Test) <A> @end"
+                                                   newSource:@"@protocol A @end @interface Base @end @interface Base (Test) @end"];
 
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeProtocols
                                                             previousValue:@"A"
