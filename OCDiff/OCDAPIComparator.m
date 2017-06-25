@@ -1,5 +1,6 @@
 #import "OCDAPIComparator.h"
 #import "NSString+OCDPathUtilities.h"
+#import "PLClangCursor+OCDExtensions.h"
 #import <ObjectDoc/ObjectDoc.h>
 
 @implementation OCDAPIComparator {
@@ -115,6 +116,21 @@
                 return PLClangCursorVisitRecurse;
             } else {
                 return PLClangCursorVisitContinue;
+            }
+        }
+
+        // If a category or class extension is extending a class within this
+        // module (always the case for a class extension), exclude the category
+        // declaration itself but include its childen and register the category
+        // against its class. Modifications the category makes to the class
+        // (e.g. extending protocol conformance) will then be reported as
+        // modifications of the class.
+        if (cursor.kind == PLClangCursorKindObjCCategoryDeclaration) {
+            PLClangCursor *classCursor = [self classCursorForCategoryAtCursor:cursor];
+            classCursor = classCursor ? api[[self keyForCursor:classCursor]] : nil;
+            if (classCursor != nil) {
+                [classCursor ocd_addCategory:cursor];
+                return PLClangCursorVisitRecurse;
             }
         }
 
@@ -345,8 +361,8 @@
     }
 
     if (oldCursor.kind == PLClangCursorKindObjCInterfaceDeclaration || oldCursor.kind == PLClangCursorKindObjCCategoryDeclaration || oldCursor.kind == PLClangCursorKindObjCProtocolDeclaration) {
-        NSArray *oldProtocols = [self protocolCursorsForCursor:oldCursor];
-        NSArray *newProtocols = [self protocolCursorsForCursor:newCursor];
+        NSOrderedSet *oldProtocols = [self protocolCursorsForCursor:oldCursor];
+        NSOrderedSet *newProtocols = [self protocolCursorsForCursor:newCursor];
         BOOL protocolsChanged = NO;
         if ([oldProtocols count] != [newProtocols count]) {
             protocolsChanged = YES;
@@ -464,8 +480,8 @@
     return classCursor;
 }
 
-- (NSArray *)protocolCursorsForCursor:(PLClangCursor *)classCursor {
-    NSMutableArray *protocols = [NSMutableArray array];
+- (NSOrderedSet *)protocolCursorsForCursor:(PLClangCursor *)classCursor {
+    NSMutableOrderedSet *protocols = [NSMutableOrderedSet orderedSet];
     [classCursor visitChildrenUsingBlock:^PLClangCursorVisitResult(PLClangCursor *cursor) {
         if (cursor.kind == PLClangCursorKindObjCProtocolReference) {
             [protocols addObject:cursor.referencedCursor ?: cursor];
@@ -473,6 +489,10 @@
 
         return PLClangCursorVisitContinue;
     }];
+
+    for (PLClangCursor *categoryCursor in classCursor.ocd_categories) {
+        [protocols addObjectsFromArray:[self protocolCursorsForCursor:categoryCursor].array];
+    }
 
     [protocols sortUsingComparator:^NSComparisonResult(PLClangCursor *obj1, PLClangCursor *obj2) {
         return [obj1.spelling localizedStandardCompare:obj2.spelling];
@@ -934,7 +954,7 @@
     }
 }
 
-- (NSString *)stringForProtocolCursors:(NSArray *)cursors {
+- (NSString *)stringForProtocolCursors:(NSOrderedSet *)cursors {
     NSMutableArray *protocolNames = [NSMutableArray array];
     for (PLClangCursor *cursor in cursors) {
         [protocolNames addObject:cursor.spelling];

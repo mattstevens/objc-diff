@@ -578,10 +578,18 @@ static NSString * const OCDTestPath = @"test.h";
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
 }
 
+/**
+ * Tests that a category for a class in the same module is not reported.
+ *
+ * The members of a category are reported, but not the category iself.
+ * Modifications that the category makes to the class (e.g. extending protocol
+ * conformance) are reported as modifications to the class.
+ */
 - (void)testCategory {
-    [self testAddRemoveForName:@"Base (Test)"
-                          base:@"@interface Base @end"
-                      addition:@"@interface Base @end @interface Base (Test) @end"];
+    NSArray *differences = [self differencesBetweenOldSource:@"@interface Base @end"
+                                                   newSource:@"@interface Base @end @interface Base (Test) @end"];
+
+    XCTAssertEqualObjects(differences, @[]);
 }
 
 - (void)testCategoryMethod {
@@ -603,7 +611,14 @@ static NSString * const OCDTestPath = @"test.h";
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeProtocols
                                                             previousValue:nil
                                                              currentValue:@"A"];
-    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Base (Test)" modification:modification]);
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Base" modification:modification]);
+}
+
+- (void)testCategoryModificationAddExistingProtocol {
+    NSArray *differences = [self differencesBetweenOldSource:@"@protocol A @end @interface Base <A> @end @interface Base (Test) @end"
+                                                   newSource:@"@protocol A @end @interface Base <A> @end @interface Base (Test) <A> @end"];
+
+    XCTAssertEqualObjects(differences, @[]);
 }
 
 - (void)testCategoryModificationRemoveProtocol {
@@ -613,7 +628,7 @@ static NSString * const OCDTestPath = @"test.h";
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeProtocols
                                                             previousValue:@"A"
                                                              currentValue:nil];
-    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Base (Test)" modification:modification]);
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Base" modification:modification]);
 }
 
 - (void)testCategoryModificationChangeProtocol {
@@ -623,7 +638,7 @@ static NSString * const OCDTestPath = @"test.h";
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeProtocols
                                                             previousValue:@"A"
                                                              currentValue:@"B"];
-    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Base (Test)" modification:modification]);
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Base" modification:modification]);
 }
 
 - (void)testCategoryModificationChangeProtocolList {
@@ -633,7 +648,155 @@ static NSString * const OCDTestPath = @"test.h";
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeProtocols
                                                             previousValue:@"A, B"
                                                              currentValue:@"A, C"];
-    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Base (Test)" modification:modification]);
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Base" modification:modification]);
+}
+
+/**
+ * Tests that a class extension is not reported.
+ *
+ * The members of a class extension are reported, but not the extension iself.
+ * Modifications that the extension makes to the class (e.g. extending protocol
+ * conformance) are reported as modifications to the class.
+ */
+- (void)testClassExtension {
+    NSArray *differences = [self differencesBetweenOldSource:@"@interface Base @end"
+                                                   newSource:@"@interface Base @end @interface Base () @end"];
+
+    XCTAssertEqualObjects(differences, @[]);
+}
+
+- (void)testClassExtensionMethod {
+    [self testAddRemoveForName:@"-[Base testMethod]"
+                          base:@"@interface Base @end @interface Base () @end"
+                      addition:@"@interface Base @end @interface Base () -(void)testMethod; @end"];
+}
+
+- (void)testClassExtensionProperty {
+    [self testAddRemoveForName:@"Base.testProperty"
+                          base:@"@interface Base @end @interface Base () @end"
+                      addition:@"@interface Base @end @interface Base () @property int testProperty; @end"];
+}
+
+- (void)testClassExtensionModificationAddProtocol {
+    NSArray *differences = [self differencesBetweenOldSource:@"@protocol A @end @interface Base @end @interface Base () @end"
+                                                   newSource:@"@protocol A @end @interface Base @end @interface Base () <A> @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeProtocols
+                                                            previousValue:nil
+                                                             currentValue:@"A"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Base" modification:modification]);
+}
+
+- (void)testMultipleClassExtensionsMethod {
+    [self testAddRemoveForName:@"-[Base testMethod]"
+                          base:@"@interface Base @end @interface Base () @end"
+                      addition:@"@interface Base @end @interface Base () @end @interface Base () -(void)testMethod; @end"];
+}
+
+- (void)testMultipleClassExtensionsProperty {
+    [self testAddRemoveForName:@"Base.testProperty"
+                          base:@"@interface Base @end @interface Base () @end"
+                      addition:@"@interface Base @end @interface Base () @end @interface Base () @property int testProperty; @end"];
+}
+
+- (void)testMultipleClassExtensionsModificationAddProtocol {
+    NSArray *differences = [self differencesBetweenOldSource:@"@protocol A @end @protocol B @end @interface Base @end @interface Base () @end"
+                                                   newSource:@"@protocol A @end @protocol B @end @interface Base @end @interface Base () <A> @end @interface Base () <B> @end"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeProtocols
+                                                            previousValue:nil
+                                                             currentValue:@"A, B"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Base" modification:modification]);
+}
+
+- (void)testCategoryOnExternalClass {
+    NSString *baseSource = @"@interface Base @end\n";
+    PLClangUnsavedFile *baseFile = [PLClangUnsavedFile unsavedFileWithPath:@"/system/Base.h" data:[baseSource dataUsingEncoding:NSUTF8StringEncoding]];
+
+    [self testAddRemoveForName:@"Base (Test)"
+                    lineNumber:2
+                          base:@"#import <Base.h>"
+                      addition:@"#import <Base.h>\n@interface Base (Test) @end"
+               additionalFiles:@[baseFile]
+           additionalArguments:@[@"-isystem", @"/system"]];
+}
+
+- (void)testCategoryOnExternalClassMethod {
+    NSString *baseSource = @"@interface Base @end\n";
+    PLClangUnsavedFile *baseFile = [PLClangUnsavedFile unsavedFileWithPath:@"/system/Base.h" data:[baseSource dataUsingEncoding:NSUTF8StringEncoding]];
+
+    [self testAddRemoveForName:@"-[Base testMethod]"
+                    lineNumber:2
+                          base:@"#import <Base.h>\n@interface Base (Test) @end"
+                      addition:@"#import <Base.h>\n@interface Base (Test) -(void)testMethod; @end"
+               additionalFiles:@[baseFile]
+           additionalArguments:@[@"-isystem", @"/system"]];
+}
+
+- (void)testCategoryOnExternalClassProperty {
+    NSString *baseSource = @"@interface Base @end\n";
+    PLClangUnsavedFile *baseFile = [PLClangUnsavedFile unsavedFileWithPath:@"/system/Base.h" data:[baseSource dataUsingEncoding:NSUTF8StringEncoding]];
+
+    [self testAddRemoveForName:@"Base.testProperty"
+                    lineNumber:2
+                          base:@"#import <Base.h>\n@interface Base (Test) @end"
+                      addition:@"#import <Base.h>\n@interface Base (Test) @property int testProperty; @end"
+               additionalFiles:@[baseFile]
+           additionalArguments:@[@"-isystem", @"/system"]];
+}
+
+- (void)testCategoryOnExternalClassModificationAddProtocol {
+    NSString *baseSource = @"@interface Base @end\n";
+    PLClangUnsavedFile *baseFile = [PLClangUnsavedFile unsavedFileWithPath:@"/system/Base.h" data:[baseSource dataUsingEncoding:NSUTF8StringEncoding]];
+
+    NSArray *differences = [self differencesBetweenOldSource:@"#import <Base.h>\n@protocol A @end @interface Base (Test) @end"
+                                                   newSource:@"#import <Base.h>\n@protocol A @end @interface Base (Test) <A> @end"
+                                             additionalFiles:@[baseFile]
+                                         additionalArguments:@[@"-isystem", @"/system"]];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeProtocols
+                                                            previousValue:nil
+                                                             currentValue:@"A"];
+    NSArray *expectedDifferences = @[
+        [OCDifference modificationDifferenceWithName:@"Base (Test)" path:OCDTestPath lineNumber:2 modifications:@[modification]]
+    ];
+    XCTAssertEqualObjects(differences, expectedDifferences);
+}
+
+- (void)testCategoryOnExternalClassModificationRemoveProtocol {
+    NSString *baseSource = @"@interface Base @end\n";
+    PLClangUnsavedFile *baseFile = [PLClangUnsavedFile unsavedFileWithPath:@"/system/Base.h" data:[baseSource dataUsingEncoding:NSUTF8StringEncoding]];
+
+    NSArray *differences = [self differencesBetweenOldSource:@"#import <Base.h>\n@protocol A @end @interface Base (Test) <A> @end"
+                                                   newSource:@"#import <Base.h>\n@protocol A @end @interface Base (Test) @end"
+                                             additionalFiles:@[baseFile]
+                                         additionalArguments:@[@"-isystem", @"/system"]];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeProtocols
+                                                            previousValue:@"A"
+                                                             currentValue:nil];
+    NSArray *expectedDifferences = @[
+        [OCDifference modificationDifferenceWithName:@"Base (Test)" path:OCDTestPath lineNumber:2 modifications:@[modification]]
+    ];
+    XCTAssertEqualObjects(differences, expectedDifferences);
+}
+
+- (void)testCategoryOnExternalClassModificationChangeProtocolList {
+    NSString *baseSource = @"@interface Base @end\n";
+    PLClangUnsavedFile *baseFile = [PLClangUnsavedFile unsavedFileWithPath:@"/system/Base.h" data:[baseSource dataUsingEncoding:NSUTF8StringEncoding]];
+
+    NSArray *differences = [self differencesBetweenOldSource:@"#import <Base.h>\n@protocol A @end @protocol B @end @protocol C @end @interface Base (Test) <A, B> @end"
+                                                   newSource:@"#import <Base.h>\n@protocol A @end @protocol B @end @protocol C @end @interface Base (Test) <A, C> @end"
+                                             additionalFiles:@[baseFile]
+                                         additionalArguments:@[@"-isystem", @"/system"]];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeProtocols
+                                                            previousValue:@"A, B"
+                                                             currentValue:@"A, C"];
+    NSArray *expectedDifferences = @[
+        [OCDifference modificationDifferenceWithName:@"Base (Test)" path:OCDTestPath lineNumber:2 modifications:@[modification]]
+    ];
+    XCTAssertEqualObjects(differences, expectedDifferences);
 }
 
 - (void)testProperty {
@@ -1192,13 +1355,14 @@ static NSString * const OCDTestPath = @"test.h";
  */
 - (void)testCategoryMovedToDifferentHeader {
     NSString *baseSource = @"@interface Base @end\n";
-    PLClangUnsavedFile *baseFile = [PLClangUnsavedFile unsavedFileWithPath:@"/base.h" data:[baseSource dataUsingEncoding:NSUTF8StringEncoding]];
+    PLClangUnsavedFile *baseFile = [PLClangUnsavedFile unsavedFileWithPath:@"/system/Base.h" data:[baseSource dataUsingEncoding:NSUTF8StringEncoding]];
 
     NSArray *differences = [self differencesBetweenOldPath:@"old.h"
-                                                 oldSource:@"#import \"/base.h\"\n@interface Base (Test) -(void)testMethod; @end"
+                                                 oldSource:@"#import <Base.h>\n@interface Base (Test) -(void)testMethod; @end"
                                                    newPath:@"new.h"
-                                                 newSource:@"#import \"/base.h\"\n@interface Base (Test) -(void)testMethod; @end"
-                                           additionalFiles:@[baseFile]];
+                                                 newSource:@"#import <Base.h>\n@interface Base (Test) -(void)testMethod; @end"
+                                           additionalFiles:@[baseFile]
+                                       additionalArguments:@[@"-isystem", @"/system"]];
 
     OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeHeader previousValue:@"old.h" currentValue:@"new.h"];
 
@@ -1341,25 +1505,29 @@ static NSString * const OCDTestPath = @"test.h";
 }
 
 - (void)testAddRemoveForName:(NSString *)name base:(NSString *)base addition:(NSString *)addition {
+    [self testAddRemoveForName:name lineNumber:1 base:base addition:addition additionalFiles:nil additionalArguments:nil];
+}
+
+- (void)testAddRemoveForName:(NSString *)name lineNumber:(NSUInteger)lineNumber base:(NSString *)base addition:(NSString *)addition additionalFiles:(NSArray *)additionalFiles additionalArguments:(NSArray *)additionalArguments {
     NSArray *differences;
     NSArray *expectedDifferences;
 
     // Addition
-    differences = [self differencesBetweenOldSource:base newSource:addition];
-    expectedDifferences = @[[OCDifference differenceWithType:OCDifferenceTypeAddition name:name path:OCDTestPath lineNumber:1]];
+    differences = [self differencesBetweenOldSource:base newSource:addition additionalFiles:additionalFiles additionalArguments:additionalArguments];
+    expectedDifferences = @[[OCDifference differenceWithType:OCDifferenceTypeAddition name:name path:OCDTestPath lineNumber:lineNumber]];
     XCTAssertEqualObjects(differences, expectedDifferences, @"Addition test failed for %@", name);
 
     // Removal
-    differences = [self differencesBetweenOldSource:addition newSource:base];
-    expectedDifferences = @[[OCDifference differenceWithType:OCDifferenceTypeRemoval name:name path:OCDTestPath lineNumber:1]];
+    differences = [self differencesBetweenOldSource:addition newSource:base additionalFiles:additionalFiles additionalArguments:additionalArguments];
+    expectedDifferences = @[[OCDifference differenceWithType:OCDifferenceTypeRemoval name:name path:OCDTestPath lineNumber:lineNumber]];
     XCTAssertEqualObjects(differences, expectedDifferences, @"Removal test failed for %@", name);
 
     // Unchanged
-    differences = [self differencesBetweenOldSource:addition newSource:addition];
+    differences = [self differencesBetweenOldSource:addition newSource:addition additionalFiles:additionalFiles additionalArguments:additionalArguments];
     XCTAssertEqualObjects(differences, @[], @"Unchanged test failed for %@", name);
 
     // Unchanged, different line number
-    differences = [self differencesBetweenOldSource:addition newSource:[@"\n" stringByAppendingString:addition]];
+    differences = [self differencesBetweenOldSource:addition newSource:[@"\n" stringByAppendingString:addition] additionalFiles:additionalFiles additionalArguments:additionalArguments];
     XCTAssertEqualObjects(differences, @[], @"Move to different line number test failed for %@", name);
 }
 
@@ -1391,14 +1559,18 @@ static NSString * const OCDTestPath = @"test.h";
 }
 
 - (NSArray *)differencesBetweenOldSource:(NSString *)oldSource newSource:(NSString *)newSource {
-    return [self differencesBetweenOldPath:OCDOldTestPath oldSource:oldSource newPath:OCDNewTestPath newSource:newSource additionalFiles:nil];
+    return [self differencesBetweenOldPath:OCDOldTestPath oldSource:oldSource newPath:OCDNewTestPath newSource:newSource additionalFiles:nil additionalArguments:nil];
+}
+
+- (NSArray *)differencesBetweenOldSource:(NSString *)oldSource newSource:(NSString *)newSource additionalFiles:(NSArray *)additionalFiles additionalArguments:(NSArray *)additionalArguments {
+    return [self differencesBetweenOldPath:OCDOldTestPath oldSource:oldSource newPath:OCDNewTestPath newSource:newSource additionalFiles:additionalFiles additionalArguments:additionalArguments];
 }
 
 - (NSArray *)differencesBetweenOldPath:(NSString *)oldPath oldSource:(NSString *)oldSource newPath:(NSString *)newPath newSource:(NSString *)newSource {
-    return [self differencesBetweenOldPath:oldPath oldSource:oldSource newPath:newPath newSource:newSource additionalFiles:nil];
+    return [self differencesBetweenOldPath:oldPath oldSource:oldSource newPath:newPath newSource:newSource additionalFiles:nil additionalArguments:nil];
 }
 
-- (NSArray *)differencesBetweenOldPath:(NSString *)oldPath oldSource:(NSString *)oldSource newPath:(NSString *)newPath newSource:(NSString *)newSource additionalFiles:(NSArray *)additionalFiles {
+- (NSArray *)differencesBetweenOldPath:(NSString *)oldPath oldSource:(NSString *)oldSource newPath:(NSString *)newPath newSource:(NSString *)newSource additionalFiles:(NSArray *)additionalFiles additionalArguments:(NSArray *)additionalArguments {
     PLClangSourceIndex *index = [PLClangSourceIndex indexWithOptions:PLClangIndexCreationDisplayDiagnostics];
 
     PLClangUnsavedFile *oldFile = [PLClangUnsavedFile unsavedFileWithPath:oldPath data:[oldSource dataUsingEncoding:NSUTF8StringEncoding]];
@@ -1414,10 +1586,15 @@ static NSString * const OCDTestPath = @"test.h";
         [newFiles addObjectsFromArray:additionalFiles];
     }
 
+    NSMutableArray *compilerArguments = [@[@"-x", @"objective-c-header"] mutableCopy];
+    if (additionalArguments != nil) {
+        [compilerArguments addObjectsFromArray:additionalArguments];
+    }
+
     NSError *error;
     PLClangTranslationUnit *oldTU = [index addTranslationUnitWithSourcePath:oldPath
                                                                unsavedFiles:oldFiles
-                                                          compilerArguments:@[@"-x", @"objective-c-header"]
+                                                          compilerArguments:compilerArguments
                                                                     options:PLClangTranslationUnitCreationDetailedPreprocessingRecord |
                                                                             PLClangTranslationUnitCreationSkipFunctionBodies
                                                                       error:&error];
@@ -1426,7 +1603,7 @@ static NSString * const OCDTestPath = @"test.h";
 
     PLClangTranslationUnit *newTU = [index addTranslationUnitWithSourcePath:newPath
                                                                unsavedFiles:newFiles
-                                                          compilerArguments:@[@"-x", @"objective-c-header"]
+                                                          compilerArguments:compilerArguments
                                                                     options:PLClangTranslationUnitCreationDetailedPreprocessingRecord |
                                                                             PLClangTranslationUnitCreationSkipFunctionBodies
                                                                       error:&error];

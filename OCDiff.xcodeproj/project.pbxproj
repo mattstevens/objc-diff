@@ -10,9 +10,11 @@
 		C90B25681EEF3D1F00A13A41 /* OCDSDK.m in Sources */ = {isa = PBXBuildFile; fileRef = C9A9607A1EEF3CB6003B234D /* OCDSDK.m */; };
 		C91B953C1951CE9600290AC0 /* LICENSE in Copy Resources */ = {isa = PBXBuildFile; fileRef = C91B95171951CA8000290AC0 /* LICENSE */; };
 		C91B953D1951CE9700290AC0 /* README.md in Copy Resources */ = {isa = PBXBuildFile; fileRef = C91B951A1951CAE800290AC0 /* README.md */; };
+		C91DE3821EFF3DF60055507A /* PLClangCursor+OCDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = C91DE3811EFF3DF60055507A /* PLClangCursor+OCDExtensions.m */; };
 		C94DABD51EEDA39500647160 /* OCDModule.m in Sources */ = {isa = PBXBuildFile; fileRef = C94DABD41EEDA39500647160 /* OCDModule.m */; };
 		C9577E9B193ADEA800FCAC57 /* NSString+OCDPathUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = C9577E9A193ADEA800FCAC57 /* NSString+OCDPathUtilities.m */; };
 		C9577E9C193AE25500FCAC57 /* NSString+OCDPathUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = C9577E9A193ADEA800FCAC57 /* NSString+OCDPathUtilities.m */; };
+		C9586DE01EFF61C4001570AA /* PLClangCursor+OCDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = C91DE3811EFF3DF60055507A /* PLClangCursor+OCDExtensions.m */; };
 		C96194C51928E6AE00BDBD7C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C96194B41928E57700BDBD7C /* Foundation.framework */; };
 		C96194C81928E6AE00BDBD7C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C96194C71928E6AE00BDBD7C /* main.m */; };
 		C96194D11928EDD800BDBD7C /* ObjectDoc.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C96194D01928EDD800BDBD7C /* ObjectDoc.framework */; };
@@ -76,6 +78,8 @@
 		C91B95171951CA8000290AC0 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = SOURCE_ROOT; };
 		C91B951A1951CAE800290AC0 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.md; sourceTree = SOURCE_ROOT; };
 		C91B95351951CD5900290AC0 /* objc-diff.pod */ = {isa = PBXFileReference; lastKnownFileType = text; path = "objc-diff.pod"; sourceTree = "<group>"; };
+		C91DE3801EFF3DF60055507A /* PLClangCursor+OCDExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PLClangCursor+OCDExtensions.h"; sourceTree = "<group>"; };
+		C91DE3811EFF3DF60055507A /* PLClangCursor+OCDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PLClangCursor+OCDExtensions.m"; sourceTree = "<group>"; };
 		C934DFCF193A20D50073B1B6 /* apidiff.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = apidiff.css; sourceTree = "<group>"; };
 		C934DFD0193A2E990073B1B6 /* OCDReportGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCDReportGenerator.h; sourceTree = "<group>"; };
 		C94DABD31EEDA39500647160 /* OCDModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCDModule.h; sourceTree = "<group>"; };
@@ -201,6 +205,8 @@
 				C9E1BA72193402F500680085 /* OCDTextReportGenerator.m */,
 				C9E1BA74193405DA00680085 /* OCDXMLReportGenerator.h */,
 				C9E1BA75193405DA00680085 /* OCDXMLReportGenerator.m */,
+				C91DE3801EFF3DF60055507A /* PLClangCursor+OCDExtensions.h */,
+				C91DE3811EFF3DF60055507A /* PLClangCursor+OCDExtensions.m */,
 				C934DFCE193A20C40073B1B6 /* Supporting Files */,
 			);
 			path = OCDiff;
@@ -342,6 +348,7 @@
 				C9A9607B1EEF3CB6003B234D /* OCDSDK.m in Sources */,
 				C9E1BA76193405DA00680085 /* OCDXMLReportGenerator.m in Sources */,
 				C96F3C151EEDB20A00561C60 /* OCDAPIDifferences.m in Sources */,
+				C91DE3821EFF3DF60055507A /* PLClangCursor+OCDExtensions.m in Sources */,
 				C9E1BA73193402F500680085 /* OCDTextReportGenerator.m in Sources */,
 				C96194C81928E6AE00BDBD7C /* main.m in Sources */,
 				C96194EE19293B1600BDBD7C /* OCDAPIComparator.m in Sources */,
@@ -352,6 +359,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C9586DE01EFF61C4001570AA /* PLClangCursor+OCDExtensions.m in Sources */,
 				C9577E9C193AE25500FCAC57 /* NSString+OCDPathUtilities.m in Sources */,
 				C90B25681EEF3D1F00A13A41 /* OCDSDK.m in Sources */,
 				C9A9607D1EEF3CC7003B234D /* OCDSDKTests.m in Sources */,
