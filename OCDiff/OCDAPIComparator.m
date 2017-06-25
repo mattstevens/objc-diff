@@ -464,6 +464,10 @@
         return PLClangCursorVisitContinue;
     }];
 
+    [protocols sortUsingComparator:^NSComparisonResult(PLClangCursor *obj1, PLClangCursor *obj2) {
+        return [obj1.spelling localizedStandardCompare:obj2.spelling];
+    }];
+
     return protocols;
 }
 

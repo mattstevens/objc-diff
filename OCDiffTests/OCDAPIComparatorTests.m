@@ -320,6 +320,16 @@ static NSString * const OCDTestPath = @"test.h";
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test" modification:modification]);
 }
 
+/**
+ * Tests that no changes are reported for simply reordering a protocol list.
+ */
+- (void)testClassModificationChangeProtocolOrder {
+    NSArray *differences = [self differencesBetweenOldSource:@"@protocol A @end @protocol B @end @interface Test <A, B> @end"
+                                                   newSource:@"@protocol A @end @protocol B @end @interface Test <B, A> @end"];
+
+    XCTAssertEqualObjects(differences, @[]);
+}
+
 - (void)testInstanceMethod {
     [self testAddRemoveForName:@"-[Test testMethod]"
                           base:@"@interface Test @end"
