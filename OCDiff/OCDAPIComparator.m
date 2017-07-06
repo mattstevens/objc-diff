@@ -4,8 +4,8 @@
 #import <ObjectDoc/ObjectDoc.h>
 
 @implementation OCDAPIComparator {
-    PLClangTranslationUnit *_oldTranslationUnit;
-    PLClangTranslationUnit *_newTranslationUnit;
+    OCDAPISource *_oldAPISource;
+    OCDAPISource *_newAPISource;
     NSString *_oldBaseDirectory;
     NSString *_newBaseDirectory;
 
@@ -18,28 +18,33 @@
     NSMutableSet *_convertedProperties;
 }
 
-- (instancetype)initWithOldTranslationUnit:(PLClangTranslationUnit *)oldTranslationUnit newTranslationUnit:(PLClangTranslationUnit *)newTranslationUnit {
+- (instancetype)initWithOldAPISource:(OCDAPISource *)oldAPISource newAPISource:(OCDAPISource *)newAPISource {
     if (!(self = [super init]))
         return nil;
 
-    _oldTranslationUnit = oldTranslationUnit;
-    _newTranslationUnit = newTranslationUnit;
-    _oldBaseDirectory = [[oldTranslationUnit.spelling stringByDeletingLastPathComponent] ocd_absolutePath];
-    _newBaseDirectory = [[newTranslationUnit.spelling stringByDeletingLastPathComponent] ocd_absolutePath];
+    _oldAPISource = oldAPISource;
+    _newAPISource = newAPISource;
+    _oldBaseDirectory = [[oldAPISource.translationUnit.spelling stringByDeletingLastPathComponent] ocd_absolutePath];
+    _newBaseDirectory = [[newAPISource.translationUnit.spelling stringByDeletingLastPathComponent] ocd_absolutePath];
     _convertedProperties = [[NSMutableSet alloc] init];
 
     return self;
 }
 
-+ (NSArray<OCDifference *> *)differencesBetweenOldTranslationUnit:(PLClangTranslationUnit *)oldTranslationUnit newTranslationUnit:(PLClangTranslationUnit *)newTranslationUnit {
-    OCDAPIComparator *comparator = [[self alloc] initWithOldTranslationUnit:oldTranslationUnit newTranslationUnit:newTranslationUnit];
++ (NSArray<OCDifference *> *)differencesBetweenOldAPISource:(OCDAPISource *)oldAPISource newAPISource:(OCDAPISource *)newAPISource {
+    OCDAPIComparator *comparator = [[self alloc] initWithOldAPISource:oldAPISource newAPISource:newAPISource];
     return [comparator differences];
+}
+
++ (NSArray<OCDifference *> *)differencesBetweenOldTranslationUnit:(PLClangTranslationUnit *)oldTranslationUnit newTranslationUnit:(PLClangTranslationUnit *)newTranslationUnit {
+    return [self differencesBetweenOldAPISource:[OCDAPISource APISourceWithTranslationUnit:oldTranslationUnit]
+                                   newAPISource:[OCDAPISource APISourceWithTranslationUnit:newTranslationUnit]];
 }
 
 - (NSArray<OCDifference *> *)differences {
     NSMutableArray *differences = [NSMutableArray array];
-    NSDictionary *oldAPI = [self APIForTranslationUnit:_oldTranslationUnit];
-    NSDictionary *newAPI = [self APIForTranslationUnit:_newTranslationUnit];
+    NSDictionary *oldAPI = [self APIForSource:_oldAPISource];
+    NSDictionary *newAPI = [self APIForSource:_newAPISource];
     NSMutableArray *removals = [NSMutableArray array];
 
     NSMutableSet *additions = [NSMutableSet setWithArray:[newAPI allKeys]];
@@ -103,10 +108,10 @@
     }];
 }
 
-- (NSDictionary *)APIForTranslationUnit:(PLClangTranslationUnit *)translationUnit {
+- (NSDictionary *)APIForSource:(OCDAPISource *)source {
     NSMutableDictionary *api = [NSMutableDictionary dictionary];
 
-    [translationUnit.cursor visitChildrenUsingBlock:^PLClangCursorVisitResult(PLClangCursor *cursor) {
+    [source.translationUnit.cursor visitChildrenUsingBlock:^PLClangCursorVisitResult(PLClangCursor *cursor) {
         if (cursor.location.isInSystemHeader || cursor.location.path == nil)
             return PLClangCursorVisitContinue;
 
@@ -323,13 +328,13 @@
         PLClangCursor *propertyCursor;
 
         if (newCursor.isImplicit) {
-            propertyCursor = [_newTranslationUnit cursorForSourceLocation:newCursor.location];
+            propertyCursor = [_newAPISource.translationUnit cursorForSourceLocation:newCursor.location];
             NSAssert(propertyCursor != nil, @"Failed to locate property cursor for conversion from explicit accessor");
 
             oldDeclaration = [self declarationStringForCursor:oldCursor];
             newDeclaration = [self declarationStringForCursor:propertyCursor];
         } else {
-            propertyCursor = [_oldTranslationUnit cursorForSourceLocation:oldCursor.location];
+            propertyCursor = [_oldAPISource.translationUnit cursorForSourceLocation:oldCursor.location];
             NSAssert(propertyCursor != nil, @"Failed to locate property cursor for conversion to explicit accessor");
 
             oldDeclaration = [self declarationStringForCursor:propertyCursor];
@@ -401,7 +406,7 @@
         [modifications addObject:modification];
 
         PLClangPlatformAvailability *newPlatformAvailability = [self platformAvailabilityForCursor:newCursor
-                                                                                targetPlatformName:_newTranslationUnit.targetPlatformName];
+                                                                                targetPlatformName:_newAPISource.translationUnit.targetPlatformName];
 
         NSString *deprecationMessage = newCursor.availability.unconditionalDeprecationMessage;
         if ([deprecationMessage length] == 0 && newPlatformAvailability != nil) {
