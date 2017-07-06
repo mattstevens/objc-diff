@@ -29,6 +29,7 @@
 		C961953B1929625100BDBD7C /* OCDModification.m in Sources */ = {isa = PBXBuildFile; fileRef = C961953A1929625100BDBD7C /* OCDModification.m */; };
 		C961953C1929655200BDBD7C /* OCDModification.m in Sources */ = {isa = PBXBuildFile; fileRef = C961953A1929625100BDBD7C /* OCDModification.m */; };
 		C96F3C151EEDB20A00561C60 /* OCDAPIDifferences.m in Sources */ = {isa = PBXBuildFile; fileRef = C96F3C141EEDB20A00561C60 /* OCDAPIDifferences.m */; };
+		C97EB4D91F00717800E61344 /* OCDLinkMap.m in Sources */ = {isa = PBXBuildFile; fileRef = C97EB4D81F00717800E61344 /* OCDLinkMap.m */; };
 		C9A9607B1EEF3CB6003B234D /* OCDSDK.m in Sources */ = {isa = PBXBuildFile; fileRef = C9A9607A1EEF3CB6003B234D /* OCDSDK.m */; };
 		C9A9607D1EEF3CC7003B234D /* OCDSDKTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C9A9607C1EEF3CC7003B234D /* OCDSDKTests.m */; };
 		C9A9607F1EEF3CD7003B234D /* SDKs in Resources */ = {isa = PBXBuildFile; fileRef = C9A9607E1EEF3CD7003B234D /* SDKs */; };
@@ -102,6 +103,8 @@
 		C961953A1929625100BDBD7C /* OCDModification.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCDModification.m; sourceTree = "<group>"; };
 		C96F3C131EEDB20A00561C60 /* OCDAPIDifferences.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCDAPIDifferences.h; sourceTree = "<group>"; };
 		C96F3C141EEDB20A00561C60 /* OCDAPIDifferences.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCDAPIDifferences.m; sourceTree = "<group>"; };
+		C97EB4D71F00717800E61344 /* OCDLinkMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCDLinkMap.h; sourceTree = "<group>"; };
+		C97EB4D81F00717800E61344 /* OCDLinkMap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCDLinkMap.m; sourceTree = "<group>"; };
 		C9A960791EEF3CB6003B234D /* OCDSDK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCDSDK.h; sourceTree = "<group>"; };
 		C9A9607A1EEF3CB6003B234D /* OCDSDK.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCDSDK.m; sourceTree = "<group>"; };
 		C9A9607C1EEF3CC7003B234D /* OCDSDKTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCDSDKTests.m; sourceTree = "<group>"; };
@@ -194,6 +197,8 @@
 				C9E1BA69192F872600680085 /* OCDHTMLReportGenerator.m */,
 				C96194EF19293B2D00BDBD7C /* OCDifference.h */,
 				C96194F019293B2D00BDBD7C /* OCDifference.m */,
+				C97EB4D71F00717800E61344 /* OCDLinkMap.h */,
+				C97EB4D81F00717800E61344 /* OCDLinkMap.m */,
 				C96195391929625100BDBD7C /* OCDModification.h */,
 				C961953A1929625100BDBD7C /* OCDModification.m */,
 				C94DABD31EEDA39500647160 /* OCDModule.h */,
@@ -341,6 +346,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C9577E9B193ADEA800FCAC57 /* NSString+OCDPathUtilities.m in Sources */,
+				C97EB4D91F00717800E61344 /* OCDLinkMap.m in Sources */,
 				C961953B1929625100BDBD7C /* OCDModification.m in Sources */,
 				C94DABD51EEDA39500647160 /* OCDModule.m in Sources */,
 				C96194F119293B2D00BDBD7C /* OCDifference.m in Sources */,

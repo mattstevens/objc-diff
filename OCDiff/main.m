@@ -367,6 +367,7 @@ int main(int argc, char *argv[]) {
         NSString *oldPath;
         NSString *newPath;
         NSString *title;
+        NSString *linkMapPath;
         NSString *htmlOutputDirectory;
         NSMutableArray *oldCompilerArguments = [NSMutableArray arrayWithObjects:@"-x", @"objective-c-header", nil];
         NSMutableArray *newCompilerArguments = [oldCompilerArguments mutableCopy];
@@ -376,6 +377,7 @@ int main(int argc, char *argv[]) {
         static struct option longopts[] = {
             { "help",         no_argument,        NULL,          'h' },
             { "title",        required_argument,  NULL,          't' },
+            { "linkmap",      required_argument,  NULL,          'l' },
             { "text",         no_argument,        NULL,          'T' },
             { "xml",          no_argument,        NULL,          'X' },
             { "html",         required_argument,  NULL,          'H' },
@@ -396,6 +398,9 @@ int main(int argc, char *argv[]) {
                     return 0;
                 case 't':
                     title = @(optarg);
+                    break;
+                case 'l':
+                    linkMapPath = @(optarg);
                     break;
                 case 'T':
                     reportTypes |= OCDReportTypeText;
@@ -578,7 +583,8 @@ int main(int argc, char *argv[]) {
         }
 
         if (reportTypes & OCDReportTypeHTML) {
-            OCDHTMLReportGenerator *htmlGenerator = [[OCDHTMLReportGenerator alloc] initWithOutputDirectory:htmlOutputDirectory];
+            OCDLinkMap *linkMap = [[OCDLinkMap alloc] initWithPath:linkMapPath];
+            OCDHTMLReportGenerator *htmlGenerator = [[OCDHTMLReportGenerator alloc] initWithOutputDirectory:htmlOutputDirectory linkMap:linkMap];
             [htmlGenerator generateReportForDifferences:differences title:title];
         }
     }

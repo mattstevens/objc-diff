@@ -62,7 +62,7 @@
             continue;
 
         NSString *relativePath = [cursor.location.path ocd_stringWithPathRelativeToDirectory:_oldBaseDirectory];
-        OCDifference *difference = [OCDifference differenceWithType:OCDifferenceTypeRemoval name:[self displayNameForCursor:cursor] path:relativePath lineNumber:cursor.location.lineNumber];
+        OCDifference *difference = [OCDifference differenceWithType:OCDifferenceTypeRemoval name:[self displayNameForCursor:cursor] path:relativePath lineNumber:cursor.location.lineNumber USR:cursor.USR];
         [differences addObject:difference];
     }
 
@@ -72,7 +72,7 @@
             continue;
 
         NSString *relativePath = [cursor.location.path ocd_stringWithPathRelativeToDirectory:_newBaseDirectory];
-        OCDifference *difference = [OCDifference differenceWithType:OCDifferenceTypeAddition name:[self displayNameForCursor:cursor] path:relativePath lineNumber:cursor.location.lineNumber];
+        OCDifference *difference = [OCDifference differenceWithType:OCDifferenceTypeAddition name:[self displayNameForCursor:cursor] path:relativePath lineNumber:cursor.location.lineNumber USR:cursor.USR];
         [differences addObject:difference];
     }
 
@@ -435,6 +435,7 @@
             difference = [OCDifference modificationDifferenceWithName:[self displayNameForCursor:oldCursor]
                                                                  path:relativePath
                                                            lineNumber:oldCursor.location.lineNumber
+                                                                  USR:oldCursor.USR
                                                         modifications:modifications];
             [differences addObject:difference];
         }
@@ -443,6 +444,7 @@
         difference = [OCDifference modificationDifferenceWithName:[self displayNameForCursor:oldCursor]
                                                              path:relativePath
                                                        lineNumber:newCursor.location.lineNumber
+                                                              USR:newCursor.USR
                                                     modifications:modifications];
         [differences addObject:difference];
 

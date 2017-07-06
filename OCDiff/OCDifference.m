@@ -2,7 +2,7 @@
 
 @implementation OCDifference
 
-- (instancetype)initWithType:(OCDifferenceType)type name:(NSString *)name path:(NSString *)path lineNumber:(NSUInteger)lineNumber modifications:(NSArray *)modifications {
+- (instancetype)initWithType:(OCDifferenceType)type name:(NSString *)name path:(NSString *)path lineNumber:(NSUInteger)lineNumber USR:(NSString *)USR modifications:(NSArray *)modifications {
     if (!(self = [super init]))
         return nil;
 
@@ -10,17 +10,26 @@
     _name = [name copy];
     _path = [path copy];
     _lineNumber = lineNumber;
+    _USR = USR;
     _modifications = [modifications copy];
 
     return self;
 }
 
 + (instancetype)differenceWithType:(OCDifferenceType)type name:(NSString *)name path:(NSString *)path lineNumber:(NSUInteger)lineNumber {
-    return [[self alloc] initWithType:type name:name path:path lineNumber:lineNumber modifications:nil];
+    return [[self alloc] initWithType:type name:name path:path lineNumber:lineNumber USR:nil modifications:nil];
+}
+
++ (instancetype)differenceWithType:(OCDifferenceType)type name:(NSString *)name path:(NSString *)path lineNumber:(NSUInteger)lineNumber USR:(NSString *)USR {
+    return [[self alloc] initWithType:type name:name path:path lineNumber:lineNumber USR:USR modifications:nil];
 }
 
 + (instancetype)modificationDifferenceWithName:(NSString *)name path:(NSString *)path lineNumber:(NSUInteger)lineNumber modifications:(NSArray *)modifications {
-    return [[self alloc] initWithType:OCDifferenceTypeModification name:name path:path lineNumber:lineNumber modifications:modifications];
+    return [[self alloc] initWithType:OCDifferenceTypeModification name:name path:path lineNumber:lineNumber USR:nil modifications:modifications];
+}
+
++ (instancetype)modificationDifferenceWithName:(NSString *)name path:(NSString *)path lineNumber:(NSUInteger)lineNumber USR:(NSString *)USR modifications:(NSArray *)modifications {
+    return [[self alloc] initWithType:OCDifferenceTypeModification name:name path:path lineNumber:lineNumber USR:USR modifications:modifications];
 }
 
 - (NSString *)description {

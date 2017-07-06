@@ -5,13 +5,15 @@
 
 @implementation OCDHTMLReportGenerator {
     NSString *_outputDirectory;
+    OCDLinkMap *_linkMap;
 }
 
-- (instancetype)initWithOutputDirectory:(NSString *)directory {
+- (instancetype)initWithOutputDirectory:(NSString *)directory linkMap:(OCDLinkMap *)linkMap {
     if (!(self = [super init]))
         return nil;
 
     _outputDirectory = [directory copy];
+    _linkMap = linkMap;
 
     return self;
 }
@@ -159,7 +161,25 @@
             [html appendFormat:@"\n<div class=\"differenceGroup\">\n"];
         }
 
-        [html appendFormat:@"<div class=\"difference\"><span class=\"status %@\">%@</span> %@</div>\n", [[self stringForDifferenceType:difference.type] lowercaseString], [self stringForDifferenceType:difference.type], difference.name];
+
+        NSURL *link;
+        if (_linkMap != nil && difference.USR != nil) {
+            link = [_linkMap URLForUSR:difference.USR];
+        }
+
+        [html appendFormat:@"<div class=\"difference\"><span class=\"status %@\">%@</span> ", [[self stringForDifferenceType:difference.type] lowercaseString], [self stringForDifferenceType:difference.type]];
+
+        if (link != nil) {
+            [html appendFormat:@"<a href=\"%@\">", link];
+        }
+
+        [html appendFormat:@"%@", difference.name];
+
+        if (link != nil) {
+            [html appendFormat:@"</a>"];
+        }
+
+        [html appendFormat:@"</div>\n"];
 
         if ([difference.modifications count] > 0) {
             [html appendString:@"<table>\n"];
