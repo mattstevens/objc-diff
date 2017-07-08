@@ -309,6 +309,7 @@
 - (NSArray *)differencesBetweenOldCursor:(PLClangCursor *)oldCursor newCursor:(PLClangCursor *)newCursor {
     NSMutableArray *modifications = [NSMutableArray array];
     BOOL reportDifferenceForOldLocation = NO;
+    NSString *newUSR = newCursor.USR;
 
     // Ignore changes to implicit declarations like synthesized property accessors
     if (oldCursor.isImplicit && newCursor.isImplicit)
@@ -339,6 +340,7 @@
 
             oldDeclaration = [self declarationStringForCursor:oldCursor];
             newDeclaration = [self declarationStringForCursor:propertyCursor];
+            newUSR = propertyCursor.USR;
         } else {
             propertyCursor = [_oldAPISource.translationUnit cursorForSourceLocation:oldCursor.location];
             NSAssert(propertyCursor != nil, @"Failed to locate property cursor for conversion to explicit accessor");
@@ -455,7 +457,7 @@
         difference = [OCDifference modificationDifferenceWithName:[self displayNameForCursor:oldCursor]
                                                              path:relativePath
                                                        lineNumber:newCursor.location.lineNumber
-                                                              USR:newCursor.USR
+                                                              USR:newUSR
                                                     modifications:modifications];
         [differences addObject:difference];
 
