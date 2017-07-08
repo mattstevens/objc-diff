@@ -314,7 +314,7 @@ static void ApplySDKToCompilerArguments(OCDSDK *sdk, NSMutableArray *compilerArg
         [compilerArguments addObjectsFromArray:@[@"-isysroot", sdk.path]];
     }
 
-    if (ArrayContainsStringWithPrefix(compilerArguments, sdk.deploymentTargetCompilerArgument)) {
+    if (ArrayContainsStringWithPrefix(compilerArguments, sdk.deploymentTargetCompilerArgument) == NO) {
         const char *environmentDeploymentTarget = getenv([sdk.deploymentTargetEnvironmentVariable UTF8String]);
         NSString *deploymentTarget = environmentDeploymentTarget ? @(environmentDeploymentTarget) : sdk.deploymentTarget;
         [compilerArguments addObject:[NSString stringWithFormat:@"%@=%@", sdk.deploymentTargetCompilerArgument, deploymentTarget]];
