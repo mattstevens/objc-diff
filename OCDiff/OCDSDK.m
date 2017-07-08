@@ -7,6 +7,7 @@ static NSString * const PlatformNameTVOS = @"appletvos";
 static NSString * const PlatformNameTVOSSimulator = @"appletvsimulator";
 static NSString * const PlatformNameWatchOS = @"watchos";
 static NSString * const PlatformNameWatchOSSimulator = @"watchsimulator";
+static NSString * const ArchARM64 = @"arm64";
 
 @implementation OCDSDK
 
@@ -47,6 +48,7 @@ static NSString * const PlatformNameWatchOSSimulator = @"watchsimulator";
             _deploymentTargetEnvironmentVariable = @"MACOSX_DEPLOYMENT_TARGET";
         } else if ([platformName isEqualToString:PlatformNameIOS]) {
             _platform = OCDPlatformIOS;
+            _defaultArchitecture = ArchARM64;
             _deploymentTargetCompilerArgument = @"-mios-version-min";
             _deploymentTargetEnvironmentVariable = @"IPHONEOS_DEPLOYMENT_TARGET";
         } else if ([platformName isEqualToString:PlatformNameIOSSimulator]) {
@@ -55,6 +57,7 @@ static NSString * const PlatformNameWatchOSSimulator = @"watchsimulator";
             _deploymentTargetEnvironmentVariable = @"IPHONEOS_DEPLOYMENT_TARGET";
         } else if ([platformName isEqualToString:PlatformNameTVOS]) {
             _platform = OCDPlatformTVOS;
+            _defaultArchitecture = ArchARM64;
             _deploymentTargetCompilerArgument = @"-mtvos-version-min";
             _deploymentTargetEnvironmentVariable = @"TVOS_DEPLOYMENT_TARGET";
         } else if ([platformName isEqualToString:PlatformNameTVOSSimulator]) {
@@ -63,6 +66,7 @@ static NSString * const PlatformNameWatchOSSimulator = @"watchsimulator";
             _deploymentTargetEnvironmentVariable = @"TVOS_DEPLOYMENT_TARGET";
         } else if ([platformName isEqualToString:PlatformNameWatchOS]) {
             _platform = OCDPlatformWatchOS;
+            _defaultArchitecture = ArchARM64;
             _deploymentTargetCompilerArgument = @"-mwatchos-version-min";
             _deploymentTargetEnvironmentVariable = @"WATCHOS_DEPLOYMENT_TARGET";
         } else if ([platformName isEqualToString:PlatformNameWatchOSSimulator]) {

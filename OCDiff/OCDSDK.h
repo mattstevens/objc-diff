@@ -20,5 +20,6 @@ typedef NS_ENUM(NSUInteger, OCDPlatform) {
 @property (nonatomic, readonly, copy) NSString *deploymentTarget;
 @property (nonatomic, readonly) NSString *deploymentTargetCompilerArgument;
 @property (nonatomic, readonly) NSString *deploymentTargetEnvironmentVariable;
+@property (nonatomic, readonly) NSString *defaultArchitecture;
 
 @end

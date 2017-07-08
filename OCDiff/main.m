@@ -319,6 +319,11 @@ static void ApplySDKToCompilerArguments(OCDSDK *sdk, NSMutableArray *compilerArg
         NSString *deploymentTarget = environmentDeploymentTarget ? @(environmentDeploymentTarget) : sdk.deploymentTarget;
         [compilerArguments addObject:[NSString stringWithFormat:@"%@=%@", sdk.deploymentTargetCompilerArgument, deploymentTarget]];
     }
+
+    if (sdk.defaultArchitecture != nil && [compilerArguments containsObject:@"-arch"] == NO) {
+        [compilerArguments addObject:@"-arch"];
+        [compilerArguments addObject:sdk.defaultArchitecture];
+    }
 }
 
 static NSArray *GetCompilerArguments(int argc, char *argv[]) {

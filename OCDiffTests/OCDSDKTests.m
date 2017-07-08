@@ -44,6 +44,7 @@
     XCTAssertEqualObjects(sdk.deploymentTarget, @"10.9");
     XCTAssertEqualObjects(sdk.deploymentTargetCompilerArgument, @"-mmacosx-version-min");
     XCTAssertEqualObjects(sdk.deploymentTargetEnvironmentVariable, @"MACOSX_DEPLOYMENT_TARGET");
+    XCTAssertNil(sdk.defaultArchitecture);
 }
 
 - (void)testMacOSOldFormat {
@@ -57,6 +58,7 @@
     XCTAssertEqualObjects(sdk.deploymentTarget, @"10.1");
     XCTAssertEqualObjects(sdk.deploymentTargetCompilerArgument, @"-mmacosx-version-min");
     XCTAssertEqualObjects(sdk.deploymentTargetEnvironmentVariable, @"MACOSX_DEPLOYMENT_TARGET");
+    XCTAssertNil(sdk.defaultArchitecture);
 }
 
 - (void)testIOS {
@@ -70,6 +72,7 @@
     XCTAssertEqualObjects(sdk.deploymentTarget, @"7.0");
     XCTAssertEqualObjects(sdk.deploymentTargetCompilerArgument, @"-mios-version-min");
     XCTAssertEqualObjects(sdk.deploymentTargetEnvironmentVariable, @"IPHONEOS_DEPLOYMENT_TARGET");
+    XCTAssertEqualObjects(sdk.defaultArchitecture, @"arm64");
 }
 
 - (void)testIOSSimulator {
@@ -83,6 +86,7 @@
     XCTAssertEqualObjects(sdk.deploymentTarget, @"7.0");
     XCTAssertEqualObjects(sdk.deploymentTargetCompilerArgument, @"-mios-simulator-version-min");
     XCTAssertEqualObjects(sdk.deploymentTargetEnvironmentVariable, @"IPHONEOS_DEPLOYMENT_TARGET");
+    XCTAssertNil(sdk.defaultArchitecture);
 }
 
 - (void)testTVOS {
@@ -96,6 +100,7 @@
     XCTAssertEqualObjects(sdk.deploymentTarget, @"10.2");
     XCTAssertEqualObjects(sdk.deploymentTargetCompilerArgument, @"-mtvos-version-min");
     XCTAssertEqualObjects(sdk.deploymentTargetEnvironmentVariable, @"TVOS_DEPLOYMENT_TARGET");
+    XCTAssertEqualObjects(sdk.defaultArchitecture, @"arm64");
 }
 
 - (void)testTVOSSimulator {
@@ -109,6 +114,7 @@
     XCTAssertEqualObjects(sdk.deploymentTarget, @"10.2");
     XCTAssertEqualObjects(sdk.deploymentTargetCompilerArgument, @"-mtvos-simulator-version-min");
     XCTAssertEqualObjects(sdk.deploymentTargetEnvironmentVariable, @"TVOS_DEPLOYMENT_TARGET");
+    XCTAssertNil(sdk.defaultArchitecture);
 }
 
 - (void)testWatchOS {
@@ -122,6 +128,7 @@
     XCTAssertEqualObjects(sdk.deploymentTarget, @"3.2");
     XCTAssertEqualObjects(sdk.deploymentTargetCompilerArgument, @"-mwatchos-version-min");
     XCTAssertEqualObjects(sdk.deploymentTargetEnvironmentVariable, @"WATCHOS_DEPLOYMENT_TARGET");
+    XCTAssertEqualObjects(sdk.defaultArchitecture, @"arm64");
 }
 
 - (void)testWatchOSSimulator {
@@ -135,6 +142,7 @@
     XCTAssertEqualObjects(sdk.deploymentTarget, @"3.2");
     XCTAssertEqualObjects(sdk.deploymentTargetCompilerArgument, @"-mwatchos-simulator-version-min");
     XCTAssertEqualObjects(sdk.deploymentTargetEnvironmentVariable, @"WATCHOS_DEPLOYMENT_TARGET");
+    XCTAssertNil(sdk.defaultArchitecture);
 }
 
 @end
