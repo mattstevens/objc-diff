@@ -6,8 +6,13 @@
     self = [super init];
     if (self) {
         _translationUnit = translationUnit;
-        _containingPath = [containingPath copy];
         _includeSystemHeaders = includeSystemHeaders;
+
+        if (containingPath != nil && [containingPath hasSuffix:@"/"] == NO) {
+            _containingPath = [containingPath stringByAppendingString:@"/"];
+        } else {
+            _containingPath = [containingPath copy];
+        }
     }
 
     return self;

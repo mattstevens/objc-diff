@@ -17,8 +17,6 @@ enum OCDReportTypes {
     OCDReportTypeHTML = 1 << 2
 };
 
-static NSString *temporaryDirectory;
-
 static void PrintUsage(void) {
     NSBundle *bundle = [NSBundle mainBundle];
     NSString *name = [bundle objectForInfoDictionaryKey:@"CFBundleName"];
@@ -85,27 +83,6 @@ static NSSet *FrameworksAtPath(NSString *path) {
     }
 
     return frameworkPaths;
-}
-
-static NSString *CreateSymbolicLinkForPath(NSString *path, NSString *tempPath) {
-    NSError *error;
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    if ([fileManager createDirectoryAtPath:tempPath withIntermediateDirectories:YES attributes:nil error:&error] == NO) {
-        fprintf(stderr, "Failed to create temporary directory: %s\n", [[error description] UTF8String]);
-        return nil;
-    }
-
-    NSString *linkPath = [tempPath stringByAppendingPathComponent:[path lastPathComponent]];
-    if ([fileManager createSymbolicLinkAtPath:linkPath withDestinationPath:path error:&error] == NO) {
-        fprintf(stderr, "Failed to create symbolic link for \"%s\" at \"%s\": %s\n",
-                [path fileSystemRepresentation],
-                [linkPath fileSystemRepresentation],
-                [[error description] UTF8String]);
-
-        return nil;
-    }
-
-    return linkPath;
 }
 
 /**
@@ -191,11 +168,8 @@ static PLClangTranslationUnit *TranslationUnitForPath(PLClangSourceIndex *index,
     }
 }
 
-static PLClangTranslationUnit *TranslationUnitForSDKFramework(PLClangSourceIndex *index, NSString *path, NSArray *compilerArguments, NSString *pathPrefix) {
+static PLClangTranslationUnit *TranslationUnitForSDKFramework(PLClangSourceIndex *index, NSString *path, NSArray *compilerArguments) {
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSString *tempPath = [temporaryDirectory stringByAppendingPathComponent:pathPrefix];
-    NSString *linkPath = CreateSymbolicLinkForPath(path, tempPath);
-    path = linkPath;
 
     PLClangTranslationUnit *translationUnit = TranslationUnitForPath(index, path, compilerArguments, NO);
     if (translationUnit == nil) {
@@ -209,8 +183,6 @@ static PLClangTranslationUnit *TranslationUnitForSDKFramework(PLClangSourceIndex
             translationUnit = TranslationUnitForPath(index, path, compilerArguments, YES);
         }
     }
-
-    [fileManager removeItemAtPath:linkPath error:nil];
 
     return translationUnit;
 }
@@ -256,28 +228,31 @@ static OCDAPIDifferences *DiffSDKs(NSString *oldSDKPath, NSArray *oldCompilerArg
             NSString *newPath = [newSDKPath stringByAppendingPathComponent:frameworkName];
 
             if ([oldFrameworks containsObject:frameworkName]) {
-                PLClangTranslationUnit *oldTU = TranslationUnitForSDKFramework(index, oldPath, oldCompilerArguments, @"old");
+                PLClangTranslationUnit *oldTU = TranslationUnitForSDKFramework(index, oldPath, oldCompilerArguments);
                 if (oldTU == nil) {
                     continue;
                 }
 
-                PLClangTranslationUnit *newTU = TranslationUnitForSDKFramework(index, newPath, newCompilerArguments, @"new");
+                PLClangTranslationUnit *newTU = TranslationUnitForSDKFramework(index, newPath, newCompilerArguments);
                 if (newTU == nil) {
                     continue;
                 }
 
-                NSArray<OCDifference *> *differences = [OCDAPIComparator differencesBetweenOldTranslationUnit:oldTU newTranslationUnit:newTU];
+                OCDAPISource *oldSource = [OCDAPISource APISourceWithTranslationUnit:oldTU containingPath:oldPath includeSystemHeaders:YES];
+                OCDAPISource *newSource = [OCDAPISource APISourceWithTranslationUnit:newTU containingPath:newPath includeSystemHeaders:YES];
+                NSArray<OCDifference *> *differences = [OCDAPIComparator differencesBetweenOldAPISource:oldSource newAPISource:newSource];
 
                 [modules addObject:[OCDModule moduleWithName:[frameworkName stringByDeletingPathExtension]
                                               differenceType:OCDifferenceTypeModification
                                                  differences:differences]];
             } else {
-                PLClangTranslationUnit *newTU = TranslationUnitForSDKFramework(index, newPath, newCompilerArguments, @"new");
+                PLClangTranslationUnit *newTU = TranslationUnitForSDKFramework(index, newPath, newCompilerArguments);
                 if (newTU == nil) {
                     continue;
                 }
 
-                NSArray<OCDifference *> *differences = [OCDAPIComparator differencesBetweenOldTranslationUnit:nil newTranslationUnit:newTU];
+                OCDAPISource *newSource = [OCDAPISource APISourceWithTranslationUnit:newTU containingPath:newPath includeSystemHeaders:YES];
+                NSArray<OCDifference *> *differences = [OCDAPIComparator differencesBetweenOldAPISource:nil newAPISource:newSource];
 
                 [modules addObject:[OCDModule moduleWithName:[frameworkName stringByDeletingPathExtension]
                                               differenceType:OCDifferenceTypeAddition
@@ -496,9 +471,6 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        temporaryDirectory = [NSTemporaryDirectory() stringByAppendingPathComponent:[[NSBundle mainBundle] bundleIdentifier]];
-        [[NSFileManager defaultManager] removeItemAtPath:temporaryDirectory error:nil];
-
         OCDSDK *defaultSDK = nil;
         OCDSDK *oldSDK = ContainingSDKForPath(oldPath);
         OCDSDK *newSDK = ContainingSDKForPath(newPath);
@@ -533,39 +505,40 @@ int main(int argc, char *argv[]) {
         } else {
             PLClangSourceIndex *index = [PLClangSourceIndex indexWithOptions:0];
 
-            PLClangTranslationUnit *oldTU;
+            OCDAPISource *oldSource;
             if (oldPath != nil) {
+
                 if (oldSDK != nil) {
-                    oldTU = TranslationUnitForSDKFramework(index, oldPath, oldCompilerArguments, @"old");
+                    PLClangTranslationUnit *oldTU = TranslationUnitForSDKFramework(index, oldPath, oldCompilerArguments);
+                    oldSource = [OCDAPISource APISourceWithTranslationUnit:oldTU containingPath:oldPath includeSystemHeaders:YES];
                 } else {
-                    oldTU = TranslationUnitForPath(index, oldPath, oldCompilerArguments, YES);
+                    PLClangTranslationUnit *oldTU = TranslationUnitForPath(index, oldPath, oldCompilerArguments, YES);
+                    oldSource = [OCDAPISource APISourceWithTranslationUnit:oldTU];
                 }
 
-                if (oldTU == nil) {
+                if (oldSource == nil) {
                     return 1;
                 }
             }
 
-            PLClangTranslationUnit *newTU;
+            OCDAPISource *newSource;
 
             if (newSDK != nil) {
-                newTU = TranslationUnitForSDKFramework(index, newPath, newCompilerArguments, @"new");
+                PLClangTranslationUnit *newTU = TranslationUnitForSDKFramework(index, newPath, newCompilerArguments);
+                newSource = [OCDAPISource APISourceWithTranslationUnit:newTU containingPath:newPath includeSystemHeaders:YES];
             } else {
-                newTU = TranslationUnitForPath(index, newPath, newCompilerArguments, YES);
+                PLClangTranslationUnit *newTU = TranslationUnitForPath(index, newPath, newCompilerArguments, YES);
+                newSource = [OCDAPISource APISourceWithTranslationUnit:newTU];
             }
 
-            if (newTU == nil) {
+            if (newSource == nil) {
                 return 1;
             }
 
             NSString *moduleName = [[newPath lastPathComponent] stringByDeletingPathExtension];
-            NSArray<OCDifference *> *moduleDifferences = [OCDAPIComparator differencesBetweenOldTranslationUnit:oldTU newTranslationUnit:newTU];
+            NSArray<OCDifference *> *moduleDifferences = [OCDAPIComparator differencesBetweenOldAPISource:oldSource newAPISource:newSource];
             OCDModule *module = [OCDModule moduleWithName:moduleName differenceType:OCDifferenceTypeModification differences:moduleDifferences];
             differences = [OCDAPIDifferences APIDifferencesWithModules:@[module]];
-        }
-
-        if (temporaryDirectory != nil) {
-            [[NSFileManager defaultManager] removeItemAtPath:temporaryDirectory error:nil];
         }
 
         if (reportTypes == 0) {
