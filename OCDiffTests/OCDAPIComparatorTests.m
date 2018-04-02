@@ -63,6 +63,16 @@ static NSString * const OCDTestPath = @"test.h";
     XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test()" modification:modification]);
 }
 
+- (void)testFunctionModificationConversionFromUnspecifiedParameters {
+    NSArray *differences = [self differencesBetweenOldSource:@"void Test();"
+                                                   newSource:@"void Test(void);"];
+
+    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeDeclaration
+                                                            previousValue:@"void Test()"
+                                                             currentValue:@"void Test(void)"];
+    XCTAssertEqualObjects(differences, [self modificationArrayWithName:@"Test()" modification:modification]);
+}
+
 /**
  * Tests that a change to the inline status of a function is not reported as an addition and removal.
  */

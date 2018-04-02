@@ -716,7 +716,10 @@
                     [decl appendString:@", ..."];
                 }
             } else {
-                [decl appendString:@"void"];
+                // TODO: Need a way to determine if the function has a prototype
+                if ([cursor.type.spelling rangeOfString:@"(void)"].location != NSNotFound) {
+                    [decl appendString:@"void"];
+                }
             }
 
             [decl appendString:@")"];
@@ -787,7 +790,10 @@
                     }
 
                 } else {
-                    [decl appendString:@"void"];
+                    // TODO: Need a way to determine if the function has a prototype
+                    if ([cursor.type.spelling rangeOfString:@"(void)"].location != NSNotFound) {
+                        [decl appendString:@"void"];
+                    }
                 }
 
                 [decl appendString:@")"];
