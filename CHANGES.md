@@ -8,6 +8,8 @@
   category has on the API.
 
   Categories on classes from other modules are still reported.
+* Fixed the display of a modification of a C function declaration from having unspecified parameters to
+  explicitly having no parameters.
 
 0.3.0 (2017-06-14)
 
