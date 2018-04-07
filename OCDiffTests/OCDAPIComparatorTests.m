@@ -190,6 +190,26 @@ static NSString * const OCDTestPath = @"test.h";
     XCTAssertEqualObjects(differences, expectedDifferences);
 }
 
+/*- (void)testModificationDeprecationViaMultiSamePlatformAvailabilityWithMessage {
+    NSArray *differences = [self differencesBetweenOldSource:@"void Test(void);"
+                                                   newSource:@"void Test(void) "
+                                                             @"__attribute__((availability(macos,introduced=10.0))) "
+                                                             @"__attribute__((availability(macos,deprecated=10.1,message=\"Test message\"))) "
+                                                             @"__attribute__((availability(ios,introduced=1.0))) "
+                                                             @"__attribute__((availability(ios,deprecated=2.0,message=\"Test message\")));"];
+
+    NSArray *modifications = @[
+        [OCDModification modificationWithType:OCDModificationTypeAvailability
+                               previousValue:@"Available"
+                                currentValue:@"Deprecated"],
+        [OCDModification modificationWithType:OCDModificationTypeDeprecationMessage
+                               previousValue:nil
+                                currentValue:@"Test message"]
+    ];
+    NSArray *expectedDifferences = @[[OCDifference modificationDifferenceWithName:@"Test()" path:OCDTestPath lineNumber:1 modifications:modifications]];
+    XCTAssertEqualObjects(differences, expectedDifferences);
+}*/
+
 - (void)testModificationInstanceMethodDeprecationViaCategory {
     NSArray *differences = [self differencesBetweenOldSource:@"@interface Test - (void)testMethod; @end @interface Test (NSDeprecated) @end"
                                                    newSource:@"@interface Test @end @interface Test (NSDeprecated) - (void)testMethod; @end"];
