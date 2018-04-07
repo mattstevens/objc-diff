@@ -292,8 +292,25 @@ static NSString *GeneratedTitleForPaths(NSString *oldPath, NSString *newPath) {
 }
 
 static NSString *GeneratedTitleForSDKs(OCDSDK *oldSDK, OCDSDK *newSDK) {
-    if (newSDK.platformDisplayName != nil && oldSDK.version != nil && newSDK.version != nil && [oldSDK.version isEqualToString:newSDK.version] == NO) {
-        return [NSString stringWithFormat:@"%@ %@ to %@ API Differences", newSDK.platformDisplayName, oldSDK.version, newSDK.version];
+    if (newSDK.platformDisplayName != nil && oldSDK.version != nil && newSDK.version != nil) {
+        NSString *platformName = newSDK.platformDisplayName;
+        NSString *oldVersion = oldSDK.version;
+        NSString *newVersion = newSDK.version;
+
+        if ([oldVersion isEqualToString:newVersion] && oldSDK.platformVersion != nil && newSDK.platformVersion != nil) {
+            oldVersion = oldSDK.platformVersion;
+            newVersion = newSDK.platformVersion;
+
+            if ([oldVersion isEqualToString:newVersion] && oldSDK.platformBuild != nil && newSDK.platformBuild != nil) {
+                platformName = [platformName stringByAppendingFormat:@" %@", newVersion];
+                oldVersion = oldSDK.platformBuild;
+                newVersion = newSDK.platformBuild;
+            }
+        }
+
+        if ([oldVersion isEqualToString:newVersion] == NO) {
+            return [NSString stringWithFormat:@"%@ %@ to %@ API Differences", platformName, oldVersion, newVersion];
+        }
     }
 
     return nil;
