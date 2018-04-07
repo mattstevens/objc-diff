@@ -80,6 +80,13 @@ static NSString * const ArchARM64 = @"arm64";
         }
     }
 
+    NSString *systemVersionPath = [path stringByAppendingPathComponent:@"System/Library/CoreServices/SystemVersion.plist"];
+    NSDictionary *systemVersion = [NSDictionary dictionaryWithContentsOfFile:systemVersionPath];
+    if (systemVersionPath != nil) {
+        _platformVersion = systemVersion[@"ProductVersion"];
+        _platformBuild = systemVersion[@"ProductBuildVersion"];
+    }
+
     return self;
 }
 

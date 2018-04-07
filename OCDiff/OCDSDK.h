@@ -17,6 +17,8 @@ typedef NS_ENUM(NSUInteger, OCDPlatform) {
 @property (nonatomic, readonly, copy) NSString *version;
 @property (nonatomic, readonly) OCDPlatform platform;
 @property (nonatomic, readonly) NSString *platformDisplayName;
+@property (nonatomic, readonly, copy) NSString *platformVersion;
+@property (nonatomic, readonly, copy) NSString *platformBuild;
 @property (nonatomic, readonly, copy) NSString *deploymentTarget;
 @property (nonatomic, readonly) NSString *deploymentTargetCompilerArgument;
 @property (nonatomic, readonly) NSString *deploymentTargetEnvironmentVariable;

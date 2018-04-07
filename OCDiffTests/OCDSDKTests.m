@@ -47,6 +47,22 @@
     XCTAssertNil(sdk.defaultArchitecture);
 }
 
+- (void)testMacOSWithSystemVersionPlist {
+    NSString *path = [_sdksDir stringByAppendingPathComponent:@"MacOSX10.13.sdk"];
+    OCDSDK *sdk = [[OCDSDK alloc] initWithPath:path];
+    XCTAssertEqualObjects(sdk.path, path);
+    XCTAssertEqualObjects(sdk.name, @"macOS 10.13");
+    XCTAssertEqualObjects(sdk.version, @"10.13");
+    XCTAssertEqualObjects(sdk.platformVersion, @"10.13.2");
+    XCTAssertEqualObjects(sdk.platformBuild, @"17C76");
+    XCTAssertEqual(sdk.platform, OCDPlatformMacOS);
+    XCTAssertEqualObjects(sdk.platformDisplayName, @"macOS");
+    XCTAssertEqualObjects(sdk.deploymentTarget, @"10.13");
+    XCTAssertEqualObjects(sdk.deploymentTargetCompilerArgument, @"-mmacosx-version-min");
+    XCTAssertEqualObjects(sdk.deploymentTargetEnvironmentVariable, @"MACOSX_DEPLOYMENT_TARGET");
+    XCTAssertNil(sdk.defaultArchitecture);
+}
+
 - (void)testMacOSOldFormat {
     NSString *path = [_sdksDir stringByAppendingPathComponent:@"MacOSX10.1.sdk"];
     OCDSDK *sdk = [[OCDSDK alloc] initWithPath:path];
