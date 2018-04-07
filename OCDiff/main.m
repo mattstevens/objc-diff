@@ -85,18 +85,7 @@ static NSSet *FrameworksAtPath(NSString *path) {
     return frameworkPaths;
 }
 
-/**
- * Returns a translation unit for the specified header paths.
- *
- * To represent the API in a single translation unit and to improve performance a virtual umbrella header is
- * generated importing all of the specified header paths. This way system headers like Foundation.h that
- * include many declarations are only iterated over once per API, instead of once per header.
- */
-static PLClangTranslationUnit *TranslationUnitForHeaderPaths(PLClangSourceIndex *index, NSString *baseDirectory, NSArray *paths, NSArray *compilerArguments, BOOL printErrors) {
-    NSMutableString *source = [[NSMutableString alloc] init];
-    for (NSString *path in paths) {
-        [source appendFormat:@"#import \"%@\"\n", path];
-    }
+static PLClangTranslationUnit *TranslationUnitForSource(PLClangSourceIndex *index, NSString *baseDirectory, NSString *source, NSArray *compilerArguments, BOOL printErrors) {
 
     NSString *combinedHeaderPath = [baseDirectory stringByAppendingPathComponent:@"_OCDAPI.h"];
     PLClangUnsavedFile *unsavedFile = [PLClangUnsavedFile unsavedFileWithPath:combinedHeaderPath
@@ -127,6 +116,22 @@ static PLClangTranslationUnit *TranslationUnitForHeaderPaths(PLClangSourceIndex 
     }
 
     return translationUnit;
+}
+
+/**
+ * Returns a translation unit for the specified header paths.
+ *
+ * To represent the API in a single translation unit and to improve performance a virtual umbrella header is
+ * generated importing all of the specified header paths. This way system headers like Foundation.h that
+ * include many declarations are only iterated over once per API, instead of once per header.
+ */
+static PLClangTranslationUnit *TranslationUnitForHeaderPaths(PLClangSourceIndex *index, NSString *baseDirectory, NSArray *paths, NSArray *compilerArguments, BOOL printErrors) {
+    NSMutableString *source = [[NSMutableString alloc] init];
+    for (NSString *path in paths) {
+        [source appendFormat:@"#import \"%@\"\n", path];
+    }
+
+    return TranslationUnitForSource(index, baseDirectory, source, compilerArguments, printErrors);
 }
 
 static PLClangTranslationUnit *TranslationUnitForPath(PLClangSourceIndex *index, NSString *path, NSArray *compilerArguments, BOOL printErrors) {
