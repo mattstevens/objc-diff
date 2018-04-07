@@ -175,18 +175,45 @@ static PLClangTranslationUnit *TranslationUnitForPath(PLClangSourceIndex *index,
 
 static PLClangTranslationUnit *TranslationUnitForSDKFramework(PLClangSourceIndex *index, NSString *path, NSArray *compilerArguments) {
     NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *frameworkName = [[path lastPathComponent] stringByDeletingPathExtension];
 
-    PLClangTranslationUnit *translationUnit = TranslationUnitForPath(index, path, compilerArguments, NO);
-    if (translationUnit == nil) {
+    path = [path ocd_absolutePath];
+    path = [path stringByAppendingPathComponent:@"Headers"];
+
+    if ([fileManager fileExistsAtPath:path] == NO) {
+        fprintf(stderr, "%s not found\n", [path UTF8String]);
+        return nil;
+    }
+
+    NSString *umbrellaHeader = [frameworkName stringByAppendingPathExtension:@"h"];
+    BOOL umbrellaHeaderExists = [fileManager fileExistsAtPath:[path stringByAppendingPathComponent:umbrellaHeader]];
+
+    NSDirectoryEnumerator *enumerator  = [fileManager enumeratorAtPath:path];
+
+    NSMutableString *source = [[NSMutableString alloc] init];
+
+    // If an umbrella header exists, include it first
+    if (umbrellaHeaderExists) {
+        [source appendFormat:@"#import <%@/%@>\n", frameworkName, umbrellaHeader];
+    }
+
+    for (NSString *file in enumerator) {
+        if ([[file pathExtension] isEqual:@"h"]) {
+            if (umbrellaHeaderExists && [file isEqualToString:umbrellaHeader]) {
+                continue;
+            }
+
+            [source appendFormat:@"#import <%@/%@>\n", frameworkName, file];
+        }
+    }
+
+    PLClangTranslationUnit *translationUnit = TranslationUnitForSource(index, path, source, compilerArguments, !umbrellaHeaderExists);
+    if (translationUnit == nil && umbrellaHeaderExists) {
         // Some SDK frameworks can only be parsed through their umbrella header.
         // If parsing all headers fails, retry through the umbrella header.
         // TODO: Look into using module definition to avoid this issue.
-        NSString *frameworkName = [path lastPathComponent];
-        NSString *umbrellaHeader = [@"Headers" stringByAppendingPathComponent:[[frameworkName stringByDeletingPathExtension] stringByAppendingPathExtension:@"h"]];
-        if ([fileManager fileExistsAtPath:[path stringByAppendingPathComponent:umbrellaHeader]]) {
-            path = [path stringByAppendingPathComponent:umbrellaHeader];
-            translationUnit = TranslationUnitForPath(index, path, compilerArguments, YES);
-        }
+        NSString *umbrellaSource = [NSString stringWithFormat:@"#import <%@/%@.h>\n", frameworkName, frameworkName];
+        translationUnit = TranslationUnitForSource(index, path, umbrellaSource, compilerArguments, YES);
     }
 
     return translationUnit;
