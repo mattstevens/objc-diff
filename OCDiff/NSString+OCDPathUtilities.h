@@ -16,4 +16,9 @@
  */
 - (NSString *)ocd_stringWithPathRelativeToDirectory:(NSString *)directory;
 
+/**
+ * Returns a Boolean value indicating whether the receiver contains a path to a framework.
+ */
+- (BOOL)ocd_isFrameworkPath;
+
 @end

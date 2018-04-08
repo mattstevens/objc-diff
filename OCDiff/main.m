@@ -45,13 +45,9 @@ static void PrintUsage(void) {
     [name UTF8String]);
 }
 
-static BOOL IsFrameworkAtPath(NSString *path) {
-    return [[path pathExtension] isEqualToString:@"framework"];
-}
-
 NSString *ContainingFrameworkForPath(NSString *path) {
     do {
-        if (IsFrameworkAtPath(path)) {
+        if ([path ocd_isFrameworkPath]) {
             return path;
         }
     } while ((path = [path stringByDeletingLastPathComponent]) && [path length] > 1);
@@ -66,7 +62,7 @@ static NSSet *FrameworksAtPath(NSString *path) {
     for (NSString *frameworkName in contents) {
         NSString *frameworkPath = [path stringByAppendingPathComponent:frameworkName];
         NSString *headersPath = [frameworkPath stringByAppendingPathComponent:@"Headers"];
-        if (IsFrameworkAtPath(frameworkPath) && [fileManager fileExistsAtPath:headersPath]) {
+        if ([frameworkPath ocd_isFrameworkPath] && [fileManager fileExistsAtPath:headersPath]) {
             [frameworkPaths addObject:frameworkName];
         }
     }
@@ -137,7 +133,7 @@ static PLClangTranslationUnit *TranslationUnitForPath(PLClangSourceIndex *index,
         // If the specified path is a framework, search its headers and automatically add its parent
         // directory to the framework search paths. This enables #import <FrameworkName/Header.h> to
         // be resolved without any additional configuration.
-        if (IsFrameworkAtPath(path)) {
+        if ([path ocd_isFrameworkPath]) {
             compilerArguments = [compilerArguments arrayByAddingObject:[@"-F" stringByAppendingString:[path stringByDeletingLastPathComponent]]];
             path = [path stringByAppendingPathComponent:@"Headers"];
             return TranslationUnitForPath(index, path, compilerArguments, printErrors);
@@ -290,7 +286,7 @@ static OCDAPIDifferences *DiffSDKs(NSString *oldSDKPath, NSArray *oldCompilerArg
 }
 
 static NSString *GeneratedTitleForPaths(NSString *oldPath, NSString *newPath) {
-    if (IsFrameworkAtPath(oldPath) && IsFrameworkAtPath(newPath)) {
+    if ([oldPath ocd_isFrameworkPath] && [newPath ocd_isFrameworkPath]) {
         // Attempt to obtain API name and version information from the framework's Info.plist
         NSDictionary *oldInfo = [NSDictionary dictionaryWithContentsOfFile:[oldPath stringByAppendingPathComponent:@"Resources/Info.plist"]];
         NSDictionary *newInfo = [NSDictionary dictionaryWithContentsOfFile:[newPath stringByAppendingPathComponent:@"Resources/Info.plist"]];

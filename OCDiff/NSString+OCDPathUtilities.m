@@ -40,4 +40,8 @@
     return [NSString pathWithComponents:pathComponents];
 }
 
+- (BOOL)ocd_isFrameworkPath {
+    return [[self pathExtension] isEqualToString:@"framework"];
+}
+
 @end
