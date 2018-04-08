@@ -14,6 +14,9 @@
 		C91B953D1951CE9700290AC0 /* README.md in Copy Resources */ = {isa = PBXBuildFile; fileRef = C91B951A1951CAE800290AC0 /* README.md */; };
 		C91DE3821EFF3DF60055507A /* PLClangCursor+OCDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = C91DE3811EFF3DF60055507A /* PLClangCursor+OCDExtensions.m */; };
 		C94DABD51EEDA39500647160 /* OCDModule.m in Sources */ = {isa = PBXBuildFile; fileRef = C94DABD41EEDA39500647160 /* OCDModule.m */; };
+		C9534622207A7ED1008C0A7E /* OCDTitleGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = C9534620207A7ED1008C0A7E /* OCDTitleGenerator.m */; };
+		C9534623207A7ED1008C0A7E /* OCDTitleGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = C9534620207A7ED1008C0A7E /* OCDTitleGenerator.m */; };
+		C9534625207A86A4008C0A7E /* OCDTitleGeneratorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C9534624207A86A4008C0A7E /* OCDTitleGeneratorTests.m */; };
 		C9577E9B193ADEA800FCAC57 /* NSString+OCDPathUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = C9577E9A193ADEA800FCAC57 /* NSString+OCDPathUtilities.m */; };
 		C9577E9C193AE25500FCAC57 /* NSString+OCDPathUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = C9577E9A193ADEA800FCAC57 /* NSString+OCDPathUtilities.m */; };
 		C9586DE01EFF61C4001570AA /* PLClangCursor+OCDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = C91DE3811EFF3DF60055507A /* PLClangCursor+OCDExtensions.m */; };
@@ -89,6 +92,9 @@
 		C934DFD0193A2E990073B1B6 /* OCDReportGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCDReportGenerator.h; sourceTree = "<group>"; };
 		C94DABD31EEDA39500647160 /* OCDModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCDModule.h; sourceTree = "<group>"; };
 		C94DABD41EEDA39500647160 /* OCDModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCDModule.m; sourceTree = "<group>"; };
+		C9534620207A7ED1008C0A7E /* OCDTitleGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCDTitleGenerator.m; sourceTree = "<group>"; };
+		C9534621207A7ED1008C0A7E /* OCDTitleGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCDTitleGenerator.h; sourceTree = "<group>"; };
+		C9534624207A86A4008C0A7E /* OCDTitleGeneratorTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCDTitleGeneratorTests.m; sourceTree = "<group>"; };
 		C9577E99193ADEA800FCAC57 /* NSString+OCDPathUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+OCDPathUtilities.h"; sourceTree = "<group>"; };
 		C9577E9A193ADEA800FCAC57 /* NSString+OCDPathUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+OCDPathUtilities.m"; sourceTree = "<group>"; };
 		C96194B41928E57700BDBD7C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -214,6 +220,8 @@
 				C9A9607A1EEF3CB6003B234D /* OCDSDK.m */,
 				C9E1BA71193402F500680085 /* OCDTextReportGenerator.h */,
 				C9E1BA72193402F500680085 /* OCDTextReportGenerator.m */,
+				C9534621207A7ED1008C0A7E /* OCDTitleGenerator.h */,
+				C9534620207A7ED1008C0A7E /* OCDTitleGenerator.m */,
 				C9E1BA74193405DA00680085 /* OCDXMLReportGenerator.h */,
 				C9E1BA75193405DA00680085 /* OCDXMLReportGenerator.m */,
 				C91DE3801EFF3DF60055507A /* PLClangCursor+OCDExtensions.h */,
@@ -228,6 +236,7 @@
 			children = (
 				C96194E419291D0C00BDBD7C /* OCDAPIComparatorTests.m */,
 				C9A9607C1EEF3CC7003B234D /* OCDSDKTests.m */,
+				C9534624207A86A4008C0A7E /* OCDTitleGeneratorTests.m */,
 				C96194DF19291D0C00BDBD7C /* Supporting Files */,
 			);
 			path = OCDiffTests;
@@ -363,6 +372,7 @@
 				C96F3C151EEDB20A00561C60 /* OCDAPIDifferences.m in Sources */,
 				C91DE3821EFF3DF60055507A /* PLClangCursor+OCDExtensions.m in Sources */,
 				C9E1BA73193402F500680085 /* OCDTextReportGenerator.m in Sources */,
+				C9534622207A7ED1008C0A7E /* OCDTitleGenerator.m in Sources */,
 				C96194C81928E6AE00BDBD7C /* main.m in Sources */,
 				C96194EE19293B1600BDBD7C /* OCDAPIComparator.m in Sources */,
 			);
@@ -373,6 +383,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C9586DE01EFF61C4001570AA /* PLClangCursor+OCDExtensions.m in Sources */,
+				C9534625207A86A4008C0A7E /* OCDTitleGeneratorTests.m in Sources */,
 				C9577E9C193AE25500FCAC57 /* NSString+OCDPathUtilities.m in Sources */,
 				C90B25681EEF3D1F00A13A41 /* OCDSDK.m in Sources */,
 				C9A9607D1EEF3CC7003B234D /* OCDSDKTests.m in Sources */,
@@ -380,6 +391,7 @@
 				C96195361929485B00BDBD7C /* OCDifference.m in Sources */,
 				C907F0871F0EE213004A1B9D /* OCDAPISource.m in Sources */,
 				C96194E519291D0C00BDBD7C /* OCDAPIComparatorTests.m in Sources */,
+				C9534623207A7ED1008C0A7E /* OCDTitleGenerator.m in Sources */,
 				C9619532192945E000BDBD7C /* OCDAPIComparator.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

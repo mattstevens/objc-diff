@@ -9,6 +9,7 @@
 #import "OCDSDK.h"
 #import "OCDHTMLReportGenerator.h"
 #import "OCDTextReportGenerator.h"
+#import "OCDTitleGenerator.h"
 #import "OCDXMLReportGenerator.h"
 
 enum OCDReportTypes {
@@ -285,54 +286,6 @@ static OCDAPIDifferences *DiffSDKs(NSString *oldSDKPath, NSArray *oldCompilerArg
     return [OCDAPIDifferences APIDifferencesWithModules:modules];
 }
 
-static NSString *GeneratedTitleForPaths(NSString *oldPath, NSString *newPath) {
-    if ([oldPath ocd_isFrameworkPath] && [newPath ocd_isFrameworkPath]) {
-        // Attempt to obtain API name and version information from the framework's Info.plist
-        NSDictionary *oldInfo = [NSDictionary dictionaryWithContentsOfFile:[oldPath stringByAppendingPathComponent:@"Resources/Info.plist"]];
-        NSDictionary *newInfo = [NSDictionary dictionaryWithContentsOfFile:[newPath stringByAppendingPathComponent:@"Resources/Info.plist"]];
-        if (oldInfo != nil && newInfo != nil) {
-            NSString *bundleName = newInfo[@"CFBundleName"];
-            NSString *oldVersion = oldInfo[@"CFBundleShortVersionString"];
-            NSString *newVersion = newInfo[@"CFBundleShortVersionString"];
-            if (oldVersion == nil || newVersion == nil) {
-                oldVersion = oldInfo[@"CFBundleVersion"];
-                newVersion = newInfo[@"CFBundleVersion"];
-            }
-
-            if (bundleName != nil && oldVersion != nil && newVersion != nil && [oldVersion isEqualToString:newVersion] == NO) {
-                return [NSString stringWithFormat:@"%@ %@ to %@ API Differences", bundleName, oldVersion, newVersion];
-            }
-        }
-    }
-
-    return nil;
-}
-
-static NSString *GeneratedTitleForSDKs(OCDSDK *oldSDK, OCDSDK *newSDK) {
-    if (newSDK.platformDisplayName != nil && oldSDK.version != nil && newSDK.version != nil) {
-        NSString *platformName = newSDK.platformDisplayName;
-        NSString *oldVersion = oldSDK.version;
-        NSString *newVersion = newSDK.version;
-
-        if ([oldVersion isEqualToString:newVersion] && oldSDK.platformVersion != nil && newSDK.platformVersion != nil) {
-            oldVersion = oldSDK.platformVersion;
-            newVersion = newSDK.platformVersion;
-
-            if ([oldVersion isEqualToString:newVersion] && oldSDK.platformBuild != nil && newSDK.platformBuild != nil) {
-                platformName = [platformName stringByAppendingFormat:@" %@", newVersion];
-                oldVersion = oldSDK.platformBuild;
-                newVersion = newSDK.platformBuild;
-            }
-        }
-
-        if ([oldVersion isEqualToString:newVersion] == NO) {
-            return [NSString stringWithFormat:@"%@ %@ to %@ API Differences", platformName, oldVersion, newVersion];
-        }
-    }
-
-    return nil;
-}
-
 static BOOL ArrayContainsStringWithPrefix(NSArray *array, NSString *prefix) {
     for (NSString *string in array) {
         if ([string hasPrefix:prefix]) {
@@ -498,7 +451,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (title == nil) {
-            title = GeneratedTitleForPaths(oldPath, newPath);
+            title = [OCDTitleGenerator reportTitleForOldPath:oldPath newPath:newPath];
         }
 
         if (sdkName == nil) {
@@ -536,10 +489,6 @@ int main(int argc, char *argv[]) {
         OCDAPIDifferences *differences;
 
         if (oldPathIsSDK) {
-            if (title == nil) {
-                title = GeneratedTitleForSDKs(oldSDK, newSDK);
-            }
-
             differences = DiffSDKs(oldPath, oldCompilerArguments, newPath, newCompilerArguments);
         } else {
             PLClangSourceIndex *index = [PLClangSourceIndex indexWithOptions:0];
