@@ -99,6 +99,17 @@ static NSString * const ArchARM64 = @"arm64";
     }
 }
 
++ (instancetype)containingSDKForPath:(NSString *)path {
+    do {
+        OCDSDK *sdk = [[self alloc] initWithPath:path];
+        if (sdk != nil) {
+            return sdk;
+        }
+    } while ((path = [path stringByDeletingLastPathComponent]) && [path length] > 1);
+
+    return nil;
+}
+
 - (NSString *)platformDisplayName {
     switch (self.platform) {
         case OCDPlatformIOS:

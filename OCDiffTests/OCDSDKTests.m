@@ -33,6 +33,24 @@
     XCTAssertEqualObjects(sdk.path, path);
 }
 
+- (void)testContainingSDKForPath {
+    NSString *path = [_sdksDir stringByAppendingPathComponent:@"MacOSX10.13.sdk"];
+    OCDSDK *sdk = [OCDSDK containingSDKForPath:path];
+    XCTAssertNotNil(sdk);
+    XCTAssertEqualObjects(sdk.path, path);
+
+    NSString *innerPath = [path stringByAppendingPathComponent:@"System/Library/CoreServices"];
+    sdk = [OCDSDK containingSDKForPath:innerPath];
+    XCTAssertNotNil(sdk);
+    XCTAssertEqualObjects(sdk.path, path);
+
+    sdk = [OCDSDK containingSDKForPath:nil];
+    XCTAssertNil(sdk);
+
+    sdk = [OCDSDK containingSDKForPath:@"/"];
+    XCTAssertNil(sdk);
+}
+
 - (void)testMacOS {
     NSString *path = [_sdksDir stringByAppendingPathComponent:@"MacOSX10.9.sdk"];
     OCDSDK *sdk = [[OCDSDK alloc] initWithPath:path];

@@ -12,6 +12,11 @@ typedef NS_ENUM(NSUInteger, OCDPlatform) {
 - (instancetype)initWithPath:(NSString *)path;
 + (instancetype)SDKForName:(NSString *)sdkName;
 
+/**
+ * Returns the SDK that the specified path resides within, if any.
+ */
++ (instancetype)containingSDKForPath:(NSString *)path;
+
 @property (nonatomic, readonly, copy) NSString *path;
 @property (nonatomic, readonly, copy) NSString *name;
 @property (nonatomic, readonly, copy) NSString *version;

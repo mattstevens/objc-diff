@@ -59,17 +59,6 @@ NSString *ContainingFrameworkForPath(NSString *path) {
     return nil;
 }
 
-static OCDSDK *ContainingSDKForPath(NSString *path) {
-    do {
-        OCDSDK *sdk = [[OCDSDK alloc] initWithPath:path];
-        if (sdk != nil) {
-            return sdk;
-        }
-    } while ((path = [path stringByDeletingLastPathComponent]) && [path length] > 1);
-
-    return nil;
-}
-
 static NSSet *FrameworksAtPath(NSString *path) {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSMutableSet *frameworkPaths = [NSMutableSet set];
@@ -526,8 +515,8 @@ int main(int argc, char *argv[]) {
         }
 
         OCDSDK *defaultSDK = nil;
-        OCDSDK *oldSDK = ContainingSDKForPath(oldPath);
-        OCDSDK *newSDK = ContainingSDKForPath(newPath);
+        OCDSDK *oldSDK = [OCDSDK containingSDKForPath:oldPath];
+        OCDSDK *newSDK = [OCDSDK containingSDKForPath:newPath];
 
         BOOL oldPathIsSDK = [oldSDK.path isEqualToString:oldPath];
         BOOL newPathIsSDK = [newSDK.path isEqualToString:newPath];
