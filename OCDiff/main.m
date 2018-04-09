@@ -301,7 +301,7 @@ static BOOL ArrayContainsStringWithPrefix(NSArray *array, NSString *prefix) {
 
 static void ApplySDKToCompilerArguments(OCDSDK *sdk, NSMutableArray *compilerArguments) {
     if ([compilerArguments containsObject:@"-isysroot"] == NO) {
-        [compilerArguments addObjectsFromArray:@[@"-isysroot", sdk.path]];
+        [compilerArguments addObjectsFromArray:@[@"-isysroot", [sdk.path stringByStandardizingPath]]];
     }
 
     if (ArrayContainsStringWithPrefix(compilerArguments, sdk.deploymentTargetCompilerArgument) == NO) {
