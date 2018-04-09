@@ -1515,6 +1515,18 @@ static NSString * const OCDTestPath = @"test.h";
 }
 
 /**
+ * Tests that a declaration for a function that is included in Clang's builtin
+ * function database is included.
+ *
+ * A Clang issue previously caused these to be excluded.
+ */
+- (void)testFunctionBuiltin {
+    [self testAddRemoveForName:@"objc_msgSend()"
+                          base:@""
+                      addition:@"id objc_msgSend(id self, SEL op, ...);"];
+}
+
+/**
  * Tests that macros defined via compiler arguments are ignored.
  */
 - (void)testArgumentDefinedMacroExcluded {

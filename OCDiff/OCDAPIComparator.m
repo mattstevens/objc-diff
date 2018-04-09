@@ -217,7 +217,19 @@
         case PLClangCursorKindObjCProtocolDeclaration:
             return YES;
         default:
-            return [cursor.canonicalCursor isEqual:cursor];
+        {
+            BOOL isCanonical = [cursor.canonicalCursor isEqual:cursor];
+            if (isCanonical == NO && cursor.kind == PLClangCursorKindFunctionDeclaration) {
+                // TODO: Clang has an issue with declarations for functions that exist in its builtin function database
+                // (e.g., NSLog, objc_msgSend). The canonical cursor for these functions has an identical source
+                // location as the declaration in the file we're parsing, but an extent that covers only the function's
+                // name, so libclang does not consider them equal. See if this can be fixed in Clang so we don't need a
+                // hack here to include them.
+                isCanonical = [cursor.location isEqual:cursor.canonicalCursor.location];
+            }
+
+            return isCanonical;
+        }
     }
 }
 
