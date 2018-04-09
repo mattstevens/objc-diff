@@ -164,7 +164,10 @@ static PLClangTranslationUnit *TranslationUnitForSDKFramework(PLClangSourceIndex
     NSString *frameworkName = [[path lastPathComponent] stringByDeletingPathExtension];
 
     path = [path ocd_absolutePath];
-    path = [path stringByAppendingPathComponent:@"Headers"];
+
+    if ([path ocd_isFrameworkPath]) {
+        path = [path stringByAppendingPathComponent:@"Headers"];
+    }
 
     if ([fileManager fileExistsAtPath:path] == NO) {
         fprintf(stderr, "%s not found\n", [path UTF8String]);
