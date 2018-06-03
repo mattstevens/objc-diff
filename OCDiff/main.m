@@ -56,19 +56,38 @@ NSString *ContainingFrameworkForPath(NSString *path) {
     return nil;
 }
 
-static NSSet *FrameworksAtPath(NSString *path) {
+static NSDictionary<NSString *, NSString *> *FrameworksForSDKAtPath(NSString *sdkPath) {
+    NSMutableDictionary<NSString *, NSString *> *frameworks = [NSMutableDictionary dictionary];
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSMutableSet *frameworkPaths = [NSMutableSet set];
-    NSArray *contents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path error:nil];
+
+    NSString *frameworksPath = [sdkPath stringByAppendingPathComponent:@"System/Library/Frameworks"];
+    NSArray *contents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:frameworksPath error:nil];
     for (NSString *frameworkName in contents) {
-        NSString *frameworkPath = [path stringByAppendingPathComponent:frameworkName];
+        NSString *frameworkPath = [frameworksPath stringByAppendingPathComponent:frameworkName];
         NSString *headersPath = [frameworkPath stringByAppendingPathComponent:@"Headers"];
         if ([frameworkPath ocd_isFrameworkPath] && [fileManager fileExistsAtPath:headersPath]) {
-            [frameworkPaths addObject:frameworkName];
+            frameworks[frameworkName] = frameworkPath;
         }
     }
 
-    return frameworkPaths;
+    NSString *includePath = [sdkPath stringByAppendingPathComponent:@"usr/include"];
+    NSDictionary<NSString *, NSString *> *supportedModules = @{
+        @"CommonCrypto": @"CommonCrypto",
+        @"dispatch": @"Dispatch",
+        @"objc": @"Objective-C",
+        @"os": @"os",
+        @"xpc": @"XPC"
+    };
+
+    for (NSString *directoryName in supportedModules) {
+        NSString *path = [includePath stringByAppendingPathComponent:directoryName];
+        if ([fileManager fileExistsAtPath:path]) {
+            NSString *displayName = supportedModules[directoryName];
+            frameworks[displayName] = path;
+        }
+    }
+
+    return frameworks;
 }
 
 static PLClangTranslationUnit *TranslationUnitForSource(PLClangSourceIndex *index, NSString *baseDirectory, NSString *source, NSArray *compilerArguments, BOOL printErrors) {
@@ -209,12 +228,9 @@ static PLClangTranslationUnit *TranslationUnitForSDKFramework(PLClangSourceIndex
 }
 
 static OCDAPIDifferences *DiffSDKs(NSString *oldSDKPath, NSArray *oldCompilerArguments, NSString *newSDKPath, NSArray *newCompilerArguments) {
-    oldSDKPath = [oldSDKPath stringByAppendingPathComponent:@"System/Library/Frameworks"];
-    newSDKPath = [newSDKPath stringByAppendingPathComponent:@"System/Library/Frameworks"];
-
     NSMutableArray *modules = [NSMutableArray array];
-    NSSet *oldFrameworks = FrameworksAtPath(oldSDKPath);
-    NSSet *newFrameworks = FrameworksAtPath(newSDKPath);
+    NSDictionary<NSString *, NSString *> *oldFrameworks = FrameworksForSDKAtPath(oldSDKPath);
+    NSDictionary<NSString *, NSString *> *newFrameworks = FrameworksForSDKAtPath(newSDKPath);
 
     // The following frameworks cannot currently be parsed.
     NSArray *unsupportedFrameworks = @[
@@ -226,7 +242,7 @@ static OCDAPIDifferences *DiffSDKs(NSString *oldSDKPath, NSArray *oldCompilerArg
     PLClangSourceIndex *index = [PLClangSourceIndex indexWithOptions:0];
 
     for (NSString *frameworkName in oldFrameworks) {
-        if ([newFrameworks containsObject:frameworkName] == NO) {
+        if (newFrameworks[frameworkName] == nil) {
             [modules addObject:[OCDModule moduleWithName:[frameworkName stringByDeletingPathExtension]
                                           differenceType:OCDifferenceTypeRemoval
                                              differences:nil]];
@@ -234,7 +250,7 @@ static OCDAPIDifferences *DiffSDKs(NSString *oldSDKPath, NSArray *oldCompilerArg
     }
 
     NSSortDescriptor *nameSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"self" ascending:YES selector:@selector(localizedStandardCompare:)];
-    NSArray *orderedNewFrameworks = [newFrameworks sortedArrayUsingDescriptors:@[nameSortDescriptor]];
+    NSArray *orderedNewFrameworks = [newFrameworks.allKeys sortedArrayUsingDescriptors:@[nameSortDescriptor]];
 
     for (NSString *frameworkName in orderedNewFrameworks) {
         @autoreleasepool {
@@ -245,10 +261,10 @@ static OCDAPIDifferences *DiffSDKs(NSString *oldSDKPath, NSArray *oldCompilerArg
 
             printf("Comparing %s\n", frameworkName.UTF8String);
 
-            NSString *oldPath = [oldSDKPath stringByAppendingPathComponent:frameworkName];
-            NSString *newPath = [newSDKPath stringByAppendingPathComponent:frameworkName];
+            NSString *oldPath = oldFrameworks[frameworkName];
+            NSString *newPath = newFrameworks[frameworkName];
 
-            if ([oldFrameworks containsObject:frameworkName]) {
+            if (oldPath != nil) {
                 PLClangTranslationUnit *oldTU = TranslationUnitForSDKFramework(index, oldPath, oldCompilerArguments);
                 if (oldTU == nil) {
                     continue;
