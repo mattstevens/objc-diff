@@ -23,7 +23,7 @@ LLVM (via ObjectDoc)
       LLVM and Clang sources.
 
     Version:
-      4.0 downloaded from http://llvm.org/releases/download.html
+      5.0 downloaded from http://llvm.org/releases/download.html
 
     License:
       University of Illinois/NCSA Open Source License
