@@ -10,6 +10,8 @@
   Categories on classes from other modules are still reported.
 * Fixed the display of a modification of a C function declaration from having unspecified parameters to
   explicitly having no parameters.
+* Updated automatic title generation to handle platform SDKs that differ only by dot release or build.
+* Added support for a few /usr/include modules when comparing platform SDKs.
 
 0.3.0 (2017-06-14)
 
