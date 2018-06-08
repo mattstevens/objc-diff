@@ -324,6 +324,7 @@ static void ApplySDKToCompilerArguments(OCDSDK *sdk, NSMutableArray *compilerArg
         const char *environmentDeploymentTarget = getenv([sdk.deploymentTargetEnvironmentVariable UTF8String]);
         NSString *deploymentTarget = environmentDeploymentTarget ? @(environmentDeploymentTarget) : sdk.deploymentTarget;
         [compilerArguments addObject:[NSString stringWithFormat:@"%@=%@", sdk.deploymentTargetCompilerArgument, deploymentTarget]];
+        [compilerArguments addObject:[NSString stringWithFormat:@"-DAPI_TO_BE_DEPRECATED=%@", deploymentTarget]];
     }
 
     if (sdk.defaultArchitecture != nil && [compilerArguments containsObject:@"-arch"] == NO) {
