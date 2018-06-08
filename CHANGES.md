@@ -1,4 +1,4 @@
-0.4.0
+0.4.0 (2018-06-08)
 
 * Fixed class extensions being excluded
 * Changed the way categories are handled. Categories and class extensions for classes within the same module
