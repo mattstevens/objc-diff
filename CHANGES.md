@@ -8,10 +8,13 @@
   category has on the API.
 
   Categories on classes from other modules are still reported.
+* Removed reporting of header file relocations. These added a fair amount of noise to reports without much
+  value.
 * Fixed the display of a modification of a C function declaration from having unspecified parameters to
   explicitly having no parameters.
 * Updated automatic title generation to handle platform SDKs that differ only by dot release or build.
 * Added support for a few /usr/include modules when comparing platform SDKs.
+* Added support for soft deprecations via API\_TO\_BE\_DEPRECATED.
 
 0.3.0 (2017-06-14)
 
