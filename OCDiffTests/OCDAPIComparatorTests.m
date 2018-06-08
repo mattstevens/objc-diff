@@ -1348,62 +1348,6 @@ static NSString * const OCDTestPath = @"test.h";
 }
 
 /**
- * Tests that a declaration moved between headers is reported as a movement for both the old location and the new one.
- */
-- (void)testFunctionHeaderRelocation {
-    [self testHeaderRelocationForName:@"Test()" source:@"void Test(void);"];
-}
-
-- (void)testStaticInlineFunctionHeaderRelocation {
-    [self testHeaderRelocationForName:@"Test()" source:@"static __inline__ __attribute__((always_inline)) void Test(void) {}"];
-}
-
-- (void)testEnumHeaderRelocation {
-    [self testHeaderRelocationForName:@"TEST" source:@"enum { TEST };"];
-}
-
-- (void)testMacroHeaderRelocation {
-    [self testHeaderRelocationForName:@"#def TEST" source:@"#define TEST 1"];
-}
-
-/**
- * Tests that movement of a class to a new header is reported only as movement of the class and not all of its contained declarations.
- */
-- (void)testClassHeaderRelocation {
-    [self testHeaderRelocationForName:@"Test" source:@"@interface Test - (void)testMethod; @end"];
-}
-
-/**
- * Tests that movement of a protocol to a new header is reported only as movement of the protocol and not all of its contained declarations.
- */
-- (void)testProtocolMovedToDifferentHeader {
-    [self testHeaderRelocationForName:@"Test" source:@"@protocol Test - (void)testMethod; @end"];
-}
-
-/**
- * Tests that movement of a category to a new header is reported only as movement of the category and not all of its contained declarations.
- */
-- (void)testCategoryMovedToDifferentHeader {
-    NSString *baseSource = @"@interface Base @end\n";
-    PLClangUnsavedFile *baseFile = [PLClangUnsavedFile unsavedFileWithPath:@"/system/Base.h" data:[baseSource dataUsingEncoding:NSUTF8StringEncoding]];
-
-    NSArray *differences = [self differencesBetweenOldPath:@"old.h"
-                                                 oldSource:@"#import <Base.h>\n@interface Base (Test) -(void)testMethod; @end"
-                                                   newPath:@"new.h"
-                                                 newSource:@"#import <Base.h>\n@interface Base (Test) -(void)testMethod; @end"
-                                           additionalFiles:@[baseFile]
-                                       additionalArguments:@[@"-isystem", @"/system"]];
-
-    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeHeader previousValue:@"old.h" currentValue:@"new.h"];
-
-    NSArray *expectedDifferences = @[
-        [OCDifference modificationDifferenceWithName:@"Base (Test)" path:@"new.h" lineNumber:2 modifications:@[modification]],
-        [OCDifference modificationDifferenceWithName:@"Base (Test)" path:@"old.h" lineNumber:2 modifications:@[modification]]
-    ];
-    XCTAssertEqualObjects(differences, expectedDifferences);
-}
-
-/**
  * Tests that a class and its children are recognized if a forward declaration of the class preceeds the declaration.
  */
 - (void)testClassForwardDeclaration {
@@ -1571,21 +1515,6 @@ static NSString * const OCDTestPath = @"test.h";
     // Unchanged, different line number
     differences = [self differencesBetweenOldSource:addition newSource:[@"\n" stringByAppendingString:addition] additionalFiles:additionalFiles additionalArguments:additionalArguments];
     XCTAssertEqualObjects(differences, @[], @"Move to different line number test failed for %@", name);
-}
-
-- (void)testHeaderRelocationForName:(NSString *)name source:(NSString *)source {
-    NSArray *differences = [self differencesBetweenOldPath:@"old.h"
-                                                 oldSource:source
-                                                   newPath:@"new.h"
-                                                 newSource:source];
-
-    OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeHeader previousValue:@"old.h" currentValue:@"new.h"];
-
-    NSArray *expectedDifferences = @[
-        [OCDifference modificationDifferenceWithName:name path:@"new.h" lineNumber:1 modifications:@[modification]],
-        [OCDifference modificationDifferenceWithName:name path:@"old.h" lineNumber:1 modifications:@[modification]]
-    ];
-    XCTAssertEqualObjects(differences, expectedDifferences);
 }
 
 - (NSArray *)additionArrayWithName:(NSString *)name {

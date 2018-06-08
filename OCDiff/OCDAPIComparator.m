@@ -320,23 +320,11 @@
 
 - (NSArray *)differencesBetweenOldCursor:(PLClangCursor *)oldCursor newCursor:(PLClangCursor *)newCursor {
     NSMutableArray *modifications = [NSMutableArray array];
-    BOOL reportDifferenceForOldLocation = NO;
     NSString *newUSR = newCursor.USR;
 
     // Ignore changes to implicit declarations like synthesized property accessors
     if (oldCursor.isImplicit && newCursor.isImplicit)
         return nil;
-
-    NSString *oldRelativePath = [oldCursor.location.path ocd_stringWithPathRelativeToDirectory:_oldBaseDirectory];
-    NSString *newRelativePath = [newCursor.location.path ocd_stringWithPathRelativeToDirectory:_newBaseDirectory];
-    if (oldRelativePath != newRelativePath && [oldRelativePath isEqual:newRelativePath] == NO && [self shouldReportHeaderChangeForCursor:oldCursor]) {
-        OCDModification *modification = [OCDModification modificationWithType:OCDModificationTypeHeader
-                                                                previousValue:oldRelativePath
-                                                                 currentValue:newRelativePath];
-        [modifications addObject:modification];
-
-        reportDifferenceForOldLocation = YES;
-    }
 
     if (oldCursor.isImplicit != newCursor.isImplicit) {
         // Report conversions between properties and explicit accessor methods as modifications to the declaration
@@ -454,16 +442,6 @@
     if ([modifications count] > 0) {
         NSMutableArray *differences = [NSMutableArray array];
         OCDifference *difference;
-
-        if (reportDifferenceForOldLocation) {
-            NSString *relativePath = [oldCursor.location.path ocd_stringWithPathRelativeToDirectory:_oldBaseDirectory];
-            difference = [OCDifference modificationDifferenceWithName:[self displayNameForCursor:oldCursor]
-                                                                 path:relativePath
-                                                           lineNumber:oldCursor.location.lineNumber
-                                                                  USR:oldCursor.USR
-                                                        modifications:modifications];
-            [differences addObject:difference];
-        }
 
         NSString *relativePath = [newCursor.location.path ocd_stringWithPathRelativeToDirectory:_newBaseDirectory];
         difference = [OCDifference modificationDifferenceWithName:[self displayNameForCursor:oldCursor]
@@ -606,26 +584,6 @@
     }
 
     return NO;
-}
-
-
-/**
- * Returns a Boolean value indicating whether a header change should be reported for the specified cursor.
- *
- * If the cursor's parent is a container type such as an Objective-C class or protocol it is unnecessary to
- * report a separate relocation difference for each of its children. Relocation of the children is implied by
- * the relocation of the parent.
- */
-- (BOOL)shouldReportHeaderChangeForCursor:(PLClangCursor *)cursor {
-    switch (cursor.semanticParent.kind) {
-        case PLClangCursorKindObjCInterfaceDeclaration:
-        case PLClangCursorKindObjCCategoryDeclaration:
-        case PLClangCursorKindObjCProtocolDeclaration:
-        case PLClangCursorKindStructDeclaration:
-            return NO;
-        default:
-            return YES;
-    }
 }
 
 /**
